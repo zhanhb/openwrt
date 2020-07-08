@@ -1,30 +1,28 @@
 #!/bin/sh
 
-awk -f - $* <<EOF
+awk -f - -- $* <<EOF
 function bitcount(c) {
-	c=and(rshift(c, 1),0x55555555)+and(c,0x55555555)
-	c=and(rshift(c, 2),0x33333333)+and(c,0x33333333)
-	c=and(rshift(c, 4),0x0f0f0f0f)+and(c,0x0f0f0f0f)
-	c=and(rshift(c, 8),0x00ff00ff)+and(c,0x00ff00ff)
-	c=and(rshift(c,16),0x0000ffff)+and(c,0x0000ffff)
-	return c
+	c = and(rshift(c, 1), 0x55555555) + and(c, 0x55555555)
+	c = and(rshift(c, 2), 0x33333333) + and(c, 0x33333333)
+	c = and(rshift(c, 4) + c, 0x0f0f0f0f)
+	c = rshift(c, 8) + c
+	return and(rshift(c, 16) + c, 0x3f)
 }
 
-function ip2int(ip) {
-	for (ret=0,n=split(ip,a,"\."),x=1;x<=n;x++) ret=or(lshift(ret,8),a[x])
+function ip2int(ip,    ret,n,a,x) {
+	ret = 0
+	n = split(ip, a, ".")
+	for (x = 1; x <= n; x++) ret = or(lshift(ret, 8), a[x])
 	return ret
 }
 
-function int2ip(ip,ret,x) {
-	ret=and(ip,255)
-	ip=rshift(ip,8)
-	for(;x<3;ret=and(ip,255)"."ret,ip=rshift(ip,8),x++);
+function int2ip(ip,    ret,x) {
+	for (ret = and(ip, 255); x < 3; x++) ret = and(255, ip = rshift(ip, 8)) "." ret
 	return ret
 }
 
 function compl32(v) {
-	ret=xor(v, 0xffffffff)
-	return ret
+	return xor(v, 0xffffffff)
 }
 
 BEGIN {
@@ -37,10 +35,11 @@ BEGIN {
 		else
 			netmask=ip2int(ARGV[2])
 	} else {
-		ipaddr=ip2int(substr(ARGV[1],0,slpos-1))
+		ipaddr=ip2int(substr(ARGV[1],1,slpos-1))
 		netmask=compl32(2**(32-int(substr(ARGV[1],slpos+1)))-1)
 		ARGV[4]=ARGV[3]
 		ARGV[3]=ARGV[2]
+		++ARGC
 	}
 
 	network=and(ipaddr,netmask)
@@ -50,9 +49,13 @@ BEGIN {
 	limit=network+1
 	if (start<limit) start=limit
 
-	end=start+ARGV[4]
-	limit=or(network,compl32(netmask))-1
-	if (end>limit) end=limit
+	limit = or(network, compl32(netmask)) - 1
+	if (ARGC > 4) {
+		end = start + ARGV[4]
+		if (end > limit) end = limit
+	} else {
+		end = limit
+	}
 
 	print "IP="int2ip(ipaddr)
 	print "NETMASK="int2ip(netmask)
@@ -61,7 +64,8 @@ BEGIN {
 	print "PREFIX="32-bitcount(compl32(netmask))
 
 	# range calculations:
-	# ipcalc <ip> <netmask> <start> <num>
+	# ipcalc <ip> <netmask> [<start> [<num>]]
+	# ipcalc <ip>/<prefixlen> [<start> [<num>]]
 
 	if (ARGC > 3) {
 		print "START="int2ip(start)
