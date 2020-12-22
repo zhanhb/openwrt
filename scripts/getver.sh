@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+set -e
 export LANG=C
 export LC_ALL=C
-[ -n "$TOPDIR" ] && cd $TOPDIR
+[ -z "$TOPDIR" ] || cd "$TOPDIR"
 
 GET_REV=$1
 
@@ -12,26 +13,28 @@ try_version() {
 }
 
 try_git() {
-	REBOOT=ee53a240ac902dc83209008a2671e7fdcf55957a
+	local REBOOT=ee53a240ac902dc83209008a2671e7fdcf55957a
 	git rev-parse --git-dir >/dev/null 2>&1 || return 1
 
-	[ -n "$GET_REV" ] || GET_REV="HEAD"
+	[ -n "$GET_REV" ] || GET_REV=HEAD
 
 	case "$GET_REV" in
 	r*)
-		GET_REV="$(echo $GET_REV | tr -d 'r')"
-		BASE_REV="$(git rev-list ${REBOOT}..HEAD 2>/dev/null | wc -l | awk '{print $1}')"
+		local BASE_REV
+		GET_REV="${GET_REV#r}"
+		BASE_REV="$(git rev-list "$REBOOT..HEAD" 2>/dev/null | wc -l | awk '{print $1}')"
 		[ $((BASE_REV - GET_REV)) -ge 0 ] && REV="$(git rev-parse HEAD~$((BASE_REV - GET_REV)))"
 		;;
 	*)
+		local BRANCH ORIGIN UPSTREAM_BASE UPSTREAM_REV
 		BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-		ORIGIN="$(git rev-parse --verify --symbolic-full-name ${BRANCH}@{u} 2>/dev/null)"
-		[ -n "$ORIGIN" ] || ORIGIN="$(git rev-parse --verify --symbolic-full-name master@{u} 2>/dev/null)"
-		REV="$(git rev-list ${REBOOT}..$GET_REV 2>/dev/null | wc -l | awk '{print $1}')"
+		ORIGIN="$(git rev-parse --verify --symbolic-full-name "$BRANCH@{u}" 2>/dev/null)"
+		[ -n "$ORIGIN" ] || ORIGIN="$(git rev-parse --verify --symbolic-full-name "master@{u}" 2>/dev/null)"
+		REV="$(git rev-list "$REBOOT..$GET_REV" 2>/dev/null | wc -l | awk '{print $1}')"
 
 		if [ -n "$ORIGIN" ]; then
-			UPSTREAM_BASE="$(git merge-base $GET_REV $ORIGIN)"
-			UPSTREAM_REV="$(git rev-list ${REBOOT}..$UPSTREAM_BASE 2>/dev/null | wc -l | awk '{print $1}')"
+			UPSTREAM_BASE="$(git merge-base "$GET_REV" "$ORIGIN")"
+			UPSTREAM_REV="$(git rev-list "${REBOOT}..$UPSTREAM_BASE" 2>/dev/null | wc -l | awk '{print $1}')"
 		else
 			UPSTREAM_REV=0
 		fi
@@ -40,7 +43,7 @@ try_git() {
 			REV="${UPSTREAM_REV}+$((REV - UPSTREAM_REV))"
 		fi
 
-		REV="${REV:+r$REV-$(git log -n 1 --format="%h" $UPSTREAM_BASE)}"
+		REV="${REV:+r$REV-$(git log -n 1 --format="%h" "$UPSTREAM_BASE")}"
 
 		;;
 	esac
@@ -55,5 +58,5 @@ try_hg() {
 	[ -n "$REV" ]
 }
 
-try_version || try_git || try_hg || REV="unknown"
+try_version || try_git || try_hg || REV=unknown
 echo "$REV"
