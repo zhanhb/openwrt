@@ -54,12 +54,7 @@ define Package/dropbear
   CATEGORY:=Base system
   TITLE:=Small SSH2 client/server
   DEPENDS:= +DROPBEAR_ZLIB:zlib
-  ALTERNATIVES:=
-  $(if $(CONFIG_DROPBEAR_SCP),ALTERNATIVES+= \
-	  100:/usr/bin/scp:/usr/sbin/dropbear,)
-  $(if $(CONFIG_DROPBEAR_DBCLIENT),ALTERNATIVES+= \
-	  100:/usr/bin/ssh:/usr/sbin/dropbear,)
-
+  ALTERNATIVES:=$(foreach i,$(if $(CONFIG_DROPBEAR_SCP),scp) $(if $(CONFIG_DROPBEAR_DBCLIENT),ssh),100:/usr/bin/$(i):/usr/sbin/dropbear)
 endef
 
 define Package/dropbear/description
