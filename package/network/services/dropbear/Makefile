@@ -55,12 +55,11 @@ define Package/dropbear
   CATEGORY:=Base system
   TITLE:=Small SSH2 client/server
   DEPENDS:= +DROPBEAR_ZLIB:zlib
-  ALTERNATIVES:=
-  $(if $(CONFIG_DROPBEAR_SCP),ALTERNATIVES+= \
-	  100:/usr/bin/scp:/usr/sbin/dropbear,)
-  $(if $(CONFIG_DROPBEAR_DBCLIENT),ALTERNATIVES+= \
-	  100:/usr/bin/ssh:/usr/sbin/dropbear,)
-
+  ALTERNATIVES:=$(patsubst %,100:/usr/bin/%:dropbear,$(sort \
+    dropbearkey \
+    $(if $(CONFIG_DROPBEAR_DBCLIENT),dbclient ssh) \
+    $(if $(CONFIG_DROPBEAR_SCP),scp) \
+  ))
 endef
 
 define Package/dropbear/description
@@ -191,9 +190,6 @@ endef
 define Package/dropbear/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dropbearmulti $(1)/usr/sbin/dropbear
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(if $(CONFIG_DROPBEAR_DBCLIENT),$(LN) ../sbin/dropbear $(1)/usr/bin/dbclient,)
-	$(LN) ../sbin/dropbear $(1)/usr/bin/dropbearkey
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/dropbear.config $(1)/etc/config/dropbear
 	$(INSTALL_DIR) $(1)/etc/init.d
