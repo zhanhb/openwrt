@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bzip2
 PKG_VERSION:=1.0.8
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://sourceware.org/pub/bzip2
@@ -48,6 +48,9 @@ $(call Package/bzip2/Default)
   CATEGORY:=Utilities
   DEPENDS:=+libbz2
   TITLE:=bzip2 is a compression utility.
+  ALTERNATIVES:= \
+	  200:/usr/bin/bunzip2:/usr/bin/bzip2 \
+	  200:/usr/bin/bzcat:/usr/bin/bzip2
 endef
 
 define Package/bzip2/description
