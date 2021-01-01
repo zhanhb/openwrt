@@ -31,13 +31,6 @@ try_git() {
 
 		if [ -n "$ORIGIN" ]; then
 			UPSTREAM_BASE="$(git merge-base "$GET_REV" "$ORIGIN")"
-			UPSTREAM_REV="$(git rev-list "${REBOOT}..$UPSTREAM_BASE" 2>/dev/null | wc -l | awk '{print $1}')"
-		else
-			UPSTREAM_REV=0
-		fi
-
-		if [ "$REV" -gt "$UPSTREAM_REV" ]; then
-			REV="${UPSTREAM_REV}+$((REV - UPSTREAM_REV))"
 		fi
 
 		REV="${REV:+r$REV-$(git log -n 1 --format="%h" "$UPSTREAM_BASE")}"
