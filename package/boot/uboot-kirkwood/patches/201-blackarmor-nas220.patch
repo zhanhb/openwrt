@@ -1,6 +1,6 @@
 --- a/include/configs/nas220.h
 +++ b/include/configs/nas220.h
-@@ -54,17 +54,22 @@
+@@ -46,17 +46,22 @@
  /*
   * Default environment variables
   */
