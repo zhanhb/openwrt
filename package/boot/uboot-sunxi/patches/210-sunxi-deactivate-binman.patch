@@ -7,27 +7,12 @@ Use the old way to generate the images instead of binman.
 binman needs python with swig to avoid this host tool dependency use the
 old way of generating images.
 ---
- Makefile | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/Kconfig | 1 -
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1555,8 +1555,10 @@ endif
- 
- ifneq ($(CONFIG_ARCH_SUNXI),)
- ifeq ($(CONFIG_ARM64),)
--u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img u-boot.dtb FORCE
--	$(call if_changed,binman)
-+OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
-+				--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
-+	$(call if_changed,pad_cat)
- else
- u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.itb FORCE
- 	$(call if_changed,cat)
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -962,7 +962,6 @@ config ARCH_SOCFPGA
+@@ -1016,7 +1016,6 @@ config ARCH_SOCFPGA
  
  config ARCH_SUNXI
  	bool "Support sunxi (Allwinner) SoCs"
