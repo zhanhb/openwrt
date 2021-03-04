@@ -143,7 +143,7 @@ should_be_patched() {
 }
 
 for LDD in ${PATH//://ldd }/ldd; do
-	"$LDD" --version >/dev/null 2>/dev/null && break
+	"$LDD" --version >/dev/null 2>&1 && break
 	LDD=""
 done
 

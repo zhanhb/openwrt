@@ -165,7 +165,7 @@ define Quilt/Template
 	}
 
   $(3)refresh: $(3)quilt-check
-	@cd "$(1)"; $(QUILT_CMD) pop -a -f >/dev/null 2>/dev/null
+	@cd "$(1)"; $(QUILT_CMD) pop -a -f >/dev/null 2>&1
 	@cd "$(1)"; while $(QUILT_CMD) next 2>/dev/null >/dev/null && $(QUILT_CMD) push; do \
 		QUILT_DIFF_OPTS="-p" $(QUILT_CMD) refresh -p ab --no-index --no-timestamps; \
 	done; ! $(QUILT_CMD) next 2>/dev/null >/dev/null
