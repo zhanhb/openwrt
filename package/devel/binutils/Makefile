@@ -8,13 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=binutils
-PKG_VERSION:=2.35.1
-PKG_RELEASE:=2
+PKG_VERSION:=2.36.1
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=@GNU/binutils
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_VERSION:=$(PKG_VERSION)
-PKG_HASH:=3ced91db9bf01182b7e420eab68039f2083aed0a214c0424e257eae3ddee8607
+PKG_HASH:=e81d9edf373f193af428a0f256674aea62a9d74dfe93f65192d4eae030b0f3b0
 
 PKG_FIXUP:=autoreconf
 PKG_LIBTOOL_PATHS:=. gas bfd opcodes gprof binutils ld libiberty gold intl
