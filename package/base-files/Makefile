@@ -45,9 +45,6 @@ endef
 
 define Package/base-files/conffiles
 /etc/config/
-/etc/config/network
-/etc/config/system
-/etc/dropbear/
 /etc/ethers
 /etc/group
 /etc/hosts
@@ -154,7 +151,6 @@ define Package/base-files/install
 		$(1)/etc/preinit \
 		$(1)/etc/profile
 
-	mkdir -p $(1)/CONTROL
 	mkdir -p $(1)/dev
 	mkdir -p $(1)/etc/config
 	mkdir -p $(1)/etc/crontabs
@@ -181,13 +177,6 @@ define Package/base-files/install
 	chmod 1777 $(1)/tmp
 
 	$(call ImageConfigOptions,$(1))
-	$(call Package/base-files/install-target,$(1))
-	for conffile in $(1)/etc/config/*; do \
-		if [ -f "$$$$conffile" ]; then \
-			grep "$$$${conffile##$(1)}" $(1)/CONTROL/conffiles || \
-				echo "$$$${conffile##$(1)}" >> $(1)/CONTROL/conffiles; \
-		fi \
-	done
 
 	$(if $(CONFIG_INCLUDE_CONFIG), \
 		echo -e "# Build configuration for board $(BOARD)/$(SUBTARGET)/$(PROFILE)\n" >$(1)/etc/build.config; \
