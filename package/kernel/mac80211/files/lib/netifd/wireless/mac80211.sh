@@ -637,7 +637,7 @@ mac80211_iw_interface_add() {
 	[ "$rc" != 0 ] && {
 		# Device doesn't support virtual interfaces and may have existing interface other than ifname.
 		oldifname="$(basename "/sys/class/ieee80211/${phy}/device/net"/* 2>/dev/null)"
-		[ "$oldifname" ] && ip link set "$oldifname" name "$ifname" 1>/dev/null 2>&1
+		[ "$oldifname" ] && ip link set "$oldifname" name "$ifname" >/dev/null 2>&1
 		rc="$?"
 	}
 

@@ -415,7 +415,7 @@ ext=$(word $(words $(subst ., ,$(1))),$(subst ., ,$(1)))
 # $(1) => if non-empty: count commits since last ": [uU]pdate to " or ": [bB]ump to " in commit message
 define commitcount
 $(shell \
-  if git log -1 >/dev/null 2>/dev/null; then \
+  if git log -1 >/dev/null 2>&1; then \
     if [ -n "$(1)" ]; then \
       last_bump="$$(git log --pretty=format:'%h %s' . | \
         grep --max-count=1 -e ': [uU]pdate to ' -e ': [bB]ump to ' | \

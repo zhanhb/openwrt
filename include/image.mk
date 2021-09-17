@@ -201,7 +201,7 @@ define Image/mkfs/jffs2/sub-raw
 		$(2) \
 		-e $(patsubst %k,%KiB,$(1)) \
 		-o $@ -d $(call mkfs_target_dir,$(3)) \
-		-v 2>&1 1>/dev/null | awk '/^.+$$$$/'
+		-v 2>&1 >/dev/null | awk '/^.+$$$$/'
 endef
 
 define Image/mkfs/jffs2/sub

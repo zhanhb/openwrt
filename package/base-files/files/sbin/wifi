@@ -114,7 +114,7 @@ _wifi_updown() {
 			set disable
 		}
 		config_get iftype "$device" type
-		if eval "type ${1}_$iftype" 2>/dev/null >/dev/null; then
+		if eval "type ${1}_$iftype" >/dev/null 2>&1; then
 			eval "scan_$iftype '$device'"
 			eval "${1}_$iftype '$device'" || echo "$device($iftype): ${1} failed"
 		elif [ ! -f /lib/netifd/wireless/$iftype.sh ]; then
@@ -162,7 +162,7 @@ wifi_config() {
 	[ ! -f /etc/config/wireless ] && touch /etc/config/wireless
 
 	for driver in $DRIVERS; do (
-		if eval "type detect_$driver" 2>/dev/null >/dev/null; then
+		if eval "type detect_$driver" >/dev/null 2>&1; then
 			eval "detect_$driver" || echo "$driver: Detect failed" >&2
 		else
 			echo "$driver: Hardware detection not supported" >&2

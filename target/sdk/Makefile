@@ -121,7 +121,7 @@ $(BIN_DIR)/$(SDK_NAME).tar.xz: clean
 			$(SDK_BUILD_DIR)/$(STAGING_SUBDIR_HOST)/lib \
 			$(SDK_BUILD_DIR)/$(STAGING_SUBDIR_HOST)/usr/lib \
 			-type f -name \*.so\*; \
-	) | xargs strip 2>/dev/null >/dev/null
+	) | xargs strip >/dev/null 2>&1
 
 	mkdir -p $(SDK_BUILD_DIR)/target/linux
 	$(CP) $(GENERIC_PLATFORM_DIR) $(PLATFORM_DIR) $(SDK_BUILD_DIR)/target/linux/

@@ -107,7 +107,7 @@ endef
 
 define Quilt/RefreshDir
 	mkdir -p $(2)
-	-rm -f $(2)/* 2>/dev/null >/dev/null
+	-rm -f $(2)/* >/dev/null 2>&1
 	@( \
 		for patch in $$$$($(if $(3),grep "^$(3)",cat) $(1)/patches/series | awk '{print $$$$1}'); do \
 			$(CP) -v "$(1)/patches/$$$$patch" $(2); \
@@ -165,10 +165,10 @@ define Quilt/Template
 	}
 
   $(3)refresh: $(3)quilt-check
-	@cd "$(1)"; $(QUILT_CMD) pop -a -f >/dev/null 2>/dev/null
-	@cd "$(1)"; while $(QUILT_CMD) next 2>/dev/null >/dev/null && $(QUILT_CMD) push; do \
+	@cd "$(1)"; $(QUILT_CMD) pop -a -f >/dev/null 2>&1
+	@cd "$(1)"; while $(QUILT_CMD) next >/dev/null 2>&1 && $(QUILT_CMD) push; do \
 		QUILT_DIFF_OPTS="-p" $(QUILT_CMD) refresh -p ab --no-index --no-timestamps; \
-	done; ! $(QUILT_CMD) next 2>/dev/null >/dev/null
+	done; ! $(QUILT_CMD) next >/dev/null 2>&1
 	$(Quilt/Refresh/$(4))
 	
   $(3)update: $(3)quilt-check

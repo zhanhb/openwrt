@@ -314,7 +314,7 @@ define Build/jffs2
 			--squash-uids -v -e $(patsubst %k,%KiB,$(BLOCKSIZE)) \
 			-o $@.new \
 			-d $(KDIR_TMP)/$(DEVICE_NAME)/jffs2 \
-			2>&1 1>/dev/null | awk '/^.+$$$$/' && \
+			2>&1 >/dev/null | awk '/^.+$$$$/' && \
 		$(STAGING_DIR_HOST)/bin/padjffs2 $@.new -J $(patsubst %k,,$(BLOCKSIZE))
 	-rm -rf $(KDIR_TMP)/$(DEVICE_NAME)/jffs2/
 	@mv $@.new $@

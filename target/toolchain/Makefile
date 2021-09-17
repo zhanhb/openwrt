@@ -54,7 +54,7 @@ $(BIN_DIR)/$(TOOLCHAIN_NAME).tar.xz: clean
 			$(TOOLCHAIN_BUILD_DIR)/*/*/bin \
 			$(TOOLCHAIN_BUILD_DIR)/*/libexec \
 			-type f; \
-	) | xargs strip 2>/dev/null >/dev/null
+	) | xargs strip >/dev/null 2>&1
 
 	echo REVISION:="$(REVISION)" > $(TOOLCHAIN_BUILD_DIR)/version.mk
 	find $(TOOLCHAIN_BUILD_DIR) -name .git | $(XARGS) rm -rf

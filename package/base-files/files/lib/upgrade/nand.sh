@@ -280,7 +280,7 @@ nand_upgrade_tar() {
 	local rootfs_length
 	local rootfs_type
 
-	tar tf "$tar_file" ${board_dir}/root 1>/dev/null 2>/dev/null && has_rootfs=1
+	tar tf "$tar_file" ${board_dir}/root >/dev/null 2>&1 && has_rootfs=1
 	[ "$has_rootfs" = "1" ] && {
 		rootfs_length=$( (tar xf "$tar_file" ${board_dir}/root -O | wc -c) 2> /dev/null)
 		rootfs_type="$(identify_tar "$tar_file" ${board_dir}/root)"

@@ -1162,7 +1162,7 @@ EOF
 	exit ;;
     i*86:*:4.*:*)
 	UNAME_REL=$(echo "$UNAME_RELEASE" | sed 's/\/MP$//')
-	if grep Novell /usr/include/link.h >/dev/null 2>/dev/null; then
+	if grep Novell /usr/include/link.h >/dev/null 2>&1; then
 		echo "$UNAME_MACHINE"-univel-sysv"$UNAME_REL"
 	else
 		echo "$UNAME_MACHINE"-pc-sysv"$UNAME_REL"
@@ -1181,7 +1181,7 @@ EOF
 	if test -f /usr/options/cb.name; then
 		UNAME_REL=$(sed -n 's/.*Version //p' </usr/options/cb.name)
 		echo "$UNAME_MACHINE"-pc-isc"$UNAME_REL"
-	elif /bin/uname -X 2>/dev/null >/dev/null ; then
+	elif /bin/uname -X >/dev/null 2>&1 ; then
 		UNAME_REL=$( (/bin/uname -X|grep Release|sed -e 's/.*= //'))
 		(/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
 		(/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
@@ -1275,7 +1275,7 @@ EOF
 	echo mips-sni-sysv4
 	exit ;;
     *:SINIX-*:*:*)
-	if uname -p 2>/dev/null >/dev/null ; then
+	if uname -p >/dev/null 2>&1 ; then
 		UNAME_MACHINE=$( (uname -p) 2>/dev/null)
 		echo "$UNAME_MACHINE"-sni-sysv4
 	else

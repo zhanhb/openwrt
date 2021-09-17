@@ -292,7 +292,7 @@ if [ -n "$CONF_RESTORE" ]; then
 	exit $?
 fi
 
-type platform_check_image >/dev/null 2>/dev/null || {
+type platform_check_image >/dev/null 2>&1 || {
 	echo "Firmware upgrade is not implemented for this platform." >&2
 	exit 1
 }

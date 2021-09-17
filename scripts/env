@@ -141,7 +141,7 @@ env_clear() {
 	if ask_bool 1 "Do you want to keep your current config and files"; then
 		mkdir -p "$BASEDIR/files"
 		shopt -s dotglob
-		cp -a "$ENVDIR/files/"* "$BASEDIR/files" 2>/dev/null >/dev/null
+		cp -a "$ENVDIR/files/"* "$BASEDIR/files" >/dev/null 2>&1
 		shopt -u dotglob
 		cp "$ENVDIR/.config" "$BASEDIR/"
 	else

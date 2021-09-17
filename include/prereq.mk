@@ -28,7 +28,7 @@ define Require
 
     prereq-$(1): $(if $(PREREQ_PREV),prereq-$(PREREQ_PREV)) FORCE
 		printf "Checking '$(1)'... "
-		if $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) >/dev/null 2>/dev/null; then \
+		if $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) >/dev/null 2>&1; then \
 			echo 'ok.'; \
 		else \
 			echo 'failed.'; \
@@ -84,7 +84,7 @@ endef
 # 3: test
 define TestHostCommand
   define Require/$(1)
-	($(3)) >/dev/null 2>/dev/null
+	($(3)) >/dev/null 2>&1
   endef
 
   $$(eval $$(call Require,$(1),$(2)))
@@ -104,7 +104,7 @@ define SetupHostCommand
 		if [ -n "$$$$$$$$cmd" ]; then \
 			bin="$$$$$$$$(PATH="$(subst $(space),:,$(filter-out $(STAGING_DIR_HOST)/%,$(subst :,$(space),$(PATH))))" \
 				command -v "$$$$$$$${cmd%% *}")"; \
-			if [ -x "$$$$$$$$bin" ] && eval "$$$$$$$$cmd" >/dev/null 2>/dev/null; then \
+			if [ -x "$$$$$$$$bin" ] && eval "$$$$$$$$cmd" >/dev/null 2>&1; then \
 				mkdir -p "$(STAGING_DIR_HOST)/bin"; \
 				ln -sf "$$$$$$$$bin" "$(STAGING_DIR_HOST)/bin/$(strip $(1))"; \
 				exit 0; \

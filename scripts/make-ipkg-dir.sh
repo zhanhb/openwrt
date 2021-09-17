@@ -9,9 +9,9 @@ WD=$(pwd)
 
 mkdir -p "$TARGET/CONTROL"
 grep '^[^(Version|Architecture)]' "$CONTROL" > "$TARGET/CONTROL/control"
-grep '^Maintainer' "$CONTROL" 2>&1 >/dev/null || \
+grep -q '^Maintainer' "$CONTROL" >/dev/null 2>&1 || \
         echo "Maintainer: LEDE Community <lede-dev@lists.infradead.org>" >> "$TARGET/CONTROL/control"
-grep '^Source' "$CONTROL" 2>&1 >/dev/null || {
+grep -q '^Source' "$CONTROL" >/dev/null 2>&1 || {
         pkgbase=$(echo "$WD" | sed -e "s|^$TOPDIR/||g")
         [ "$pkgbase" = "$WD" ] && src="N/A" || src="$BASE/$pkgbase"
         echo "Source: $src" >> "$TARGET/CONTROL/control"

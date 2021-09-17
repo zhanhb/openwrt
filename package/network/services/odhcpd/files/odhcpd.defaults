@@ -25,7 +25,7 @@ case "$protocol" in
 	;;
 esac
 
-uci get dhcp.lan 1>/dev/null 2>/dev/null || {
+uci get dhcp.lan >/dev/null 2>&1 || {
 uci batch <<EOF
 set dhcp.lan=dhcp
 set dhcp.lan.interface='lan'

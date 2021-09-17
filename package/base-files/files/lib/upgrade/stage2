@@ -156,7 +156,7 @@ sleep 6
 
 echo 3 > /proc/sys/vm/drop_caches
 
-if [ -n "$IMAGE" ] && type 'platform_pre_upgrade' >/dev/null 2>/dev/null; then
+if [ -n "$IMAGE" ] && type 'platform_pre_upgrade' >/dev/null 2>&1; then
 	platform_pre_upgrade "$IMAGE"
 fi
 

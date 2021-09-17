@@ -661,9 +661,9 @@ sub refresh_config {
 
 	# refresh the config
 	if ($default) {
-		system("$mk oldconfig CONFDEFAULT=\"$default\" Config.in >/dev/null 2>/dev/null");
+		system("$mk oldconfig CONFDEFAULT=\"$default\" Config.in >/dev/null 2>&1");
 	} else {
-		system("$mk defconfig Config.in >/dev/null 2>/dev/null");
+		system("$mk defconfig Config.in >/dev/null 2>&1");
 	}
 }
 
