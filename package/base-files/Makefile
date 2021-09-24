@@ -46,10 +46,7 @@ define Package/base-files
 endef
 
 define Package/base-files/conffiles
-/etc/config/
-/etc/config/network
-/etc/config/system
-/etc/dropbear/
+/etc/config
 /etc/ethers
 /etc/fstab
 /etc/group
@@ -110,10 +107,7 @@ define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 endef
 
-define Build/Compile/Default
-
-endef
-Build/Compile = $(Build/Compile/Default)
+Build/Compile=
 
 ifdef CONFIG_SIGNED_PACKAGES
   define Build/Configure
@@ -185,7 +179,6 @@ define Package/base-files/install
 		$(1)/etc/profile
 
 	mkdir -p \
-		$(1)/CONTROL \
 		$(1)/dev \
 		$(1)/etc/config \
 		$(1)/etc/crontabs \
@@ -218,13 +211,6 @@ endif
 	chmod 1777 $(1)/tmp
 
 	$(call ImageConfigOptions,$(1))
-	$(call Package/base-files/install-target,$(1))
-	for conffile in $(1)/etc/config/*; do \
-		if [ -f "$$$$conffile" ]; then \
-			grep "$$$${conffile##$(1)}" $(1)/CONTROL/conffiles || \
-				echo "$$$${conffile##$(1)}" >> $(1)/CONTROL/conffiles; \
-		fi \
-	done
 
 	$(if $(CONFIG_INCLUDE_CONFIG), \
 		echo -e "# Build configuration for board $(BOARD)/$(SUBTARGET)/$(PROFILE)\n" >$(1)/etc/build.config; \
