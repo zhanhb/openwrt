@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libaudit
 PKG_VERSION:=2.8.5
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_NAME:=audit
 PKG_SOURCE:=$(PKG_SOURCE_NAME)-$(PKG_VERSION).tar.gz
@@ -103,6 +103,10 @@ define Package/libaudit/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so.* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/etc
 	$(CP) $(PKG_INSTALL_DIR)/etc/libaudit.conf $(1)/etc/
+endef
+
+define Package/libaudit/conffiles
+/etc/libaudit.conf
 endef
 
 $(eval $(call HostBuild))
