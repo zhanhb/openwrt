@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=policycoreutils
 PKG_VERSION:=3.3
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/$(PKG_VERSION)
@@ -127,6 +127,18 @@ ifdef CONFIG_BUSYBOX_CONFIG_PAM
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/pam.d/run_init $(1)/etc/pam.d
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/pam.d/newrole $(1)/etc/pam.d
 endif
+endef
+
+ifdef CONFIG_BUSYBOX_CONFIG_PAM
+define PolicyCoreutilsPamConfFiles
+/etc/pam.d/newrole
+/etc/pam.d/run_init
+endef
+endif
+
+define Package/policycoreutils/conffiles
+/etc/sestatus.conf
+$(PolicyCoreutilsPamConfFiles)
 endef
 
 define BuildUtil
