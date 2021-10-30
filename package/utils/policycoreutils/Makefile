@@ -129,6 +129,18 @@ ifdef CONFIG_BUSYBOX_CONFIG_PAM
 endif
 endef
 
+ifdef CONFIG_BUSYBOX_CONFIG_PAM
+define pam_conffiles
+/etc/pam.d/newrole
+/etc/pam.d/run_init
+endef
+endif
+
+define Package/policycoreutils/conffiles
+/etc/sestatus.conf
+$(pam_conffiles)
+endef
+
 define BuildUtil
   define Package/$(1)/install
 	$(INSTALL_DIR) $$(1)$(if $(ALTS_$(3)),/usr/libexec,$(2))
