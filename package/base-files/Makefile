@@ -51,9 +51,11 @@ define Package/base-files/conffiles
 /etc/config/system
 /etc/dropbear/
 /etc/ethers
+/etc/fstab
 /etc/group
 /etc/hosts
 /etc/inittab
+/etc/iproute2/ematch_map
 /etc/iproute2/rt_protos
 /etc/iproute2/rt_tables
 /etc/passwd
