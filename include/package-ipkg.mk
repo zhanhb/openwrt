@@ -54,30 +54,22 @@ define AddDependency
 endef
 
 define FixupReverseDependencies
-  DEPS := $$(filter %:$(1),$$(IDEPEND))
-  DEPS := $$(patsubst %:$(1),%,$$(DEPS))
-  DEPS := $$(filter $$(DEPS),$$(IPKGS))
-  $(call AddDependency,$$(DEPS),$(1))
+  $(call AddDependency,$$(filter $$(patsubst %:$(1),%,$$(filter %:$(1),$$(IDEPEND))),$$(IPKGS)),$(1))
 endef
 
 define FixupDependencies
-  DEPS := $$(filter $(1):%,$$(IDEPEND))
-  DEPS := $$(patsubst $(1):%,%,$$(DEPS))
-  DEPS := $$(filter $$(DEPS),$$(IPKGS))
-  $(call AddDependency,$(1),$$(DEPS))
+  $(call AddDependency,$(1),$$(filter $$(patsubst $(1):%,%,$$(filter $(1):%,$$(IDEPEND))),$$(IPKGS)))
 endef
 
 ifneq ($(PKG_NAME),toolchain)
   define CheckDependencies
 	@( \
 		rm -f $(PKG_INFO_DIR)/$(1).missing; \
-		( \
-			export \
-				READELF=$(TARGET_CROSS)readelf \
-				OBJCOPY=$(TARGET_CROSS)objcopy \
-				XARGS="$(XARGS)"; \
-			$(SCRIPT_DIR)/gen-dependencies.sh "$$(IDIR_$(1))"; \
-		) | while read FILE; do \
+		READELF="$(TARGET_CROSS)readelf" \
+			OBJCOPY="$(TARGET_CROSS)objcopy" \
+			XARGS="$(XARGS)" \
+			"$(SCRIPT_DIR)/gen-dependencies.sh" "$$(IDIR_$(1))" | \
+		while read -r FILE; do \
 			grep -qxF "$$$$FILE" $(PKG_INFO_DIR)/$(1).provides || \
 				echo "$$$$FILE" >> $(PKG_INFO_DIR)/$(1).missing; \
 		done; \
@@ -234,17 +226,17 @@ $(_endef)
 		) > control; \
 		chmod 644 control; \
 		( \
-			echo "#!/bin/sh"; \
-			echo "[ \"\$$$${IPKG_NO_SCRIPT}\" = \"1\" ] && exit 0"; \
-			echo "[ -s "\$$$${IPKG_INSTROOT}/lib/functions.sh" ] || exit 0"; \
-			echo ". \$$$${IPKG_INSTROOT}/lib/functions.sh"; \
-			echo "default_postinst \$$$$0 \$$$$@"; \
+			echo '#!/bin/sh'; \
+			echo '[ "$$$$IPKG_NO_SCRIPT" = 1 ] && exit 0'; \
+			echo '[ -s "$$$$IPKG_INSTROOT/lib/functions.sh" ] || exit 0'; \
+			echo '. "$$$$IPKG_INSTROOT/lib/functions.sh"'; \
+			echo 'default_postinst "$$$$0" "$$$$@"'; \
 		) > postinst; \
 		( \
-			echo "#!/bin/sh"; \
-			echo "[ -s "\$$$${IPKG_INSTROOT}/lib/functions.sh" ] || exit 0"; \
-			echo ". \$$$${IPKG_INSTROOT}/lib/functions.sh"; \
-			echo "default_prerm \$$$$0 \$$$$@"; \
+			echo '#!/bin/sh'; \
+			echo '[ -s "$$$$IPKG_INSTROOT/lib/functions.sh" ] || exit 0'; \
+			echo '. "$$$$IPKG_INSTROOT/lib/functions.sh"'; \
+			echo 'default_prerm "$$$$0" "$$$$@"'; \
 		) > prerm; \
 		chmod 0755 postinst prerm; \
 		$($(1)_COMMANDS) \
