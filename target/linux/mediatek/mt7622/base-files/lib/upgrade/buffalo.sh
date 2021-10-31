@@ -63,7 +63,7 @@ buffalo_check_image() {
 	fi
 
 	# check if valid tar file specifed
-	if ! tar tf "$fw_image" &>/dev/null; then
+	if ! tar tf "$fw_image" >/dev/null 2>&1; then
 		echo "Specified file is not a tar archive: $fw_image"
 		return 1
 	fi

@@ -23,7 +23,7 @@ preinit_mount_udpu() {
 			}
 			[ -f "/misc/firmware/recovery.itb" ] && {
 					echo "- Updating /recovery partition -"
-					mkfs.ext4 -q ${mmcdev}p2 | echo y &> /dev/null
+					mkfs.ext4 -q ${mmcdev}p2 | echo y >/dev/null 2>&1
 					mkdir -p /tmp/recovery
 					mount ${mmcdev}p2 /tmp/recovery
 					cp /misc/firmware/recovery.itb /tmp/recovery

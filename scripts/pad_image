@@ -8,7 +8,7 @@ function usage {
 
 function pad_file {
 	echo "Padding $1 to size $2"
-	dd if=$1 of=$1.paddingtempfile bs=$2 count=1 conv=sync &> /dev/null
+	dd if=$1 of=$1.paddingtempfile bs=$2 count=1 conv=sync >/dev/null 2>&1
 	mv $1.paddingtempfile $1
 }
 

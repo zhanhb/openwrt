@@ -17,7 +17,7 @@ if [ "$teql" != "" ]; then
 
     # The kernel doesn't let us bring it up until it has at least one
     # slave. So bring it up now, if it isn't already.
-    if ! cat /sys/class/net/$teql/carrier &>/dev/null; then
+    if ! cat /sys/class/net/$teql/carrier >/dev/null 2>&1; then
         ifup $teql &
     fi
 fi

@@ -105,7 +105,7 @@ start_service() {
 
 reload_service() {
 	running || return 1
-	$LLDPCLI -u $LLDPSOCKET &> /dev/null <<-EOF
+	$LLDPCLI -u $LLDPSOCKET >/dev/null 2>&1 <<-EOF
 		pause
 		unconfigure lldp custom-tlv
 		unconfigure system interface pattern
@@ -116,9 +116,9 @@ reload_service() {
 	# Rewrite lldpd.conf
 	# If something changed it should be included by the lldpcli call
 	write_lldpd_conf
-	$LLDPCLI -u $LLDPSOCKET -c $LLDPD_CONF -c $LLDPD_CONFS_DIR &> /dev/null
+	$LLDPCLI -u $LLDPSOCKET -c $LLDPD_CONF -c $LLDPD_CONFS_DIR >/dev/null 2>&1
 	# Broadcast update over the wire
-	$LLDPCLI -u $LLDPSOCKET &> /dev/null <<-EOF
+	$LLDPCLI -u $LLDPSOCKET >/dev/null 2>&1 <<-EOF
 		resume
 		update
 	EOF

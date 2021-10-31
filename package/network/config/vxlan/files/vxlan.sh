@@ -8,7 +8,7 @@
 }
 
 proto_vxlan_setup_peer() {
-	type bridge &> /dev/null || {
+	type bridge >/dev/null 2>&1 || {
 		proto_notify_error "$cfg" "MISSING_BRIDGE_COMMAND"
 		exit
 	}

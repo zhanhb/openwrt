@@ -49,6 +49,6 @@ asrock_upgrade_prepare() {
 
 	# Just delete these partitions if present and use
 	# OpenWrt's standard names for those.
-	ubirmvol /dev/$ubidev -N ubi_rootfs &> /dev/null || true
-	ubirmvol /dev/$ubidev -N ubi_rootfs_data &> /dev/null || true
+	ubirmvol /dev/$ubidev -N ubi_rootfs >/dev/null 2>&1 || true
+	ubirmvol /dev/$ubidev -N ubi_rootfs_data >/dev/null 2>&1 || true
 }

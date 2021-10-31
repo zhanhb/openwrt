@@ -49,7 +49,7 @@ procd_lock() {
 	local basescript=$(readlink "$initscript")
 	local service_name="$(basename ${basescript:-$initscript})"
 
-	flock -n 1000 &> /dev/null
+	flock -n 1000 >/dev/null 2>&1
 	if [ "$?" != "0" ]; then
 		exec 1000>"$IPKG_INSTROOT/var/lock/procd_${service_name}.lock"
 		flock 1000

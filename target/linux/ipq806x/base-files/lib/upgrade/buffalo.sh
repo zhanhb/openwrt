@@ -39,6 +39,6 @@ buffalo_upgrade_prepare_ubi() {
 		ubidev2="$( nand_find_ubi rootfs_1 )"
 	fi
 
-	ubirmvol /dev/$ubidev -N ubi_rootfs_data &> /dev/null || true
-	ubirmvol /dev/$ubidev2 -N kernel &> /dev/null || true
+	ubirmvol /dev/$ubidev -N ubi_rootfs_data >/dev/null 2>&1 || true
+	ubirmvol /dev/$ubidev2 -N kernel >/dev/null 2>&1 || true
 }
