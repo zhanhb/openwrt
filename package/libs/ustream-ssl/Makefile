@@ -24,6 +24,7 @@ define Package/libustream/default
   TITLE:=ustream SSL Library
   DEPENDS:=+libubox
   ABI_VERSION:=20201210
+  PROVIDES:=libustream
 endef
 
 define Package/libustream-openssl
