@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bzip2
 PKG_VERSION:=1.0.8
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://sourceware.org/pub/bzip2
@@ -26,6 +26,8 @@ include $(INCLUDE_DIR)/package.mk
 define Package/bzip2/Default
   SUBMENU:=Compression
   URL:=https://sourceware.org/bzip2/
+  SECTION:=utils
+  CATEGORY:=Utilities
 endef
 
 define Package/libbz2
@@ -44,15 +46,30 @@ endef
 
 define Package/bzip2
 $(call Package/bzip2/Default)
-  SECTION:=utils
-  CATEGORY:=Utilities
   DEPENDS:=+libbz2
   TITLE:=bzip2 is a compression utility.
+  ALTERNATIVES:= \
+	  200:/usr/bin/bunzip2:/usr/bin/bzip2 \
+	  200:/usr/bin/bzcat:/usr/bin/bzip2
+  PROVIDES:=bzgrep
 endef
 
 define Package/bzip2/description
 	bzip2 is a freely available, patent free, high-quality
-	data compressor. This package provides the binary.
+	data compressor. This package provides the binary and bzgrep.
+endef
+
+define Package/bzdiff
+$(call Package/bzip2/Default)
+  DEPENDS:=+bzip2 +diffutils
+  TITLE:=bzip2 diff
+endef
+
+define Package/bzmore
+$(call Package/bzip2/Default)
+  DEPENDS:=+bzip2 +less +more
+  TITLE:=bzip2 less
+  PROVIDES:=bzless
 endef
 
 TARGET_CFLAGS += \
@@ -84,8 +101,21 @@ endef
 define Package/bzip2/install
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bzip2-shared $(1)/usr/bin/bzip2
-	$(INSTALL_DIR) $(1)/bin/
-	$(LN) ../usr/bin/bzip2 $(1)/bin/bzip2
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bzgrep $(1)/usr/bin/
+	$(LN) bzgrep $(1)/usr/bin/bzegrep
+	$(LN) bzgrep $(1)/usr/bin/bzfgrep
+endef
+
+define Package/bzdiff/install
+	$(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bzdiff $(1)/usr/bin/
+	$(LN) bzdiff $(1)/usr/bin/bzcmp
+endef
+
+define Package/bzmore/install
+	$(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bzmore $(1)/usr/bin/
+	$(LN) bzmore $(1)/usr/bin/bzless
 endef
 
 HOST_CFLAGS += \
@@ -100,11 +130,13 @@ HOST_CONFIGURE_ARGS+= \
 	--prefix=$(STAGING_DIR_HOSTPKG)
 
 define Host/Install
-	$(INSTALL_DIR) $(STAGING_DIR_HOSTPKG)/bin/
-	$(MAKE) -C $(HOST_BUILD_DIR) PREFIX=$(STAGING_DIR_HOSTPKG)/ install
+	$(INSTALL_DIR) $(STAGING_DIR_HOSTPKG)/bin
+	$(MAKE) -C $(HOST_BUILD_DIR) PREFIX=$(STAGING_DIR_HOSTPKG) install
 endef
 
 $(eval $(call HostBuild))
 
 $(eval $(call BuildPackage,libbz2))
 $(eval $(call BuildPackage,bzip2))
+$(eval $(call BuildPackage,bzdiff))
+$(eval $(call BuildPackage,bzmore))
