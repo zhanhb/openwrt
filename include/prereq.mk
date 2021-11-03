@@ -77,6 +77,16 @@ define RequireCHeader
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
+define CleanStaleLdconfigStub
+  define Require/ldconfig-stub-cleanup
+	if [ -f "$(STAGING_DIR_HOST)/bin/ldconfig" ]; then \
+		[ -s "$(STAGING_DIR_HOST)/bin/ldconfig" ] || rm -f "$(STAGING_DIR_HOST)/bin/ldconfig"; \
+	fi
+  endef
+
+  $$(eval $$(call Require,ldconfig-stub-cleanup))
+endef
+
 define QuoteHostCommand
 '$(subst ','"'"',$(strip $(1)))'
 endef
