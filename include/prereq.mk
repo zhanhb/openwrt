@@ -75,6 +75,16 @@ define CleanupPython2
   $$(eval $$(call Require,python2-cleanup))
 endef
 
+define CleanStaleLdconfigStub
+  define Require/ldconfig-stub-cleanup
+	if [ -f "$(STAGING_DIR_HOST)/bin/ldconfig" ]; then \
+		[ -s "$(STAGING_DIR_HOST)/bin/ldconfig" ] || rm -f "$(STAGING_DIR_HOST)/bin/ldconfig"; \
+	fi
+  endef
+
+  $$(eval $$(call Require,ldconfig-stub-cleanup))
+endef
+
 define QuoteHostCommand
 '$(subst ','"'"',$(strip $(1)))'
 endef
