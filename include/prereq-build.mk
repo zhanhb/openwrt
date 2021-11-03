@@ -190,12 +190,16 @@ $(eval $(call SetupHostCommand,which,Please install 'which', \
 	/bin/which which, \
 	which which))
 
+$(eval $(call CleanStaleLdconfigStub))
+
+# Install ldconfig stub
+$(eval $(call SetupHostCommand,ldconfig,Failed to install ldconfig stub, \
+	/usr/bin/true, \
+	/bin/true, \
+	true))
+
 $(STAGING_DIR_HOST)/bin/mkhash: $(SCRIPT_DIR)/mkhash.c
 	mkdir -p $(dir $@)
 	$(CC) -O2 -I$(TOPDIR)/tools/include -o $@ $<
 
 prereq: $(STAGING_DIR_HOST)/bin/mkhash
-
-# Install ldconfig stub
-$(eval $(call TestHostCommand,ldconfig-stub,Failed to install stub, \
-	$(LN) /bin/true $(STAGING_DIR_HOST)/bin/ldconfig))
