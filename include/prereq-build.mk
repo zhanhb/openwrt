@@ -223,6 +223,14 @@ ifeq ($(HOST_OS),Linux)
 	Missing libintl.h Please install the musl-libintl package if musl libc))
 endif
 
+$(eval $(call CleanStaleLdconfigStub))
+
+# Install ldconfig stub
+$(eval $(call SetupHostCommand,ldconfig,Failed to install ldconfig stub, \
+	/usr/bin/true, \
+	/bin/true, \
+	true))
+
 $(STAGING_DIR_HOST)/bin/mkhash: $(SCRIPT_DIR)/mkhash.c
 	mkdir -p $(dir $@)
 	$(CC) -O2 -I$(TOPDIR)/tools/include -o $@ $<
@@ -231,7 +239,3 @@ $(STAGING_DIR_HOST)/bin/xxd: $(SCRIPT_DIR)/xxdi.pl
 	$(LN) $< $@
 
 prereq: $(STAGING_DIR_HOST)/bin/mkhash $(STAGING_DIR_HOST)/bin/xxd
-
-# Install ldconfig stub
-$(eval $(call TestHostCommand,ldconfig-stub,Failed to install stub, \
-	$(LN) $(firstword $(wildcard /bin/true /usr/bin/true)) $(STAGING_DIR_HOST)/bin/ldconfig))
