@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=policycoreutils
 PKG_VERSION:=3.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/$(PKG_VERSION)
@@ -68,10 +68,10 @@ HOST_MAKE_FLAGS += \
 
 HOST_LDFLAGS += -Wl,-rpath=$(STAGING_DIR_HOSTPKG)/lib
 
-$(eval $(foreach a,$(DIR_SBIN),ALTS_$(a):=300:/sbin/$(a):/sbin/policycoreutils-$(a)$(newline)))
-$(eval $(foreach a,$(DIR_USR_BIN),ALTS_$(a):=300:/usr/bin/$(a):/usr/bin/policycoreutils-$(a)$(newline)))
-$(eval $(foreach a,$(DIR_USR_SBIN),ALTS_$(a):=300:/usr/sbin/$(a):/usr/sbin/policycoreutils-$(a)$(newline)))
-ALTS_setfiles:=300:/sbin/restorecon:/sbin/policycoreutils-setfiles 300:/sbin/setfiles:/sbin/policycoreutils-setfiles
+$(eval $(foreach a,$(DIR_SBIN),ALTS_$(a):=300:/sbin/$(a):/usr/libexec/$(a)-policycoreutils$(newline)))
+$(eval $(foreach a,$(DIR_USR_BIN),ALTS_$(a):=300:/usr/bin/$(a):/usr/libexec/$(a)-policycoreutils$(newline)))
+$(eval $(foreach a,$(DIR_USR_SBIN),ALTS_$(a):=300:/usr/sbin/$(a):/usr/libexec/$(a)-policycoreutils$(newline)))
+ALTS_setfiles:=300:/sbin/restorecon:/usr/libexec/setfiles-policycoreutils 300:/sbin/setfiles:/usr/libexec/setfiles-policycoreutils
 
 DEPENDS_genhomedircon:=+libsemanage $(INTL_DEPENDS)
 DEPENDS_load_policy:=+libselinux $(INTL_DEPENDS)
@@ -131,8 +131,8 @@ endef
 
 define BuildUtil
   define Package/$(1)/install
-	$(INSTALL_DIR) $$(1)$(2)
-	$(INSTALL_BIN) $$(PKG_INSTALL_DIR)$(2)/$(3) $$(1)$(2)/$(if $(ALTS_$(3)),policycoreutils-$(3),$(3))
+	$(INSTALL_DIR) $$(1)$(if $(ALTS_$(3)),/usr/libexec,$(2))
+	$(INSTALL_BIN) $$(PKG_INSTALL_DIR)$(2)/$(3) $$(1)$(if $(ALTS_$(3)),/usr/libexec/$(3)-policycoreutils,$(2)/$(3))
   endef
 
   $$(eval $$(call BuildPackage,$(1)))

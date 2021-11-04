@@ -17,13 +17,18 @@ PKG_HASH:=32b30a336cda903182ed61feb3e9b908b762a5e66fe14e43efb88d37162075cb
 PKG_CPE_ID:=cpe:/a:kernel:util-linux
 
 PKG_LICENSE:=GPL-2.0-only
-PKG_LICENSE_FILES:=	COPYING					\
-			libblkid/COPYING			\
-			libmount/COPYING			\
-			Documentation/licenses/COPYING.GPLv2	\
-			Documentation/licenses/COPYING.LGPLv2.1	\
-			libuuid/COPYING				\
-			Documentation/licenses/COPYING.BSD-3
+PKG_LICENSE_FILES:=	COPYING							\
+			libblkid/COPYING					\
+			libfdisk/COPYING					\
+			libmount/COPYING					\
+			libsmartcols/COPYING					\
+			libuuid/COPYING						\
+			Documentation/licenses/COPYING.BSD-3-Clause		\
+			Documentation/licenses/COPYING.BSD-4-Clause-UC		\
+			Documentation/licenses/COPYING.GPL-2.0-or-later		\
+			Documentation/licenses/COPYING.GPL-3.0-or-later		\
+			Documentation/licenses/COPYING.ISC			\
+			Documentation/licenses/COPYING.LGPL-2.1-or-later
 
 PKG_INSTALL:=1
 
@@ -189,6 +194,7 @@ define Package/dmesg
 $(call Package/util-linux/Default)
   TITLE:=print or control the kernel ring buffer
   DEPENDS:= +libncursesw
+  ALTERNATIVES:=200:/bin/dmesg:/usr/libexec/dmesg-util-linux
 endef
 
 define Package/dmesg/description
@@ -233,7 +239,7 @@ endef
 define Package/flock
 $(call Package/util-linux/Default)
   TITLE:=manage locks from shell scripts
-  ALTERNATIVES:=200:/usr/bin/flock:/usr/bin/util-linux-flock
+  ALTERNATIVES:=200:/usr/bin/flock:/usr/libexec/flock-util-linux
 endef
 
 define Package/flock/description
@@ -266,6 +272,7 @@ endef
 define Package/hwclock
 $(call Package/util-linux/Default)
   TITLE:=query or set the hardware clock
+  ALTERNATIVES:=200:/sbin/hwclock:/usr/libexec/hwclock-util-linux
 endef
 
 define Package/hwclock/description
@@ -287,7 +294,7 @@ endef
 define Package/logger
 $(call Package/util-linux/Default)
   TITLE:=a shell command interface to the syslog system log module
-  ALTERNATIVES:=200:/usr/bin/logger:/usr/bin/util-linux-logger
+  ALTERNATIVES:=200:/usr/bin/logger:/usr/libexec/logger-util-linux
 endef
 
 define Package/logger/description
@@ -487,6 +494,7 @@ $(call Package/util-linux/Default)
   TITLE:=swap space management utilities
   DEPENDS+= +libblkid
   SUBMENU:=Filesystem
+  ALTERNATIVES:=200:/sbin/mkswap:/usr/libexec/mkswap-util-linux
 endef
 
 define Package/swap-utils/description
@@ -716,8 +724,8 @@ define Package/colrm/install
 endef
 
 define Package/dmesg/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dmesg $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dmesg $(1)/usr/libexec/dmesg-util-linux
 endef
 
 define Package/eject/install
@@ -736,8 +744,8 @@ define Package/findfs/install
 endef
 
 define Package/flock/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/flock $(1)/usr/bin/util-linux-flock
+	$(INSTALL_DIR) $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/flock $(1)/usr/libexec/flock-util-linux
 endef
 
 define Package/fstrim/install
@@ -751,8 +759,8 @@ define Package/getopt/install
 endef
 
 define Package/hwclock/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/hwclock $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/hwclock $(1)/usr/libexec/hwclock-util-linux
 endef
 
 define Package/ipcs/install
@@ -761,8 +769,8 @@ define Package/ipcs/install
 endef
 
 define Package/logger/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/logger $(1)/usr/bin/util-linux-logger
+	$(INSTALL_DIR) $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/logger $(1)/usr/libexec/logger-util-linux
 endef
 
 define Package/look/install
@@ -861,8 +869,8 @@ define Package/sfdisk/install
 endef
 
 define Package/swap-utils/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mkswap $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/{libexec,sbin}
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mkswap $(1)/usr/libexec/mkswap-util-linux
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/swaplabel $(1)/usr/sbin/
 endef
 
