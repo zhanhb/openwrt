@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=binutils
 PKG_VERSION:=2.40
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=@GNU/binutils
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
@@ -56,7 +56,7 @@ define Package/binutils
   CATEGORY:=Development
   TITLE:=binutils
   DEPENDS:=+objdump +ar
-  ALTERNATIVES:=200:/usr/bin/strings:/usr/bin/binutils-strings
+  ALTERNATIVES:=200:/usr/bin/strings:/usr/libexec/strings-binutils
 endef
 
 define Package/objdump
@@ -135,7 +135,8 @@ endef
 define Package/binutils/install
 	$(INSTALL_DIR) $(1)/usr $(1)/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ $(1)/usr/
-	mv $(1)/usr/bin/strings $(1)/usr/bin/binutils-strings
+	$(INSTALL_DIR) $(1)/usr/libexec
+	mv $(1)/usr/bin/strings $(1)/usr/libexec/strings-binutils
 	rm -f $(1)/usr/bin/objdump
 	rm -f $(1)/usr/bin/ar
 endef
