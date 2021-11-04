@@ -62,7 +62,7 @@ LIBSELINUX_ALTS := \
 	selinuxenabled \
 	setenforce
 
-$(eval $(foreach a,$(LIBSELINUX_ALTS),ALTS_$(a):=300:/usr/sbin/$(a):/usr/sbin/libselinux-$(a)$(newline)))
+$(eval $(foreach a,$(LIBSELINUX_ALTS),ALTS_$(a):=300:/usr/sbin/$(a):/usr/libexec/$(a)-libselinux$(newline)))
 
 define Package/libselinux/Default
   TITLE:=Runtime SELinux library
@@ -149,8 +149,8 @@ endef
 
 define BuildUtil
   define Package/$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/$(2) $$(1)/usr/sbin/$(if $(ALTS_$(2)),libselinux-$(2),$(2))
+	$(INSTALL_DIR) $$(1)/usr/$(if $(ALTS_$(2)),libexec,sbin)
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/$(2) $$(1)/usr/$(if $(ALTS_$(2)),libexec/$(2)-libselinux,sbin/$(2))
   endef
 
   $$(eval $$(call BuildPackage,$(1)))
