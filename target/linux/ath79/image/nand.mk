@@ -72,10 +72,10 @@ define Device/aerohive_hiveap-121
   KERNEL_SIZE := 5120k
   UBINIZE_OPTS := -E 5
   SUPPORTED_DEVICES += hiveap-121
-  IMAGES += factory.bin
+  IMAGES := factory.bin sysupgrade.tar
   IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
 	check-size
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += aerohive_hiveap-121
 
@@ -90,8 +90,8 @@ define Device/domywifi_dw33d
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   UBINIZE_OPTS := -E 5
-  IMAGES += factory.bin
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGES := factory.bin sysupgrade.tar
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
 	check-size
 endef
@@ -110,10 +110,10 @@ define Device/dongwon_dw02-412h
   KERNEL := $$(KERNEL) | dongwon-header
   KERNEL_INITRAMFS := $$(KERNEL)
   UBINIZE_OPTS := -E 5
-  IMAGES += factory.img
+  IMAGES := factory.img sysupgrade.tar
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
 	check-size
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 endef
 
 define Device/dongwon_dw02-412h-64m
@@ -147,9 +147,9 @@ define Device/glinet_gl-ar300m-nand
   $(Device/glinet_gl-ar300m-common-nand)
   DEVICE_VARIANT := NAND
   BLOCKSIZE := 128k
-  IMAGES += factory.img
+  IMAGES := factory.img sysupgrade.tar
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   SUPPORTED_DEVICES += glinet,gl-ar300m-nor
 endef
 TARGET_DEVICES += glinet_gl-ar300m-nand
@@ -174,7 +174,8 @@ define Device/glinet_gl-ar750s-nor-nand
   $(Device/glinet_gl-ar750s-common)
   DEVICE_VARIANT := NOR/NAND
   KERNEL_SIZE := 4096k
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGES := sysupgrade.tar
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   SUPPORTED_DEVICES += glinet,gl-ar750s-nor
 endef
 TARGET_DEVICES += glinet_gl-ar750s-nor-nand
@@ -197,9 +198,9 @@ define Device/glinet_gl-e750
   PAGESIZE := 2048
   VID_HDR_OFFSET := 2048
   BLOCKSIZE := 128k
-  IMAGES += factory.img
+  IMAGES := factory.img sysupgrade.tar
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += glinet_gl-e750
 
@@ -214,9 +215,9 @@ define Device/glinet_gl-xe300
   PAGESIZE := 2048
   VID_HDR_OFFSET := 2048
   BLOCKSIZE := 128k
-  IMAGES += factory.img
+  IMAGES := factory.img sysupgrade.tar
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += glinet_gl-xe300
 
@@ -296,10 +297,10 @@ define Device/netgear_ath79_nand
   KERNEL := kernel-bin | append-dtb | lzma | \
 	pad-offset $$(BLOCKSIZE) 129 | uImage lzma | pad-extra 1 | \
 	append-uImage-fakehdr filesystem $$(UIMAGE_MAGIC)
-  IMAGES := sysupgrade.bin factory.img
+  IMAGES := sysupgrade.tar factory.img
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | \
 	append-ubi | check-size | netgear-dni
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   UBINIZE_OPTS := -E 5
 endef
 
@@ -406,7 +407,8 @@ define Device/zte_mf28x_common
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   KERNEL_SIZE := 4096k
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGES := sysupgrade.tar
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 endef
 
 define Device/zte_mf281
