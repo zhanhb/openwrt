@@ -30,7 +30,6 @@ boot() {
 	ln -s /var/run /run
 	ln -s /var/lock /run/lock
 	mkdir -p /var/state
-	mkdir -p /var/tmp
 	mkdir -p /tmp/.uci
 	chmod 0700 /tmp/.uci
 	touch /var/log/wtmp
