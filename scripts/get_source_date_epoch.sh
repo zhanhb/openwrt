@@ -14,6 +14,12 @@ try_version() {
 	[ -n "$SOURCE_DATE_EPOCH" ]
 }
 
+try_git_upstream() {
+	SOURCE_DATE_EPOCH=$(git -C "$SOURCE" log -1 --format=format:%ct \
+		'@{u}' -- "$SOURCE" 2>/dev/null)
+	[ -n "$SOURCE_DATE_EPOCH" ]
+}
+
 try_git() {
 	SOURCE_DATE_EPOCH=$(git -C "$SOURCE" log -1 --format=format:%ct \
 		"$SOURCE" 2>/dev/null)
@@ -31,5 +37,5 @@ try_mtime() {
 	[ -n "$SOURCE_DATE_EPOCH" ]
 }
 
-try_version || try_git || try_hg || try_mtime || SOURCE_DATE_EPOCH=""
+try_version || try_git_upstream || try_git || try_hg || try_mtime || SOURCE_DATE_EPOCH=""
 echo "$SOURCE_DATE_EPOCH"
