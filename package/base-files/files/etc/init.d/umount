@@ -7,7 +7,7 @@ restart() {
 	:
 }
 
-stop() {
+shutdown() {
 	sync
 	/bin/umount -a -d -r
 }
