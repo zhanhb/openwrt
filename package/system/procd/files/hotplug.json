@@ -29,11 +29,17 @@
 					],
 					[ "if",
 						[ "regex", "DEVNAME", "^snd" ],
-						[ "makedev", "/dev/%DEVNAME%", "0660", "audio" ]
+						[
+							[ "makedev", "/dev/%DEVNAME%", "0660", "audio" ],
+							[ "return" ]
+						]
 					],
 					[ "if",
 						[ "regex", "DEVNAME", "^tty" ],
-						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+						[
+							[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ],
+							[ "return" ]
+						]
 					],
 					[ "if",
 						[ "has", "DEVNAME" ],
