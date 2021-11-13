@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_RELEASE:=3
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/paulusmack/ppp
@@ -58,11 +58,10 @@ endef
 define Package/ppp/conffiles
 /etc/ppp/chap-secrets
 /etc/ppp/filter
-/etc/ppp/ip-down
-/etc/ppp/ip-up
-/etc/ppp/ipv6-down
-/etc/ppp/ipv6-up
 /etc/ppp/options
+/lib/netifd/ppp-down
+/lib/netifd/ppp-up
+/lib/netifd/ppp6-up
 endef
 
 define Package/ppp-mod-pppoa
