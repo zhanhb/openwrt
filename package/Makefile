@@ -24,8 +24,7 @@ ifneq ($(IGNORE_ERRORS),)
   package-y-filter := $(package-y)
   package-m-filter := $(filter-out $(package-y),$(package-m))
   package-n-filter := $(filter-out $(package-y) $(package-m),$(package-))
-  package-ignore-errors := $(filter n m y,$(IGNORE_ERRORS))
-  package-ignore-errors := $(or $(package-ignore-errors),n m)
+  package-ignore-errors := $(or $(filter n m y,$(IGNORE_ERRORS)),n m)
   package-ignore-subdirs := $(sort $(foreach m,$(package-ignore-errors),$(package-$(m)-filter)))
   $(curdir)/builddirs-ignore-download := $(package-ignore-subdirs)
   $(curdir)/builddirs-ignore-compile := $(package-ignore-subdirs)
@@ -36,13 +35,7 @@ endif
 PACKAGE_INSTALL_FILES:= \
 	$(foreach pkg,$(sort $(package-y)), \
 		$(foreach variant, \
-			$(if $(strip $(package/$(pkg)/variants)), \
-				$(package/$(pkg)/variants), \
-				$(if $(package/$(pkg)/default-variant), \
-					$(package/$(pkg)/default-variant), \
-					default \
-				) \
-			), \
+			$(or $(strip $(package/$(pkg)/variants)),$(package/$(pkg)/default-variant),default), \
 			$(PKG_INFO_DIR)/$(lastword $(subst /,$(space),$(pkg))).$(variant).install \
 		) \
 	)
