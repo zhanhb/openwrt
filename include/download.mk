@@ -69,7 +69,7 @@ gen_sha256sum = $(shell $(MKHASH) sha256 $(DL_DIR)/$(1))
 # downloaded files.  It will add a FORCE rule if the sha256 hash does not
 # match, so that the download can be more thoroughly handled by download.pl.
 define check_download_integrity
-  expected_hash:=$(strip $(if $(filter-out x,$(HASH)),$(HASH),$(MIRROR_HASH)))
+  expected_hash:=$(strip $(or $(filter-out x,$(HASH)),$(MIRROR_HASH)))
   $$(if $$(and $(FILE),$$(wildcard $(DL_DIR)/$(FILE)), \
 	       $$(filter undefined,$$(flavor DownloadChecked/$(FILE)))), \
     $$(eval DownloadChecked/$(FILE):=1) \

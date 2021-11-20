@@ -152,7 +152,7 @@ define Build/Install/Default
 	$(MAKE) -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
 		$(MAKE_INSTALL_FLAGS) \
 		$(if $(PKG_SUBDIRS),SUBDIRS='$$$$(wildcard $(PKG_SUBDIRS))') \
-		$(if $(1), $(1), install);
+		$(or $(1), install);
 endef
 
 define Build/Dist/Default
