@@ -136,7 +136,7 @@ else
   TOOLCHAIN_DIR_NAME:=toolchain-$(GNU_TARGET_NAME)
 endif
 
-ifeq ($(or $(CONFIG_EXTERNAL_TOOLCHAIN),$(CONFIG_TARGET_uml)),)
+ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN)$(CONFIG_TARGET_uml),)
   iremap = -f$(if $(CONFIG_REPRODUCIBLE_DEBUG_INFO),file,macro)-prefix-map=$(1)=$(2)
 endif
 
@@ -160,8 +160,7 @@ STAGING_DIR_HOST:=$(abspath $(STAGING_DIR)/../host)
 STAGING_DIR_HOSTPKG:=$(abspath $(STAGING_DIR)/../hostpkg)
 
 TARGET_PATH:=$(subst $(space),:,$(filter-out .,$(filter-out ./,$(subst :,$(space),$(PATH)))))
-TARGET_INIT_PATH:=$(call qstrip,$(CONFIG_TARGET_INIT_PATH))
-TARGET_INIT_PATH:=$(or $(TARGET_INIT_PATH),/usr/sbin:/sbin:/usr/bin:/bin)
+TARGET_INIT_PATH:=$(or $(call qstrip,$(CONFIG_TARGET_INIT_PATH)),/usr/sbin:/sbin:/usr/bin:/bin)
 TARGET_CFLAGS:=$(TARGET_OPTIMIZATION)$(if $(CONFIG_DEBUG), -g3) $(call qstrip,$(CONFIG_EXTRA_OPTIMIZATION))
 TARGET_CXXFLAGS = $(TARGET_CFLAGS)
 TARGET_ASFLAGS_DEFAULT = $(TARGET_CFLAGS)
@@ -373,7 +372,7 @@ ifneq ($(wildcard $(STAGING_DIR_HOST)/bin/flock),)
   define locked
 	SHELL= \
 	flock \
-		$(TMP_DIR)/.$(if $(2),$(strip $(2)),global).flock \
+		$(TMP_DIR)/.$(or $(strip $(2)),global).flock \
 		-c '$(subst ','\'',$(1))'
   endef
 else

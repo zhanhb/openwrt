@@ -320,9 +320,8 @@ endif
   $(if $(DUMP), \
     $(if $(CHECK),,$(Dumpinfo/Package)), \
     $(foreach target, \
-      $(or $(Package/$(1)/targets), \
-        $(or $(PKG_TARGETS), ipkg) \
-      ), $(BuildTarget/$(target)) \
+      $(or $(Package/$(1)/targets),$(PKG_TARGETS),ipkg), \
+      $(BuildTarget/$(target)) \
     ) \
   )
   $(if $(PKG_HOST_ONLY),,$(call Build/DefaultTargets,$(1)))

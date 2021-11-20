@@ -9,10 +9,10 @@ else
   SUBTARGETS:=$(DEFAULT_SUBDIR_TARGETS)
 endif
 
-subtarget-default = $(filter-out ., \
-	$(or $($(1)/builddirs-$(2)), \
-	$(or $($(1)/builddirs-default), \
-	$($(1)/builddirs))))
+subtarget-default = $(filter-out .,$(or \
+	$($(1)/builddirs-$(2)), \
+	$($(1)/builddirs-default), \
+	$($(1)/builddirs)))
 
 define subtarget
   $(call warn_eval,$(1),t,T,$(1)/$(2): $($(1)/) $(foreach bd,$(call subtarget-default,$(1),$(2)),$(1)/$(bd)/$(2)))
@@ -69,7 +69,7 @@ define subdir
         $(if $(call diralias,$(bd)),$(call warn_eval,$(1)/$(bd),l,T,$(1)/$(call diralias,$(bd))/$(btype)/$(target): $(1)/$(bd)/$(btype)/$(target)))
       )
       $(call warn_eval,$(1)/$(bd),t,T,$(1)/$(bd)/$(target): $(if $(NO_DEPS)$(QUILT),,$($(1)/$(bd)/$(target)) $(call $(1)//$(target),$(1)/$(bd))))
-        $(foreach variant,$(filter-out *,$(or $(BUILD_VARIANT),$(if $(strip $($(1)/$(bd)/variants)),$($(1)/$(bd)/variants),$(or $($(1)/$(bd)/default-variant),__default)))),
+        $(foreach variant,$(filter-out *,$(or $(BUILD_VARIANT),$(strip $($(1)/$(bd)/variants)),$($(1)/$(bd)/default-variant),__default)),
 			$(if $(BUILD_LOG),@mkdir -p $(BUILD_LOG_DIR)/$(1)/$(bd)/$(filter-out __default,$(variant)))
 			$(if $($(1)/autoremove),$(call rebuild_check,$(1)/$(bd),$(target),,$(filter-out __default,$(variant)),$($(1)/$(bd)/variants)))
 			$(call log_make,$(1)/$(bd),$(target),,$(filter-out __default,$(variant)),$($(1)/$(bd)/variants)) \
