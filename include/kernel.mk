@@ -40,14 +40,13 @@ else
   endif
 
   ifeq ($(TARGET_BUILD),1)
-    PATCH_DIR ?= $(CURDIR)/patches$(if $(wildcard ./patches-$(KERNEL_PATCHVER)),-$(KERNEL_PATCHVER))
+    PATCH_DIR ?= $(CURDIR)/$(or $(wildcard patches-$(KERNEL_PATCHVER)),patches)
     FILES_DIR ?= $(foreach dir,$(wildcard $(CURDIR)/files $(CURDIR)/files-$(KERNEL_PATCHVER)),"$(dir)")
   endif
   KERNEL_BUILD_DIR ?= $(BUILD_DIR)/linux-$(BOARD)$(SUBTARGET:%=_%)
   LINUX_DIR ?= $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)
   LINUX_UAPI_DIR=uapi/
-  LINUX_VERMAGIC:=$(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null))
-  LINUX_VERMAGIC:=$(or $(LINUX_VERMAGIC),unknown)
+  LINUX_VERMAGIC:=$(or $(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null)),unknown)
 
   LINUX_UNAME_VERSION:=$(KERNEL_BASE)
   ifneq ($(findstring -rc,$(LINUX_VERSION)),)
@@ -178,7 +177,7 @@ define ModuleAutoLoad
   $(if $(5), \
     mkdir -p $(2)/etc/modules.d; \
     ($(foreach mod,$(5), \
-      echo "$(mod)$(if $(MODPARAMS.$(mod)), $(MODPARAMS.$(mod)),$(if $(MODPARAMS), $(MODPARAMS)))"; )) > $(2)/etc/modules.d/$(3)$(1); \
+      echo "$(strip $(mod) $(or $(MODPARAMS.$(mod)),$(MODPARAMS)))"; )) > $(2)/etc/modules.d/$(3)$(1); \
     $(if $(4), \
       mkdir -p $(2)/etc/modules-boot.d; \
       ln -sf ../modules.d/$(3)$(1) $(2)/etc/modules-boot.d/;))

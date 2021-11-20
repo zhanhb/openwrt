@@ -47,10 +47,7 @@ export LDFLAGS=
 
 empty:=
 space:= $(empty) $(empty)
-path:=$(subst :,$(space),$(PATH))
-path:=$(filter-out .%,$(path))
-path:=$(subst $(space),:,$(path))
-export PATH:=$(path)
+export PATH:=$(subst $(space),:,$(filter-out .%,$(subst :,$(space),$(PATH))))
 export STAGING_DIR_HOST:=$(if $(STAGING_DIR),$(abspath $(STAGING_DIR)/../host),$(TOPDIR)/staging_dir/host)
 
 unexport TAR_OPTIONS
