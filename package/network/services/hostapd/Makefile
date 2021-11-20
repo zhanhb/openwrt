@@ -38,11 +38,11 @@ EAPOL_TEST_PROVIDERS:=eapol-test eapol-test-openssl eapol-test-wolfssl
 SUPPLICANT_PROVIDERS:=
 HOSTAPD_PROVIDERS:=
 
-LOCAL_TYPE=$(strip \
-		$(if $(findstring wpad,$(BUILD_VARIANT)),wpad, \
-		$(if $(findstring supplicant,$(BUILD_VARIANT)),supplicant, \
+LOCAL_TYPE=$(strip $(or \
+		$(findstring wpad,$(BUILD_VARIANT)), \
+		$(findstring supplicant,$(BUILD_VARIANT)), \
 		hostapd \
-		)))
+		))
 
 LOCAL_AND_LIB_VARIANT=$(patsubst hostapd-%,%,\
 		      $(patsubst wpad-%,%,\
@@ -52,11 +52,11 @@ LOCAL_VARIANT=$(patsubst %-internal,%,\
 	      $(patsubst %-openssl,%,\
 	      $(LOCAL_AND_LIB_VARIANT:%-wolfssl=%)))
 
-SSL_VARIANT=$(strip \
-		$(if $(findstring openssl,$(LOCAL_AND_LIB_VARIANT)),openssl,\
-		$(if $(findstring wolfssl,$(LOCAL_AND_LIB_VARIANT)),wolfssl,\
+SSL_VARIANT=$(strip $(or \
+		$(findstring openssl,$(LOCAL_AND_LIB_VARIANT)),\
+		$(findstring wolfssl,$(LOCAL_AND_LIB_VARIANT)),\
 		internal\
-		)))
+		))
 
 CONFIG_VARIANT:=$(LOCAL_VARIANT)
 ifeq ($(LOCAL_VARIANT),mesh)

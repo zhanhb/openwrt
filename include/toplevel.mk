@@ -47,10 +47,7 @@ export LDFLAGS=
 
 empty:=
 space:= $(empty) $(empty)
-path:=$(subst :,$(space),$(PATH))
-path:=$(filter-out .%,$(path))
-path:=$(subst $(space),:,$(path))
-export PATH:=$(path)
+export PATH:=$(subst $(space),:,$(filter-out .%,$(subst :,$(space),$(PATH))))
 
 unexport TAR_OPTIONS
 
