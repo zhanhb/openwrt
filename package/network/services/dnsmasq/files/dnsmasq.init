@@ -1279,7 +1279,7 @@ start_service() {
 				if [ "$disabled" -eq 0 ]; then
 					# First enabled section will be assigned default instance name.
 					# Unnamed sections get precedence over named sections.
-					if expr "$cfg" : 'cfg[0-9a-f]*$' >/dev/null = "9"; then # See uci_fixup_section.
+					if expr "$name" : 'cfg[0-9a-f]*$' >/dev/null = "9"; then # See uci_fixup_section.
 						DEFAULT_INSTANCE="$name" # Unnamed config section.
 					elif [ -z "$first_instance" ]; then
 						first_instance="$name"
