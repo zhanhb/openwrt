@@ -41,16 +41,14 @@ else
   include toolchain/Makefile
 
 $(toolchain/stamp-compile): $(tools/stamp-compile) $(if $(CONFIG_BUILDBOT),toolchain_rebuild_check)
-$(target/stamp-compile): $(toolchain/stamp-compile) $(tools/stamp-compile) $(BUILD_DIR)/.prepared
+$(target/stamp-compile): $(toolchain/stamp-compile) $(BUILD_DIR)/.prepared
 $(package/stamp-compile): $(target/stamp-compile) $(package/stamp-cleanup)
 $(package/stamp-install): $(package/stamp-compile)
-$(target/stamp-install): $(package/stamp-compile) $(package/stamp-install)
+$(target/stamp-install): $(package/stamp-install)
 check: $(tools/stamp-check) $(toolchain/stamp-check) $(package/stamp-check)
 
 printdb:
 	@true
-
-prepare: $(target/stamp-compile)
 
 _clean: FORCE
 	rm -rf $(BUILD_DIR) $(STAGING_DIR) $(BIN_DIR) $(OUTPUT_DIR)/packages/$(ARCH_PACKAGES) $(TOPDIR)/staging_dir/packages
@@ -112,9 +110,11 @@ checksum: FORCE
 	$(call sha256sums,$(BIN_DIR),$(CONFIG_BUILDBOT))
 
 buildversion: FORCE
+	mkdir -p $(BIN_DIR)
 	$(SCRIPT_DIR)/getver.sh > $(BIN_DIR)/version.buildinfo
 
 feedsversion: FORCE
+	mkdir -p $(BIN_DIR)
 	$(SCRIPT_DIR)/feeds list -fs > $(BIN_DIR)/feeds.buildinfo
 
 diffconfig: FORCE
@@ -124,10 +124,10 @@ diffconfig: FORCE
 buildinfo: FORCE
 	$(_SINGLE)$(SUBMAKE) -r diffconfig buildversion feedsversion
 
-prepare: .config $(tools/stamp-compile) $(toolchain/stamp-compile)
+prepare: .config $(target/stamp-compile)
 	$(_SINGLE)$(SUBMAKE) -r buildinfo
 
-world: prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
+world: prepare $(target/stamp-install) FORCE
 	$(_SINGLE)$(SUBMAKE) -r package/index
 	$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
 	$(_SINGLE)$(SUBMAKE) -r checksum
