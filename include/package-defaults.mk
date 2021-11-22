@@ -21,26 +21,10 @@ define Package/Default
   EXTRA_DEPENDS:=
   MAINTAINER:=$(PKG_MAINTAINER)
   SOURCE:=$(patsubst $(TOPDIR)/%,%,$(CURDIR))
-  ifneq ($(PKG_VERSION),)
-    ifneq ($(PKG_RELEASE),)
-      VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
-    else
-      VERSION:=$(PKG_VERSION)
-    endif
-  else
-    VERSION:=$(PKG_RELEASE)
-  endif
+  VERSION:=$$(if $(PKG_VERSION),$(PKG_VERSION)$$(if $(PKG_RELEASE),-$(PKG_RELEASE)),$(PKG_RELEASE))
   ABI_VERSION:=
-  ifneq ($(PKG_FLAGS),)
-    PKGFLAGS:=$(PKG_FLAGS)
-  else
-    PKGFLAGS:=
-  endif
-  ifneq ($(ARCH_PACKAGES),)
-    PKGARCH:=$(ARCH_PACKAGES)
-  else
-    PKGARCH:=$(BOARD)
-  endif
+  PKGFLAGS:=$(PKG_FLAGS)
+  PKGARCH:=$$(or $(ARCH_PACKAGES),$(BOARD))
   DEFAULT:=
   MENU:=
   SUBMENU:=
