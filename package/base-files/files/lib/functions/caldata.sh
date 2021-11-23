@@ -1,3 +1,4 @@
+# shellcheck shell=sh disable=SC3043,SC3057,SC3060
 # Copyright (C) 2019 OpenWrt.org
 
 . /lib/functions.sh
@@ -9,7 +10,7 @@ caldata_dd() {
 	local count=$(($3))
 	local offset=$(($4))
 
-	dd if=$source of=$target iflag=skip_bytes,fullblock bs=$count skip=$offset count=1 2>/dev/null
+	dd "if=$source" "of=$target" iflag=skip_bytes,fullblock "bs=$count" "skip=$offset" count=1 2>/dev/null
 	return $?
 }
 
@@ -19,20 +20,20 @@ caldata_die() {
 }
 
 caldata_extract() {
-	local part=$1
+	local part="$1"
 	local offset=$(($2))
 	local count=$(($3))
 	local mtd
 
-	mtd=$(find_mtd_chardev $part)
+	mtd=$(find_mtd_chardev "$part")
 	[ -n "$mtd" ] || caldata_die "no mtd device found for partition $part"
 
-	caldata_dd $mtd /lib/firmware/$FIRMWARE $count $offset || \
+	caldata_dd "$mtd" "/lib/firmware/$FIRMWARE" "$count" "$offset" ||
 		caldata_die "failed to extract calibration data from $mtd"
 }
 
 caldata_extract_ubi() {
-	local part=$1
+	local part="$1"
 	local offset=$(($2))
 	local count=$(($3))
 	local ubidev
@@ -40,11 +41,11 @@ caldata_extract_ubi() {
 
 	. /lib/upgrade/nand.sh
 
-	ubidev=$(nand_find_ubi $CI_UBIPART)
-	ubi=$(nand_find_volume $ubidev $part)
+	ubidev=$(nand_find_ubi "$CI_UBIPART")
+	ubi=$(nand_find_volume "$ubidev" "$part")
 	[ -n "$ubi" ] || caldata_die "no UBI volume found for $part"
 
-	caldata_dd /dev/$ubi /lib/firmware/$FIRMWARE $count $offset || \
+	caldata_dd "/dev/$ubi" "/lib/firmware/$FIRMWARE" "$count" "$offset" ||
 		caldata_die "failed to extract calibration data from $ubi"
 }
 
@@ -54,10 +55,10 @@ caldata_extract_mmc() {
 	local count=$(($3))
 	local mmc_part
 
-	mmc_part=$(find_mmc_part $part)
+	mmc_part=$(find_mmc_part "$part")
 	[ -n "$mmc_part" ] || caldata_die "no mmc partition found for partition $part"
 
-	caldata_dd $mmc_part /lib/firmware/$FIRMWARE $count $offset || \
+	caldata_dd "$mmc_part" "/lib/firmware/$FIRMWARE" "$count" $offset ||
 		caldata_die "failed to extract calibration data from $mmc_part"
 }
 
@@ -66,17 +67,15 @@ caldata_extract_reverse() {
 	local offset=$2
 	local count=$(($3))
 	local mtd
-	local reversed
 	local caldata
 
 	mtd=$(find_mtd_chardev "$part")
-	reversed=$(hexdump -v -s $offset -n $count -e '/1 "%02x "' $mtd)
 
-	for byte in $reversed; do
-		caldata="\x${byte}${caldata}"
+	for byte in $(hexdump -v -s "$offset" -n "$count" -e '/1 "%02x "' "$mtd"); do
+		caldata="\x$byte$caldata"
 	done
 
-	printf "%b" "$caldata" > /lib/firmware/$FIRMWARE
+	printf "%b" "$caldata" >"/lib/firmware/$FIRMWARE"
 }
 
 caldata_from_file() {
@@ -87,7 +86,7 @@ caldata_from_file() {
 
 	[ -n "$target" ] || target=/lib/firmware/$FIRMWARE
 
-	caldata_dd $source $target $count $offset || \
+	caldata_dd "$source" "$target" "$count" "$offset" ||
 		caldata_die "failed to extract calibration data from $source"
 }
 
@@ -98,16 +97,14 @@ caldata_sysfsload_from_file() {
 	local target_dir="/sys/$DEVPATH"
 	local target="$target_dir/data"
 
-	[ -d "$target_dir" ] || \
-		caldata_die "no sysfs dir to write: $target"
+	[ -d "$target_dir" ] || caldata_die "no sysfs dir to write: $target"
 
 	echo 1 > "$target_dir/loading"
-	caldata_dd $source $target $count $offset
-	if [ $? != 0 ]; then
+	if caldata_dd "$source" "$target" "$count" "$offset"; then
+		echo 0 > "$target_dir/loading"
+	else
 		echo 1 > "$target_dir/loading"
 		caldata_die "failed to extract calibration data from $source"
-	else
-		echo 0 > "$target_dir/loading"
 	fi
 }
 
@@ -117,9 +114,7 @@ caldata_valid() {
 
 	[ -n "$target" ] || target=/lib/firmware/$FIRMWARE
 
-	magic=$(hexdump -v -n 2 -e '1/1 "%02x"' $target)
-	[ "$magic" = "$expected" ]
-	return $?
+	[ "$(hexdump -v -n 2 -e '1/1 "%02x"' "$target")" = "$expected" ]
 }
 
 caldata_patch_chksum() {
@@ -134,14 +129,14 @@ caldata_patch_chksum() {
 	xor_mac=${mac//:/}
 	xor_mac="${xor_mac:0:4} ${xor_mac:4:4} ${xor_mac:8:4}"
 
-	xor_fw_mac=$(hexdump -v -n 6 -s $mac_offset -e '/1 "%02x"' /lib/firmware/$FIRMWARE)
+	xor_fw_mac=$(hexdump -v -n 6 -s "$mac_offset" -e '/1 "%02x"' "/lib/firmware/$FIRMWARE")
 	xor_fw_mac="${xor_fw_mac:0:4} ${xor_fw_mac:4:4} ${xor_fw_mac:8:4}"
 
-	xor_fw_chksum=$(hexdump -v -n 2 -s $chksum_offset -e '/1 "%02x"' /lib/firmware/$FIRMWARE)
-	xor_fw_chksum=$(xor $xor_fw_chksum $xor_fw_mac $xor_mac)
+	xor_fw_chksum=$(hexdump -v -n 2 -s "$chksum_offset" -e '/1 "%02x"' "/lib/firmware/$FIRMWARE")
+	xor_fw_chksum=$(xor "$xor_fw_chksum" "$xor_fw_mac" "$xor_mac")
 
-	printf "%b" "\x${xor_fw_chksum:0:2}\x${xor_fw_chksum:2:2}" | \
-		dd of=$target conv=notrunc bs=1 seek=$chksum_offset count=2
+	printf "%b" "\x${xor_fw_chksum:0:2}\x${xor_fw_chksum:2:2}" |
+		dd "of=$target" conv=notrunc bs=1 "seek=$chksum_offset" count=2
 }
 
 caldata_patch_mac() {
@@ -150,13 +145,13 @@ caldata_patch_mac() {
 	local chksum_offset=$3
 	local target=$4
 
-	[ -z "$mac" -o -z "$mac_offset" ] && return
+	[ -n "$mac" ] && [ -n "$mac_offset" ] || return 0
 
 	[ -n "$target" ] || target=/lib/firmware/$FIRMWARE
 
-	[ -n "$chksum_offset" ] && caldata_patch_chksum "$mac" "$mac_offset" "$chksum_offset" "$target"
+	[ -z "$chksum_offset" ] || caldata_patch_chksum "$mac" "$mac_offset" "$chksum_offset" "$target"
 
-	macaddr_2bin $mac | dd of=$target conv=notrunc oflag=seek_bytes bs=6 seek=$mac_offset count=1 || \
+	macaddr_2bin "$mac" | dd "of=$target" conv=notrunc oflag=seek_bytes bs=6 "seek=$mac_offset" count=1 ||
 		caldata_die "failed to write MAC address to eeprom file"
 }
 
