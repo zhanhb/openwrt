@@ -1,3 +1,5 @@
+# shellcheck shell=sh
+
 ac_atomic_add=yes
 ac_atomic_sub=yes
 ac_cv_c_gettext_without_libintl=yes
