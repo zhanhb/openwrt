@@ -14,14 +14,17 @@ EOF
 	exit 1
 }
 
+if gzip -dcf < /dev/null 2>/dev/null; then
+	do_cat() { exec gzip -dcf "$@"; }
+else
+	do_cat() { zcat "$@" || cat "$@"; }
+fi
+
 opkg_key_verify() {
 	local sigfile="$1"
 	local msgfile="$2"
 
-	(
-		zcat "$msgfile" 2>/dev/null ||
-		cat "$msgfile" 2>/dev/null
-	) | usign -V -P "$OPKG_KEYS" -q -x "$sigfile" -m -
+	do_cat "$msgfile" 2>/dev/null | usign -V -P "$OPKG_KEYS" -q -x "$sigfile" -m -
 }
 
 opkg_key_add() {
