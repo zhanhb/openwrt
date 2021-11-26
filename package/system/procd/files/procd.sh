@@ -1,3 +1,4 @@
+# shellcheck shell=sh disable=SC1090,SC3043
 # procd API:
 #
 # procd_open_service(name, [script]):
@@ -46,17 +47,13 @@ PROCD_RELOAD_DELAY=1000
 _PROCD_SERVICE=
 
 procd_lock() {
-	local basescript=$(readlink "$initscript")
-	local service_name="$(basename ${basescript:-$initscript})"
+	local basescript="$(readlink "$initscript")"
+	local service_name="$(basename "${basescript:-"$initscript"}")"
 
-	flock -n 1000 &> /dev/null
-	if [ "$?" != "0" ]; then
+	flock -n 1000 >/dev/null 2>&1 || {
 		exec 1000>"$IPKG_INSTROOT/var/lock/procd_${service_name}.lock"
-		flock 1000
-		if [ "$?" != "0" ]; then
-			logger "warning: procd flock for $service_name failed"
-		fi
-	fi
+		flock 1000 || logger "warning: procd flock for $service_name failed"
+	}
 }
 
 _procd_call() {
@@ -64,7 +61,7 @@ _procd_call() {
 
 	json_set_namespace procd old_cb
 	"$@"
-	json_set_namespace $old_cb
+	json_set_namespace "$old_cb"
 }
 
 _procd_wrapper() {
@@ -140,42 +137,44 @@ _procd_add_table() {
 	json_close_object
 }
 
+# shellcheck disable=SC2120
 _procd_open_instance() {
 	local name="$1"; shift
 
-	_PROCD_INSTANCE_SEQ="$(($_PROCD_INSTANCE_SEQ + 1))"
+	_PROCD_INSTANCE_SEQ="$((_PROCD_INSTANCE_SEQ + 1))"
 	name="${name:-instance$_PROCD_INSTANCE_SEQ}"
 	json_add_object "$name"
-	[ -n "$TRACE_SYSCALLS" ] && json_add_boolean trace "1"
+	[ -n "$TRACE_SYSCALLS" ] && json_add_boolean trace 1
 }
 
 _procd_open_trigger() {
-	let '_procd_trigger_open = _procd_trigger_open + 1'
+	# shellcheck disable=SC2154
+	_procd_trigger_open=$((_procd_trigger_open + 1))
 	[ "$_procd_trigger_open" -gt 1 ] && return
-	json_add_array "triggers"
+	json_add_array triggers
 }
 
 _procd_close_trigger() {
-	let '_procd_trigger_open = _procd_trigger_open - 1'
+	_procd_trigger_open=$((_procd_trigger_open - 1))
 	[ "$_procd_trigger_open" -lt 1 ] || return
 	json_close_array
 }
 
 _procd_open_data() {
-	let '_procd_data_open = _procd_data_open + 1'
+	_procd_data_open=$((_procd_data_open + 1))
 	[ "$_procd_data_open" -gt 1 ] && return
-	json_add_object "data"
+	json_add_object data
 }
 
 _procd_close_data() {
-	let '_procd_data_open = _procd_data_open - 1'
+	_procd_data_open=$((_procd_data_open - 1))
 	[ "$_procd_data_open" -lt 1 ] || return
 	json_close_object
 }
 
 _procd_open_validate() {
 	json_select ..
-	json_add_array "validate"
+	json_add_array validate
 }
 
 _procd_close_validate() {
@@ -184,26 +183,27 @@ _procd_close_validate() {
 }
 
 _procd_add_jail() {
-	json_add_object "jail"
+	json_add_object jail
 	json_add_string name "$1"
 
 	shift
 	
-	for a in $@; do
-		case $a in
-		log)	json_add_boolean "log" "1";;
-		ubus)	json_add_boolean "ubus" "1";;
-		udebug)	json_add_boolean "udebug" "1";;
-		procfs)	json_add_boolean "procfs" "1";;
-		sysfs)	json_add_boolean "sysfs" "1";;
-		ronly)	json_add_boolean "ronly" "1";;
-		requirejail)	json_add_boolean "requirejail" "1";;
-		netns)	json_add_boolean "netns" "1";;
-		userns)	json_add_boolean "userns" "1";;
-		cgroupsns)	json_add_boolean "cgroupsns" "1";;
+	local a
+	for a in "$@"; do
+		case "$a" in
+		log)	json_add_boolean log 1;;
+		ubus)	json_add_boolean ubus 1;;
+		udebug)	json_add_boolean udebug 1;;
+		procfs)	json_add_boolean procfs 1;;
+		sysfs)	json_add_boolean sysfs 1;;
+		ronly)	json_add_boolean ronly 1;;
+		requirejail)	json_add_boolean requirejail 1;;
+		netns)	json_add_boolean netns 1;;
+		userns)	json_add_boolean userns 1;;
+		cgroupsns)	json_add_boolean cgroupsns 1;;
 		esac
 	done
-	json_add_object "mount"
+	json_add_object mount
 	json_close_object
 	json_close_object
 }
@@ -211,15 +211,14 @@ _procd_add_jail() {
 _procd_add_jail_mount() {
 	local _json_no_warning=1
 
-	json_select "jail"
-	[ $? = 0 ] || return
-	json_select "mount"
-	[ $? = 0 ] || {
+	json_select jail || return
+	json_select mount || {
 		json_select ..
 		return
 	}
-	for a in $@; do
-		json_add_string "$a" "0"
+	local a
+	for a in "$@"; do
+		json_add_string "$a" 0
 	done
 	json_select ..
 	json_select ..
@@ -228,15 +227,14 @@ _procd_add_jail_mount() {
 _procd_add_jail_mount_rw() {
 	local _json_no_warning=1
 
-	json_select "jail"
-	[ $? = 0 ] || return
-	json_select "mount"
-	[ $? = 0 ] || {
+	json_select jail || return
+	json_select mount || {
 		json_select ..
 		return
 	}
-	for a in $@; do
-		json_add_string "$a" "1"
+	local a
+	for a in "$@"; do
+		json_add_string "$a" 1
 	done
 	json_select ..
 	json_select ..
@@ -261,7 +259,7 @@ _procd_set_param() {
 			json_add_int "$type" "$1"
 		;;
 		reload_signal)
-			json_add_int "$type" $(kill -l "$1")
+			json_add_int "$type" "$(kill -l "$1")"
 		;;
 		pidfile|user|group|seccomp|capabilities|facility|\
 		extroot|overlaydir|tmpoverlaysize)
@@ -284,15 +282,15 @@ _procd_add_interface_trigger() {
 	shift
 
 	json_add_array
-	_procd_add_array_data "if"
+	_procd_add_array_data if
 
 	json_add_array
-	_procd_add_array_data "eq" "interface" "$1"
+	_procd_add_array_data eq interface "$1"
 	shift
 	json_close_array
 
 	json_add_array
-	_procd_add_array_data "run_script" "$@"
+	_procd_add_array_data run_script "$@"
 	json_close_array
 
 	json_close_array
@@ -301,8 +299,8 @@ _procd_add_interface_trigger() {
 }
 
 _procd_add_reload_interface_trigger() {
-	local script=$(readlink "$initscript")
-	local name=$(basename ${script:-$initscript})
+	local script="$(readlink "$initscript")"
+	local name="$(basename "${script:-"$initscript"}")"
 
 	_procd_open_trigger
 	_procd_add_interface_trigger "interface.*" $1 /etc/init.d/$name reload
@@ -345,15 +343,15 @@ _procd_add_config_trigger() {
 	shift
 
 	json_add_array
-	_procd_add_array_data "if"
+	_procd_add_array_data if
 
 	json_add_array
-	_procd_add_array_data "eq" "package" "$1"
+	_procd_add_array_data eq package "$1"
 	shift
 	json_close_array
 
 	json_add_array
-	_procd_add_array_data "run_script" "$@"
+	_procd_add_array_data run_script "$@"
 	json_close_array
 
 	json_close_array
@@ -369,17 +367,17 @@ _procd_add_mount_trigger() {
 	shift ; shift
 
 	json_add_array
-	_procd_add_array_data "if"
+	_procd_add_array_data if
 
 	if [ "$2" ]; then
 		json_add_array
-		_procd_add_array_data "or"
+		_procd_add_array_data or
 		multi=1
 	fi
 
 	while [ "$1" ]; do
 		json_add_array
-		_procd_add_array_data "eq" "target" "$1"
+		_procd_add_array_data eq target "$1"
 		shift
 		json_close_array
 	done
@@ -387,7 +385,7 @@ _procd_add_mount_trigger() {
 	[ $multi = 1 ] && json_close_array
 
 	json_add_array
-	_procd_add_array_data "run_script" /etc/init.d/$name $action
+	_procd_add_array_data run_script "/etc/init.d/$name" "$action"
 	json_close_array
 
 	json_close_array
@@ -400,8 +398,8 @@ _procd_add_action_mount_trigger() {
 	shift
 	local mountpoints="$(procd_get_mountpoints "$@")"
 	[ "${mountpoints//[[:space:]]}" ] || return 0
-	local script=$(readlink "$initscript")
-	local name=$(basename ${script:-$initscript})
+	local script="$(readlink "$initscript")"
+	local name="$(basename "${script:-"$initscript"}")"
 
 	_procd_open_trigger
 	_procd_add_mount_trigger mount.add $action "$mountpoints"
@@ -438,12 +436,12 @@ _procd_add_raw_trigger() {
 	json_add_array
 	_procd_add_array_data "$1"
 	shift
-	local timeout=$1
+	local timeout="$1"
 	shift
 
 	json_add_array
 	json_add_array
-	_procd_add_array_data "run_script" "$@"
+	_procd_add_array_data run_script "$@"
 	json_close_array
 	json_close_array
 
@@ -453,20 +451,20 @@ _procd_add_raw_trigger() {
 }
 
 _procd_add_reload_trigger() {
-	local script=$(readlink "$initscript")
-	local name=$(basename ${script:-$initscript})
+	local script="$(readlink "$initscript")"
+	local name="$(basename "${script:-"$initscript"}")"
 	local file
 
 	_procd_open_trigger
 	for file in "$@"; do
-		_procd_add_config_trigger "config.change" "$file" /etc/init.d/$name reload
+		_procd_add_config_trigger config.change "$file" "/etc/init.d/$name" reload
 	done
 	_procd_close_trigger
 }
 
 _procd_add_validation() {
 	_procd_open_validate
-	$@
+	"$@"
 	_procd_close_validate
 }
 
@@ -474,8 +472,7 @@ _procd_append_param() {
 	local type="$1"; shift
 	local _json_no_warning=1
 
-	json_select "$type"
-	[ $? = 0 ] || {
+	json_select "$type" || {
 		_procd_set_param "$type" "$@"
 		return
 	}
@@ -502,7 +499,7 @@ _procd_close_instance() {
 			local respawn_threshold=$(uci_get system.@service[0].respawn_threshold)
 			local respawn_timeout=$(uci_get system.@service[0].respawn_timeout)
 			local respawn_retry=$(uci_get system.@service[0].respawn_retry)
-			_procd_add_array_data ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+			_procd_add_array_data "${respawn_threshold:-3600}" "${respawn_timeout:-5}" "${respawn_retry:-5}"
 		fi
 		json_select ..
 	fi
@@ -525,7 +522,7 @@ procd_running() {
 	json_add_string name "$service"
 	local running=$(_procd_ubus_call list | jsonfilter -l 1 -e "@['$service'].instances[$instance].running")
 
-	[ "$running" = "true" ]
+	[ "$running" = true ]
 }
 
 _procd_kill() {
@@ -549,7 +546,7 @@ _procd_send_signal() {
 
 	json_init
 	json_add_string name "$service"
-	[ -n "$instance" -a "$instance" != "*" ] && json_add_string instance "$instance"
+	[ -n "$instance" ] && [ "$instance" != "*" ] && json_add_string instance "$instance"
 	[ -n "$signal" ] && json_add_int signal "$signal"
 	_procd_ubus_call signal
 }
@@ -566,7 +563,7 @@ _procd_status() {
 	[ -n "$service" ] && json_add_string name "$service"
 
 	data=$(_procd_ubus_call list | jsonfilter -e '@["'"$service"'"]')
-	[ -z "$data" ] && { echo "inactive"; return 3; }
+	[ -z "$data" ] && { echo inactive; return 3; }
 
 	data=$(echo "$data" | jsonfilter -e '$.instances')
 	if [ -z "$data" ]; then
@@ -601,6 +598,7 @@ _procd_status() {
 	fi
 }
 
+# shellcheck disable=SC2120
 procd_open_data() {
 	local name="$1"
 	json_set_namespace procd __procd_old_cb
@@ -609,7 +607,7 @@ procd_open_data() {
 
 procd_close_data() {
 	json_close_object
-	json_set_namespace $__procd_old_cb
+	json_set_namespace "$__procd_old_cb"
 }
 
 _procd_set_config_changed() {
@@ -630,7 +628,7 @@ procd_add_mdns_service() {
 	proto=$1; shift
 	port=$1; shift
 	json_add_object "${service}_$port"
-	json_add_string "service" "_$service._$proto.local"
+	json_add_string service "_$service._$proto.local"
 	json_add_int port "$port"
 	for txt in "$@"; do
 		[ -z "$txt" ] && continue
@@ -645,14 +643,13 @@ procd_add_mdns_service() {
 
 procd_add_mdns() {
 	procd_open_data
-	json_add_object "mdns"
+	json_add_object mdns
 	procd_add_mdns_service "$@"
 	json_close_object
 	procd_close_data
 }
 
-uci_validate_section()
-{
+uci_validate_section() {
 	local _package="$1"
 	local _type="$2"
 	local _name="$3"
@@ -662,7 +659,7 @@ uci_validate_section()
 	_result=$(/sbin/validate_data "$_package" "$_type" "$_name" "$@" 2> /dev/null)
 	_error=$?
 	eval "$_result"
-	[ "$_error" = "0" ] || $(/sbin/validate_data "$_package" "$_type" "$_name" "$@" 1> /dev/null)
+	[ "$_error" = 0 ] || $(/sbin/validate_data "$_package" "$_type" "$_name" "$@" 1> /dev/null)
 	return $_error
 }
 
