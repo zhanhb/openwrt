@@ -156,6 +156,24 @@ define BuildUtil
   $$(eval $$(call BuildPackage,$(1)))
 endef
 
+define Package/libselinux-utils
+  $(call Package/libselinux/Default)
+  TITLE:=SELinux libselinux utilities
+  SECTION:=utils
+  CATEGORY:=Utilities
+  SUBMENU:=libselinux tools
+  DEPENDS:=$(LIBSELINUX_UTILS:%=+libselinux-%)
+endef
+
+define Package/libselinux-utils/description
+  The libselinux-utils package contains the utilities.
+endef
+
+define Package/libselinux-utils/install
+	true
+endef
+
 $(eval $(call HostBuild))
 $(eval $(call BuildPackage,libselinux))
 $(foreach a,$(LIBSELINUX_UTILS),$(eval $(call BuildUtil,libselinux-$(a),$(a))))
+$(eval $(call BuildPackage,libselinux-utils))
