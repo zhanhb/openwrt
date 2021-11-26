@@ -104,6 +104,10 @@ json_overview_image_info: $(BIN_DIR)/profiles.json
 checksum: FORCE
 	$(call sha256sums,$(BIN_DIR),$(CONFIG_BUILDBOT))
 
+patchinfo: FORCE
+	mkdir -p $(BIN_DIR)
+	git format-patch --stdout --no-signature "@{u}.." > $(BIN_DIR)/custom.patch
+
 buildversion: FORCE
 	mkdir -p $(BIN_DIR)
 	$(SCRIPT_DIR)/getver.sh > $(BIN_DIR)/version.buildinfo
@@ -117,7 +121,7 @@ diffconfig: FORCE
 	$(SCRIPT_DIR)/diffconfig.sh > $(BIN_DIR)/config.buildinfo
 
 buildinfo: FORCE
-	$(_SINGLE)$(SUBMAKE) -r diffconfig buildversion feedsversion
+	$(_SINGLE)$(SUBMAKE) -r patchinfo diffconfig buildversion feedsversion
 
 prepare: .config $(target/stamp-compile)
 	$(_SINGLE)$(SUBMAKE) -r buildinfo
