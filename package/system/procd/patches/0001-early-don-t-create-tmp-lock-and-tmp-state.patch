@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Fri, 26 Nov 2021 15:00:48 +0800
+Subject: [PATCH] early: don't create /tmp/lock and /tmp/state on boot
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ initd/early.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+--- a/initd/early.c
++++ b/initd/early.c
+@@ -79,8 +79,6 @@ early_mounts(void)
+ 				"mode=01777");
+ 	}
+ 	mkdir("/tmp/run", 0755);
+-	mkdir("/tmp/lock", 0755);
+-	mkdir("/tmp/state", 0755);
+ 	umask(oldumask);
+ }
+ 
