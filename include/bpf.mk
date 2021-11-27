@@ -6,11 +6,7 @@ ifneq ($(CONFIG_USE_LLVM_HOST),)
   find-llvm-tool=$(firstword $(shell PATH='$(BPF_PATH)' command -v $(1) || echo '$(firstword $(1))-not-found'))
 
   BPF_TOOLCHAIN_HOST_PATH:=$(call qstrip,$(CONFIG_BPF_TOOLCHAIN_HOST_PATH))
-  ifneq ($(BPF_TOOLCHAIN_HOST_PATH),)
-    BPF_PATH:=$(BPF_TOOLCHAIN_HOST_PATH)/bin:$(PATH)
-  else
-    BPF_PATH:=$(PATH)
-  endif
+  BPF_PATH:=$(if $(BPF_TOOLCHAIN_HOST_PATH),$(BPF_TOOLCHAIN_HOST_PATH)/bin:)$(PATH)
   CLANG:=$(call find-llvm-tool,clang clang-13 clang-12)
   LLVM_VER:=$(subst clang,,$(notdir $(CLANG)))
 
