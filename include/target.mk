@@ -363,7 +363,7 @@ define BuildTargets/DumpCurrent
   dumpinfo:
 	@echo 'Target: $(TARGETID)'; \
 	 echo 'Target-Board: $(BOARD)'; \
-	 echo 'Target-Name: $(BOARDNAME)$(if $(SUBTARGETS),$(if $(SUBTARGET),))'; \
+	 echo 'Target-Name: $(BOARDNAME)'; \
 	 echo 'Target-Arch: $(ARCH)'; \
 	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%))'; \
 	 echo 'Target-Features: $(FEATURES)'; \

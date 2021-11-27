@@ -90,8 +90,7 @@ define autoreconf_target
 endef
 
 define patch_libtool_target
-  $(strip $(call patch_libtool, \
-    $(PKG_BUILD_DIR)))
+  $(strip $(call patch_libtool,$(PKG_BUILD_DIR)))
 endef
 
 define gettext_version_target
@@ -147,8 +146,7 @@ define autoreconf_host
 endef
 
 define patch_libtool_host
-  $(strip $(call patch_libtool, \
-    $(HOST_BUILD_DIR)))
+  $(strip $(call patch_libtool,$(HOST_BUILD_DIR)))
 endef
 
 ifneq ($(filter patch-libtool,$(HOST_FIXUP)),)

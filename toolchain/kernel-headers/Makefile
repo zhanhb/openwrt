@@ -46,7 +46,7 @@ include $(INCLUDE_DIR)/toolchain-build.mk
 include $(INCLUDE_DIR)/kernel-defaults.mk
 
 ifeq ($(strip $(BOARD)),uml)
-  LINUX_KARCH:=$(subst x86_64,x86,$(subst i386,x86,$(ARCH)))
+  LINUX_KARCH:=$(if $(filter i386 x86_64,$(ARCH)),x86,$(ARCH))
 endif
 
 HOST_EXTRACFLAGS=
@@ -77,14 +77,6 @@ ifneq ($(CONFIG_mips)$(CONFIG_mipsel),)
   endef
 endif
 
-define Host/Configure/post/mips
-	$(call Host/Configure/lzma)
-endef
-
-define Host/Configure/post/mipsel
-	$(call Host/Configure/lzma)
-endef
-
 define Host/Prepare
 	rm -rf $(BUILD_DIR_TOOLCHAIN)/linux-*
 	$(call Kernel/Prepare/Default)
@@ -96,7 +88,7 @@ endef
 define Host/Configure
 	yes '' | $(HOST_KMAKE) oldconfig
 	$(call Host/Configure/all)
-	$(call Host/Configure/post/$(ARCH))
+	$(call Host/Configure/lzma)
 endef
 
 define Host/Compile

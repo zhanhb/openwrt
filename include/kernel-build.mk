@@ -148,8 +148,7 @@ define BuildKernel
   mostlyclean: FORCE
 	$(Kernel/Clean)
 
-  define BuildKernel
-  endef
+  BuildKernel=
 
   download: $(if $(LINUX_SITE),$(DL_DIR)/$(LINUX_SOURCE))
   prepare: $(STAMP_PREPARED)

@@ -71,12 +71,7 @@ endef
 
 export GNULIB_SRCDIR:=$(HOST_GNULIB_SRCDIR)
 
-TARGET_CFLAGS += $(FPIC)
-TARGET_CFLAGS += -std=gnu23
-ifneq ($(HOST_OS),Linux)
-  TARGET_CFLAGS += -I$(STAGING_DIR_HOSTPKG)/include
-endif
-
+TARGET_CFLAGS += $(FPIC) -std=gnu23 $(if $(CONFIG_HOST_OS_LINUX),,-I$(STAGING_DIR_HOSTPKG)/include)
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \

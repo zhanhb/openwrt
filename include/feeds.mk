@@ -8,11 +8,9 @@
 FEEDS_INSTALLED:=$(notdir $(wildcard $(TOPDIR)/package/feeds/*))
 FEEDS_AVAILABLE:=$(sort $(FEEDS_INSTALLED) $(shell $(SCRIPT_DIR)/feeds list -n 2>/dev/null))
 
-PACKAGE_SUBDIRS=$(PACKAGE_DIR)
-ifneq ($(CONFIG_PER_FEED_REPO),)
-  PACKAGE_SUBDIRS += $(OUTPUT_DIR)/packages/$(ARCH_PACKAGES)/base
-  PACKAGE_SUBDIRS += $(foreach FEED,$(FEEDS_AVAILABLE),$(OUTPUT_DIR)/packages/$(ARCH_PACKAGES)/$(FEED))
-endif
+PACKAGE_SUBDIRS= \
+	$(PACKAGE_DIR) \
+	$(if $(CONFIG_PER_FEED_REPO),$(foreach FEED,$(sort base $(FEEDS_AVAILABLE)),$(OUTPUT_DIR)/packages/$(ARCH_PACKAGES)/$(FEED)))
 
 opkg_package_files = $(wildcard \
 	$(foreach dir,$(PACKAGE_SUBDIRS), \
@@ -24,10 +22,8 @@ apk_package_files = $(wildcard \
 
 # 1: package name
 define FeedPackageDir
-$(strip $(if $(CONFIG_PER_FEED_REPO), \
-  $(if $(Package/$(1)/subdir), \
-    $(abspath $(OUTPUT_DIR)/packages/$(ARCH_PACKAGES)/$(Package/$(1)/subdir)), \
-    $(PACKAGE_DIR)), \
+$(strip $(if $(and $(CONFIG_PER_FEED_REPO),$(Package/$(1)/subdir)), \
+  $(abspath $(OUTPUT_DIR)/packages/$(ARCH_PACKAGES)/$(Package/$(1)/subdir)), \
   $(PACKAGE_DIR)))
 endef
 

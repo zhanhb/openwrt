@@ -87,21 +87,14 @@ CPU := $(patsubst riscv,riscv64,$(patsubst x86_64,amd64,$(patsubst x86,i386,$(pa
 CONFIGURE_VARS += \
 	UNAME_R=$(LINUX_VERSION)
 
-ifeq ($(CONFIG_ARCH_64BIT),y)
-	CONFIGURE_ARGS += \
-		--enable-only64bit
-	BITS := 64bit
-else
-	CONFIGURE_ARGS += \
-		--enable-only32bit
-	BITS := 32bit
-endif
+BITS := $(if $(CONFIG_ARCH_64BIT),64,32)bit
 
 ifeq ($(CONFIG_arm_v7),y)
 	CONFIGURE_ARGS += --host=armv7-openwrt-linux$(if $(TARGET_SUFFIX),-$(TARGET_SUFFIX))
 endif
 
 CONFIGURE_ARGS += \
+	--enable-only$(BITS) \
 	--enable-lto \
 	--enable-tls \
 	--without-mpicc \

@@ -102,13 +102,13 @@ define prepare_rootfs
 			$(if $(SOURCE_DATE_EPOCH),sed -i "s/Installed-Time: .*/Installed-Time: $(SOURCE_DATE_EPOCH)/" $(1)/usr/lib/opkg/status ;) \
 		fi; \
 		for script in ./etc/init.d/*; do \
-			grep '#!/bin/sh /etc/rc.common' $$script >/dev/null || continue; \
-			if ! echo " $(3) " | grep -q " $$(basename $$script) "; then \
-				IPKG_INSTROOT=$(1) $$(command -v bash) ./etc/rc.common $$script enable; \
-				echo "Enabling" $$(basename $$script); \
+			grep -q '#!/bin/sh /etc/rc.common' "$$script" || continue; \
+			if echo " $(3) " | grep -q " $${script##*/} "; then \
+				IPKG_INSTROOT=$(1) bash ./etc/rc.common "$$script" disable; \
+				echo "Disabling $${script##*/}"; \
 			else \
-				IPKG_INSTROOT=$(1) $$(command -v bash) ./etc/rc.common $$script disable; \
-				echo "Disabling" $$(basename $$script); \
+				IPKG_INSTROOT=$(1) bash ./etc/rc.common "$$script" enable; \
+				echo "Enabling $${script##*/}"; \
 			fi; \
 		done || true \
 	)

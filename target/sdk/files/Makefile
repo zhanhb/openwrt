@@ -23,7 +23,7 @@ ifneq ($(OPENWRT_BUILD),1)
   export OPENWRT_BUILD
 
   empty:=
-  space:= $(empty) $(empty)
+  space:= $() $()
   _SINGLE=export MAKEFLAGS=$(space);
 
   include $(TOPDIR)/include/debug.mk
