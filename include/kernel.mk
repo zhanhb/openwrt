@@ -48,18 +48,10 @@ else
   LINUX_UAPI_DIR=uapi/
   LINUX_VERMAGIC:=$(or $(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null)),unknown)
 
-  LINUX_UNAME_VERSION:=$(KERNEL_BASE)
-  ifneq ($(findstring -rc,$(LINUX_VERSION)),)
-    LINUX_UNAME_VERSION:=$(LINUX_UNAME_VERSION)-$(strip $(lastword $(subst -, ,$(LINUX_VERSION))))
-  endif
+  LINUX_UNAME_VERSION:=$(KERNEL_BASE)$(if $(findstring -rc,$(LINUX_VERSION)),-$(strip $(lastword $(subst -, ,$(LINUX_VERSION)))))
 
   LINUX_KERNEL:=$(KERNEL_BUILD_DIR)/vmlinux
-
-  ifneq (,$(findstring -rc,$(LINUX_VERSION)))
-      LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.gz
-  else
-      LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.xz
-  endif
+  LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.$(if $(findstring -rc,$(LINUX_VERSION)),g,x)z
 
   ifneq (,$(findstring -rc,$(LINUX_VERSION)))
       LINUX_SITE:=https://git.kernel.org/torvalds/t
@@ -157,8 +149,7 @@ define KernelPackage/hooks
   ifneq ($(PKG_NAME),kernel)
     Hooks/Compile/Post += collect_module_symvers
   endif
-  define KernelPackage/hooks
-  endef
+  KernelPackage/hooks=
 endef
 
 define KernelPackage/Defaults
@@ -189,8 +180,7 @@ endif
 
 define KernelPackage/depends
   $(STAMP_BUILT): $(LINUX_DIR)/.config
-  define KernelPackage/depends
-  endef
+  KernelPackage/depends=
 endef
 
 define KernelPackage

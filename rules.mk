@@ -20,11 +20,10 @@ endif
 export TMP_DIR:=$(TOPDIR)/tmp
 export TMPDIR:=$(TMP_DIR)
 
-qstrip=$(strip $(subst ",,$(1)))
-#"))
+qstrip=$(strip $(subst ",,$(1)))#"))
 
 empty:=
-space:= $(empty) $(empty)
+space:= $() $()
 comma:=,
 merge=$(subst $(space),,$(1))
 confvar=$(shell echo '$(foreach v,$(1),$(v)=$(subst ','\'',$($(v))))' | $(MKHASH) md5)
@@ -55,14 +54,14 @@ $(eval tolower = $(call __tr_template,$(chars_upper),$(chars_lower)))
 
 version_abbrev = $(if $(if $(CHECK),,$(DUMP)),$(1),$(shell printf '%.8s' $(1)))
 
-_SINGLE=export MAKEFLAGS=$(space);
+_SINGLE=export MAKEFLAGS= ;
 CFLAGS:=
 ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(call qstrip,$(CONFIG_ARCH)))))
 ARCH_PACKAGES:=$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))
 BOARD:=$(call qstrip,$(CONFIG_TARGET_BOARD))
 SUBTARGET:=$(call qstrip,$(CONFIG_TARGET_SUBTARGET))
 TARGET_OPTIMIZATION:=$(call qstrip,$(CONFIG_TARGET_OPTIMIZATION))
-TARGET_SUFFIX=$(call qstrip,$(CONFIG_TARGET_SUFFIX))
+TARGET_SUFFIX:=$(call qstrip,$(CONFIG_TARGET_SUFFIX))$(if $(CONFIG_HAS_SPE_FPU),spe)
 BUILD_SUFFIX:=$(call qstrip,$(CONFIG_BUILD_SUFFIX))
 SUBDIR:=$(patsubst $(TOPDIR)/%,%,${CURDIR})
 BUILD_SUBDIR:=$(patsubst $(TOPDIR)/%,%,${CURDIR})
@@ -73,31 +72,12 @@ IS_PACKAGE_BUILD := $(if $(filter package/%,$(BUILD_SUBDIR)),1)
 
 OPTIMIZE_FOR_CPU=$(subst i386,i486,$(ARCH))
 
-ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be powerpc ))
-  FPIC:=-DPIC -fPIC
-else
-  FPIC:=-DPIC -fpic
-endif
+FPIC:=-DPIC -f$(if $(findstring $(ARCH) , aarch64 aarch64_be powerpc ),PIC,pic)
 
 HOST_FPIC:=-DPIC -fPIC
 
-ARCH_SUFFIX:=$(call qstrip,$(CONFIG_CPU_TYPE))
-GCC_ARCH:=
-
-ifneq ($(ARCH_SUFFIX),)
-  ARCH_SUFFIX:=_$(ARCH_SUFFIX)
-endif
-ifneq ($(filter -march=armv%,$(TARGET_OPTIMIZATION)),)
-  GCC_ARCH:=$(patsubst -march=%,%,$(filter -march=armv%,$(TARGET_OPTIMIZATION)))
-endif
-ifdef CONFIG_HAS_SPE_FPU
-  TARGET_SUFFIX:=$(TARGET_SUFFIX)spe
-endif
-ifdef CONFIG_MIPS64_ABI
-  ifneq ($(CONFIG_MIPS64_ABI_O32),y)
-     ARCH_SUFFIX:=$(ARCH_SUFFIX)_$(call qstrip,$(CONFIG_MIPS64_ABI))
-  endif
-endif
+ARCH_SUFFIX:=$(addprefix _,$(call qstrip,$(CONFIG_CPU_TYPE)))$(if $(CONFIG_MIPS64_ABI),$(if $(CONFIG_MIPS64_ABI_O32),,_$(call qstrip,$(CONFIG_MIPS64_ABI))))
+GCC_ARCH:=$(patsubst -march=%,%,$(filter -march=armv%,$(TARGET_OPTIMIZATION)))
 
 DEFAULT_SUBDIR_TARGETS:=clean download prepare compile update refresh prereq dist distcheck configure check check-depends
 
@@ -111,17 +91,16 @@ endef
 
 DL_DIR=$(or $(call qstrip,$(CONFIG_DOWNLOAD_FOLDER)),$(TOPDIR)/dl)$(if $(DL_SUBDIR),/$(DL_SUBDIR))
 OUTPUT_DIR:=$(or $(call qstrip,$(CONFIG_BINARY_FOLDER)),$(TOPDIR)/bin)
-BIN_DIR:=$(OUTPUT_DIR)/targets/$(BOARD)/$(SUBTARGET)
+LIBC:=$(call qstrip,$(CONFIG_LIBC))
+BIN_DIR:=$(OUTPUT_DIR)/targets/$(BOARD)/$(SUBTARGET)$(if $(CONFIG_EXTERNAL_TOOLCHAIN)$(CONFIG_USE_MUSL),,-$(LIBC))
 INCLUDE_DIR:=$(TOPDIR)/include
 SCRIPT_DIR:=$(TOPDIR)/scripts
 BUILD_DIR_BASE:=$(TOPDIR)/build_dir
 ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   GCCV:=$(call qstrip,$(CONFIG_GCC_VERSION))
-  LIBC:=$(call qstrip,$(CONFIG_LIBC))
   REAL_GNU_TARGET_NAME=$(OPTIMIZE_FOR_CPU)-openwrt-linux$(TARGET_SUFFIX:%=-%)
   GNU_TARGET_NAME=$(OPTIMIZE_FOR_CPU)-openwrt-linux
   DIR_SUFFIX:=_$(LIBC)$(if $(CONFIG_arm),_eabi)
-  BIN_DIR:=$(BIN_DIR)$(if $(CONFIG_USE_MUSL),,-$(LIBC))
   TARGET_DIR_NAME = target-$(ARCH)$(ARCH_SUFFIX)$(DIR_SUFFIX)$(BUILD_SUFFIX:%=_%)
   TOOLCHAIN_DIR_NAME = toolchain-$(ARCH)$(ARCH_SUFFIX)_gcc-$(GCCV)$(DIR_SUFFIX)
 else
@@ -131,7 +110,6 @@ else
     GNU_TARGET_NAME=$(shell gcc -dumpmachine)
   endif
   REAL_GNU_TARGET_NAME=$(GNU_TARGET_NAME)
-  LIBC:=$(call qstrip,$(CONFIG_LIBC))
   TARGET_DIR_NAME:=target-$(GNU_TARGET_NAME)_$(LIBC)$(BUILD_SUFFIX:%=_%)
   TOOLCHAIN_DIR_NAME:=toolchain-$(GNU_TARGET_NAME)
 endif
@@ -155,7 +133,7 @@ STAGING_DIR_IMAGE:=$(STAGING_DIR)/image
 BUILD_LOG_DIR:=$(or $(call qstrip,$(CONFIG_BUILD_LOG_DIR)),$(TOPDIR)/logs)
 PKG_INFO_DIR := $(STAGING_DIR)/pkginfo
 
-BUILD_DIR_HOST:=$(if $(IS_PACKAGE_BUILD),$(BUILD_DIR_BASE)/hostpkg,$(BUILD_DIR_BASE)/host)
+BUILD_DIR_HOST:=$(BUILD_DIR_BASE)/host$(if $(IS_PACKAGE_BUILD),pkg)
 export STAGING_DIR_HOST:=$(abspath $(STAGING_DIR)/../host)
 export STAGING_DIR_HOSTPKG:=$(abspath $(STAGING_DIR)/../hostpkg)
 
@@ -174,9 +152,7 @@ LIBGCC_A=$(lastword $(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.a))
 LIBGCC_S=$(if $(wildcard $(TOOLCHAIN_DIR)/lib/libgcc_s.so),-L$(TOOLCHAIN_DIR)/lib -lgcc_s,$(LIBGCC_A))
 endif
 
-ifeq ($(CONFIG_ARCH_64BIT),y)
-  LIB_SUFFIX:=64
-endif
+LIB_SUFFIX:=$(if $(CONFIG_ARCH_64BIT),64)
 
 ifndef DUMP
   ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
@@ -184,11 +160,7 @@ ifndef DUMP
     export GCC_HONOUR_COPTS:=0
     TARGET_CROSS:=$(or $(TARGET_CROSS),$(OPTIMIZE_FOR_CPU)-openwrt-linux$(TARGET_SUFFIX:%=-%)-)
     TARGET_CFLAGS+= -fhonour-copts
-    TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/usr/include
-    ifeq ($(CONFIG_USE_MUSL),y)
-      TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/include/fortify
-    endif
-    TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/include
+    TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/usr/include $(if $(CONFIG_USE_MUSL),-I$(TOOLCHAIN_DIR)/include/fortify) -I$(TOOLCHAIN_DIR)/include
     TARGET_LDFLAGS+= -L$(TOOLCHAIN_DIR)/usr/lib -L$(TOOLCHAIN_DIR)/lib
     TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(TARGET_PATH)
   else
@@ -198,9 +170,7 @@ ifndef DUMP
       TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
       TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
       TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
-      ifneq ($(TOOLCHAIN_BIN_DIRS),)
-        TARGET_PATH:=$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):$(TARGET_PATH)
-      endif
+      TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(if $(TOOLCHAIN_BIN_DIRS),$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):)$(TARGET_PATH)
       TARGET_CPPFLAGS+= $(TOOLCHAIN_INC_DIRS:%=-I%)
       TARGET_LDFLAGS+= $(TOOLCHAIN_LIB_DIRS:%=-L%)
     endif
@@ -208,19 +178,8 @@ ifndef DUMP
 endif
 TARGET_PATH_PKG:=$(STAGING_DIR)/host/bin:$(STAGING_DIR_HOSTPKG)/bin:$(TARGET_PATH)
 
-ifeq ($(CONFIG_SOFT_FLOAT),y)
-  SOFT_FLOAT_CONFIG_OPTION:=--with-float=soft
-  ifeq ($(CONFIG_arm),y)
-    TARGET_CFLAGS+= -mfloat-abi=soft
-  else
-    TARGET_CFLAGS+= -msoft-float
-  endif
-else
-  SOFT_FLOAT_CONFIG_OPTION:=
-  ifeq ($(CONFIG_arm),y)
-    TARGET_CFLAGS+= -mfloat-abi=hard
-  endif
-endif
+SOFT_FLOAT_CONFIG_OPTION:=$(if $(CONFIG_SOFT_FLOAT),--with-float=soft)
+TARGET_CFLAGS+= $(if $(CONFIG_arm),-mfloat-abi=$(if $(CONFIG_SOFT_FLOAT),soft,hard),$(if $(CONFIG_SOFT_FLOAT),-msoft-float))
 
 export ORIG_PATH:=$(or $(ORIG_PATH),$(PATH))
 export PATH:=$(TARGET_PATH)
@@ -333,29 +292,18 @@ NINJA = \
 		$(if $(findstring c,$(OPENWRT_VERBOSE)),-v) \
 		$(if $(MAKE_JOBSERVER),,-j1)
 
-ifeq ($(CONFIG_IPV6),y)
-  DISABLE_IPV6:=
-else
-  DISABLE_IPV6:=--disable-ipv6
-endif
+DISABLE_IPV6:=$(if $(CONFIG_IPV6),,--disable-ipv6)
 
 TAR_OPTIONS:=-xf -
 
-ifeq ($(CONFIG_BUILD_LOG),y)
-  BUILD_LOG:=1
-endif
+BUILD_LOG:=$(if $(CONFIG_BUILD_LOG),1)
 
 export BISON_PKGDATADIR:=$(STAGING_DIR_HOST)/share/bison
 export HOST_GNULIB_SRCDIR:=$(STAGING_DIR_HOST)/share/gnulib
 export M4:=$(STAGING_DIR_HOST)/bin/m4
 
-define shvar
-V_$(subst .,_,$(subst -,_,$(subst /,_,$(1))))
-endef
-
-define shexport
-export $(call shvar,$(1))=$$(call $(1))
-endef
+shvar=V_$(subst .,_,$(subst -,_,$(subst /,_,$(1))))
+shexport=export $(call shvar,$(1))=$$(call $(1))
 
 # Execute commands under flock
 # $(1) => The shell expression.
@@ -377,10 +325,8 @@ endif
 # $(2) => Destination directory
 define file_copy
 	for src_dir in $(sort $(foreach d,$(wildcard $(1)),$(dir $(d)))); do \
-		( cd $$src_dir; find -type f -or -type d ) | \
-			( cd $(2); while :; do \
-				read FILE; \
-				[ -z "$$FILE" ] && break; \
+		( cd $$src_dir; find . -type f -o -type d ) | \
+			( cd $(2); while read -r FILE; do \
 				[ -L "$$FILE" ] || continue; \
 				echo "Removing symlink $(2)/$$FILE"; \
 				rm -f "$$FILE"; \
@@ -411,7 +357,7 @@ $(shell \
         cut -f 1 -d ' ')"; \
     fi; \
     if [ -n "$$last_bump" ]; then \
-      echo -n $$(($$(git rev-list --count "$$last_bump..HEAD" .) + 1)); \
+      echo $$(($$(git rev-list --count "$$last_bump..HEAD" .) + 1)); \
     else \
       git rev-list --count HEAD .; \
     fi; \

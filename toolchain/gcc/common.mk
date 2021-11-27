@@ -119,45 +119,22 @@ GCC_CONFIGURE:= \
 		--with-diagnostics-color=auto-if-env \
 		--enable-__cxa_atexit \
 		--enable-libstdcxx-dual-abi \
-		--with-default-libstdcxx-abi=new
-ifneq ($(CONFIG_mips)$(CONFIG_mipsel),)
-  GCC_CONFIGURE += --with-mips-plt
-endif
-
-ifneq ($(CONFIG_GCC_DEFAULT_PIE),)
-  GCC_CONFIGURE+= \
-		--enable-default-pie
-endif
-
-ifneq ($(CONFIG_GCC_DEFAULT_SSP),)
-  GCC_CONFIGURE+= \
-		--enable-default-ssp
-endif
-
-ifneq ($(CONFIG_EXTRA_TARGET_ARCH),)
-  GCC_CONFIGURE+= \
-		--enable-biarch \
-		--enable-targets=$(call qstrip,$(CONFIG_EXTRA_TARGET_ARCH_NAME))-linux-$(TARGET_SUFFIX)
-endif
-
-ifdef CONFIG_sparc
-  GCC_CONFIGURE+= \
-		--enable-targets=all \
-		--with-long-double-128
-endif
-
-ifneq ($(GCC_ARCH),)
-  GCC_CONFIGURE+= --with-arch=$(GCC_ARCH)
-endif
+		--with-default-libstdcxx-abi=new \
+		$(if $(CONFIG_mips)$(CONFIG_mipsel),--with-mips-plt) \
+		$(if $(CONFIG_GCC_DEFAULT_PIE),--enable-default-pie) \
+		$(if $(CONFIG_GCC_DEFAULT_SSP),--enable-default-ssp) \
+		$(if $(CONFIG_EXTRA_TARGET_ARCH), \
+			--enable-biarch \
+			--enable-targets=$(call qstrip,$(CONFIG_EXTRA_TARGET_ARCH_NAME))-linux-$(TARGET_SUFFIX)) \
+		$(if $(CONFIG_sparc),--enable-targets=all --with-long-double-128) \
+		$(if $(GCC_ARCH),--with-arch=$(GCC_ARCH))
 
 ifeq ($(CONFIG_arm),y)
-  GCC_CONFIGURE+= \
-	--with-cpu=$(word 1, $(subst +," ,$(CONFIG_CPU_TYPE)))
+  GCC_CONFIGURE+= --with-cpu=$(word 1, $(subst +," ,$(CONFIG_CPU_TYPE)))#"))
 
   ifneq ($(CONFIG_SOFT_FLOAT),y)
-    GCC_CONFIGURE+= \
-		--with-fpu=$(word 2, $(subst +, ",$(CONFIG_CPU_TYPE))) \
-		--with-float=hard
+    GCC_CONFIGURE+= --with-fpu=$(word 2, $(subst +, ",$(CONFIG_CPU_TYPE)))#"))
+    GCC_CONFIGURE+= --with-float=hard
   endif
 
   # Do not let TARGET_CFLAGS get poisoned by extra CPU optimization flags

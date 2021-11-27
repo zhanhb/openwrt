@@ -8,11 +8,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/image-commands.mk
 
-ifndef IB
-  ifdef CONFIG_TARGET_PER_DEVICE_ROOTFS
-    TARGET_PER_DEVICE_ROOTFS := 1
-  endif
-endif
+TARGET_PER_DEVICE_ROOTFS:=$(if $(IB),,$(CONFIG_TARGET_PER_DEVICE_ROOTFS))
 
 include $(INCLUDE_DIR)/feeds.mk
 include $(INCLUDE_DIR)/rootfs.mk
@@ -47,43 +43,22 @@ endif
 
 MKFS_DEVTABLE_OPT := -D $(INCLUDE_DIR)/device_table.txt
 
-ifneq ($(CONFIG_BIG_ENDIAN),)
-  JFFS2OPTS     :=  --big-endian --squash-uids -v
-else
-  JFFS2OPTS     :=  --little-endian --squash-uids -v
-endif
-
-ifeq ($(CONFIG_JFFS2_RTIME),y)
-  JFFS2OPTS += -X rtime
-endif
-ifeq ($(CONFIG_JFFS2_ZLIB),y)
-  JFFS2OPTS += -X zlib
-endif
-ifeq ($(CONFIG_JFFS2_LZMA),y)
-  JFFS2OPTS += -X lzma --compression-mode=size
-endif
-ifneq ($(CONFIG_JFFS2_RTIME),y)
-  JFFS2OPTS += -x rtime
-endif
-ifneq ($(CONFIG_JFFS2_ZLIB),y)
-  JFFS2OPTS += -x zlib
-endif
-ifneq ($(CONFIG_JFFS2_LZMA),y)
-  JFFS2OPTS += -x lzma
-endif
-
-JFFS2OPTS += $(MKFS_DEVTABLE_OPT)
+JFFS2OPTS:= \
+  --$(if $(CONFIG_BIG_ENDIAN),big,little)-endian \
+  --squash-uids -v \
+  -$(if $(CONFIG_JFFS2_RTIME),X,x) rtime \
+  -$(if $(CONFIG_JFFS2_ZLIB),X,x) zlib \
+  $(if $(CONFIG_JFFS2_LZMA),-X lzma --compression-mode=size,-x lzma) \
+  $(MKFS_DEVTABLE_OPT)
 
 SQUASHFS_BLOCKSIZE := $(CONFIG_TARGET_SQUASHFS_BLOCK_SIZE)k
 SQUASHFSOPT := -b $(SQUASHFS_BLOCKSIZE)
 SQUASHFSOPT += -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
-SQUASHFSOPT += $(if $(CONFIG_SELINUX),-xattrs,-no-xattrs)
+SQUASHFSOPT += $(if $(CONFIG_SELINUX),,-no)-xattrs
 SQUASHFSCOMP := gzip
 LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 0 -Xlp 2 -Xpb 2
 ifeq ($(CONFIG_SQUASHFS_XZ),y)
-  ifneq ($(filter arm x86 powerpc sparc,$(LINUX_KARCH)),)
-    BCJ_FILTER:=-Xbcj $(LINUX_KARCH)
-  endif
+  BCJ_FILTER:=$(if $(filter arm x86 powerpc sparc,$(LINUX_KARCH)),-Xbcj $(LINUX_KARCH))
   SQUASHFSCOMP := xz $(LZMA_XZ_OPTIONS) $(BCJ_FILTER)
 endif
 

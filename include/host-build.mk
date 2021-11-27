@@ -79,9 +79,7 @@ HOST_MAKE_FLAGS =
 
 HOST_CONFIGURE_CMD = $(BASH) ./configure
 
-ifeq ($(HOST_OS),Darwin)
-  HOST_CONFIG_SITE:=$(INCLUDE_DIR)/site/darwin
-endif
+HOST_CONFIG_SITE:=$(if $(CONFIG_HOST_OS_MACOS),$(INCLUDE_DIR)/site/darwin)
 
 define Host/Configure/Default
 	$(if $(HOST_CONFIGURE_PARALLEL),+)(cd $(HOST_BUILD_DIR)/$(3); \

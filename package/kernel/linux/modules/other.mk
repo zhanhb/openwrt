@@ -916,9 +916,7 @@ define KernelPackage/regmap-core
   TITLE:=Generic register map support
   HIDDEN:=1
   KCONFIG:=CONFIG_REGMAP
-ifneq ($(wildcard $(LINUX_DIR)/drivers/base/regmap/regmap-core.ko),)
-  FILES:=$(LINUX_DIR)/drivers/base/regmap/regmap-core.ko
-endif
+  FILES:=$(wildcard $(LINUX_DIR)/drivers/base/regmap/regmap-core.ko)
 endef
 
 define KernelPackage/regmap-core/description

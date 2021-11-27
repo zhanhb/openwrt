@@ -45,13 +45,8 @@ HOST_CONFIGURE_ARGS = \
 	--disable-binutils \
 	--disable-ld \
 	--disable-gas \
-	--disable-sim
-
-ifneq ($(CONFIG_GDB_PYTHON),)
-  HOST_CONFIGURE_ARGS+= --with-python
-else
-  HOST_CONFIGURE_ARGS+= --without-python
-endif
+	--disable-sim \
+	--with$(if $(CONFIG_GDB_PYTHON),,out)-python
 
 define Host/Install
 	mkdir -p $(TOOLCHAIN_DIR)/bin

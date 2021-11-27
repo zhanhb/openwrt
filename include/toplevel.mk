@@ -46,7 +46,7 @@ export CFLAGS=
 export LDFLAGS=
 
 empty:=
-space:= $(empty) $(empty)
+space:= $() $()
 export ORIG_PATH:=$(if $(ORIG_PATH),$(ORIG_PATH),$(PATH))
 export PATH:=$(subst $(space),:,$(filter-out .%,$(subst :,$(space),$(PATH))))
 export STAGING_DIR_HOST:=$(if $(STAGING_DIR),$(abspath $(STAGING_DIR)/../host),$(TOPDIR)/staging_dir/host)
@@ -66,10 +66,7 @@ ULIMIT_FIX=_limit=`ulimit -n`; [ "$$_limit" = "unlimited" -o "$$_limit" -ge 1024
 
 prepare-mk: $(STAGING_DIR_HOST)/.prereq-build FORCE ;
 
-ifdef SDK
-  IGNORE_PACKAGES = linux
-endif
-
+IGNORE_PACKAGES := $(if $(SDK),linux)
 _ignore = $(IGNORE_PACKAGES:%=--ignore %)
 
 prepare-tmpinfo: FORCE

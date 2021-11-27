@@ -61,17 +61,10 @@ HOST_CONFIGURE_ARGS = \
 	--disable-nls \
 	--disable-sim \
 	--disable-gdb \
+	--$(if $(CONFIG_SSP_SUPPORT),en,dis)able-libssp \
 	$(GRAPHITE_CONFIGURE) \
 	$(SOFT_FLOAT_CONFIG_OPTION) \
 	$(call qstrip,$(CONFIG_EXTRA_BINUTILS_CONFIG_OPTIONS))
-
-ifneq ($(CONFIG_SSP_SUPPORT),)
-  HOST_CONFIGURE_ARGS+= \
-		--enable-libssp
-else
-  HOST_CONFIGURE_ARGS+= \
-		--disable-libssp
-endif
 
 ifneq ($(CONFIG_EXTRA_TARGET_ARCH),)
   HOST_CONFIGURE_ARGS+= \

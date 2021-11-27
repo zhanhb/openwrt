@@ -69,21 +69,19 @@ define prepare_rootfs
 	@( \
 		cd $(1); \
 		for script in ./usr/lib/opkg/info/*.postinst; do \
-			IPKG_INSTROOT=$(1) $$(command -v bash) $$script; \
-			ret=$$?; \
-			if [ $$ret -ne 0 ]; then \
-				echo "postinst script $$script has failed with exit code $$ret" >&2; \
+			IPKG_INSTROOT=$(1) bash "$$script" || { \
+				echo "postinst script $$script has failed with exit code $$?" >&2; \
 				exit 1; \
-			fi; \
+			}; \
 		done; \
 		for script in ./etc/init.d/*; do \
-			grep '#!/bin/sh /etc/rc.common' $$script >/dev/null || continue; \
-			if ! echo " $(3) " | grep -q " $$(basename $$script) "; then \
-				IPKG_INSTROOT=$(1) $$(command -v bash) ./etc/rc.common $$script enable; \
-				echo "Enabling" $$(basename $$script); \
+			grep -q '#!/bin/sh /etc/rc.common' "$$script" || continue; \
+			if echo " $(3) " | grep -q " $${script##*/} "; then \
+				IPKG_INSTROOT=$(1) bash ./etc/rc.common "$$script" disable; \
+				echo "Disabling $${script##*/}"; \
 			else \
-				IPKG_INSTROOT=$(1) $$(command -v bash) ./etc/rc.common $$script disable; \
-				echo "Disabling" $$(basename $$script); \
+				IPKG_INSTROOT=$(1) bash ./etc/rc.common "$$script" enable; \
+				echo "Enabling $${script##*/}"; \
 			fi; \
 		done || true \
 	)

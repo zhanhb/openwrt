@@ -87,17 +87,10 @@ CPU := $(patsubst x86_64,amd64,$(patsubst x86,i386,$(LINUX_KARCH:um=$(ARCH))))
 CONFIGURE_VARS += \
 	UNAME_R=$(LINUX_VERSION)
 
-ifeq ($(CONFIG_ARCH_64BIT),y)
-	CONFIGURE_ARGS += \
-		--enable-only64bit
-	BITS := 64bit
-else
-	CONFIGURE_ARGS += \
-		--enable-only32bit
-	BITS := 32bit
-endif
+BITS := $(if $(CONFIG_ARCH_64BIT),64,32)bit
 
 CONFIGURE_ARGS += \
+	--enable-only$(BITS) \
 	--enable-lto \
 	--enable-tls \
 	--without-x \

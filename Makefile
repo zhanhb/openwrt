@@ -8,8 +8,8 @@ export LANG:=C
 export TZ:=UTC
 
 empty:=
-space:= $(empty) $(empty)
-$(if $(findstring $(space),$(TOPDIR)),$(error ERROR: The path to the OpenWrt directory must not include any spaces))
+space:= $() $()
+$(if $(findstring $() $(),$(TOPDIR)),$(error ERROR: The path to the OpenWrt directory must not include any spaces))
 
 world:
 
@@ -19,7 +19,7 @@ export ORIG_PATH:=$(or $(ORIG_PATH),$(PATH))
 export PATH:=$(if $(STAGING_DIR),$(abspath $(STAGING_DIR)/../host/bin),$(TOPDIR)/staging_dir/host/bin):$(PATH)
 
 ifneq ($(OPENWRT_BUILD),1)
-  _SINGLE=export MAKEFLAGS=$(space);
+  _SINGLE=export MAKEFLAGS= ;
 
   override OPENWRT_BUILD=1
   export OPENWRT_BUILD

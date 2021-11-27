@@ -290,8 +290,7 @@ define Build/DefaultTargets
   $(if $(PKG_SKIP_DOWNLOAD),,$(if $(strip $(PKG_SOURCE_URL)),$(call Download,default)))
   $(if $(DUMP),,$(Build/CoreTargets))
 
-  define Build/DefaultTargets
-  endef
+  Build/DefaultTargets=
 endef
 
 define BuildPackage
