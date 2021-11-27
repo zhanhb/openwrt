@@ -46,7 +46,7 @@ export CFLAGS=
 export LDFLAGS=
 
 empty:=
-space:= $(empty) $(empty)
+space:= $() $()
 export PATH:=$(subst $(space),:,$(filter-out .%,$(subst :,$(space),$(PATH))))
 
 unexport TAR_OPTIONS
@@ -64,10 +64,7 @@ ULIMIT_FIX=_limit=`ulimit -n`; [ "$$_limit" = "unlimited" -o "$$_limit" -ge 1024
 
 prepare-mk: staging_dir/host/.prereq-build FORCE ;
 
-ifdef SDK
-  IGNORE_PACKAGES = linux
-endif
-
+IGNORE_PACKAGES := $(if $(SDK),linux)
 _ignore = $(IGNORE_PACKAGES:%=--ignore %)
 
 prepare-tmpinfo: FORCE

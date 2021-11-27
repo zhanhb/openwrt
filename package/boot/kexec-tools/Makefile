@@ -67,8 +67,8 @@ CONFIGURE_ARGS = \
 		--sbindir=/usr/sbin \
 		--libexecdir=/usr/lib \
 		--sysconfdir=/etc \
-		$(if $(CONFIG_KEXEC_ZLIB),--with,--without)-zlib \
-		$(if $(CONFIG_KEXEC_LZMA),--with,--without)-lzma \
+		--with$(if $(CONFIG_KEXEC_ZLIB),,out)-zlib \
+		--with$(if $(CONFIG_KEXEC_LZMA),,out)-lzma \
 		TARGET_LD="$(TARGET_CROSS)ld"
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections

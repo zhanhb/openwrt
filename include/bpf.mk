@@ -5,11 +5,7 @@ CLANG_MIN_VER:=12
 
 ifneq ($(CONFIG_USE_LLVM_HOST),)
   BPF_TOOLCHAIN_HOST_PATH:=$(call qstrip,$(CONFIG_BPF_TOOLCHAIN_HOST_PATH))
-  ifneq ($(BPF_TOOLCHAIN_HOST_PATH),)
-    BPF_PATH:=$(BPF_TOOLCHAIN_HOST_PATH)/bin:$(PATH)
-  else
-    BPF_PATH:=$(PATH)
-  endif
+  BPF_PATH:=$(if $(BPF_TOOLCHAIN_HOST_PATH),$(BPF_TOOLCHAIN_HOST_PATH)/bin:)$(PATH)
   CLANG:=$(firstword $(shell PATH='$(BPF_PATH)' command -v clang clang-13 clang-12 clang-11))
   LLVM_VER:=$(subst clang,,$(notdir $(CLANG)))
 endif

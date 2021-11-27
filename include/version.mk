@@ -56,13 +56,8 @@ VERSION_PRODUCT:=$(if $(VERSION_PRODUCT),$(VERSION_PRODUCT),Generic)
 VERSION_HWREV:=$(call qstrip,$(CONFIG_VERSION_HWREV))
 VERSION_HWREV:=$(if $(VERSION_HWREV),$(VERSION_HWREV),v0)
 
-define taint2sym
-$(CONFIG_$(firstword $(subst :, ,$(subst +,,$(subst -,,$(1))))))
-endef
-
-define taint2name
-$(lastword $(subst :, ,$(1)))
-endef
+taint2sym=$(CONFIG_$(firstword $(subst :, ,$(subst +,,$(subst -,,$(1))))))
+taint2name=$(lastword $(subst :, ,$(1)))
 
 VERSION_TAINT_SPECS := \
 	-ALL_KMODS:no-all \
@@ -81,10 +76,7 @@ VERSION_TAINTS := $(strip $(foreach taint,$(VERSION_TAINT_SPECS), \
 PKG_CONFIG_DEPENDS += $(foreach taint,$(VERSION_TAINT_SPECS),$(call taint2sym,$(taint)))
 
 # escape commas, backslashes, squotes, and ampersands for sed
-define sed_escape
-$(subst &,\&,$(subst $(comma),\$(comma),$(subst ','\'',$(subst \,\\,$(1)))))
-endef
-#'
+sed_escape=$(subst &,\&,$(subst $(comma),\$(comma),$(subst ','\'',$(subst \,\\,$(1)))))#'))#)
 
 VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
 	-e 's,%V,$(call sed_escape,$(VERSION_NUMBER)),g' \

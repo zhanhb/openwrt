@@ -11,15 +11,9 @@ curdir:=tools
 # subdirectories to descend into
 tools-y :=
 
-ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
-  BUILD_TOOLCHAIN := y
-  ifdef CONFIG_GCC_USE_GRAPHITE
-    BUILD_ISL = y
-  endif
-endif
-ifneq ($(CONFIG_SDK)$(CONFIG_PACKAGE_kmod-b43)$(CONFIG_PACKAGE_b43legacy-firmware)$(CONFIG_BRCMSMAC_USE_FW_FROM_WL),)
-  BUILD_B43_TOOLS = y
-endif
+BUILD_TOOLCHAIN := $(if $(CONFIG_EXTERNAL_TOOLCHAIN),,y)
+BUILD_ISL := $(if $(CONFIG_EXTERNAL_TOOLCHAIN),,$(CONFIG_GCC_USE_GRAPHITE))
+BUILD_B43_TOOLS := $(if $(CONFIG_SDK)$(CONFIG_PACKAGE_kmod-b43)$(CONFIG_PACKAGE_b43legacy-firmware)$(CONFIG_BRCMSMAC_USE_FW_FROM_WL),y)
 
 tools-y += autoconf autoconf-archive automake bc bison cmake cpio dosfstools
 tools-y += e2fsprogs fakeroot findutils firmware-utils flex gengetopt
