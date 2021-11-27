@@ -144,7 +144,9 @@ _call_image: staging_dir/host/.prereq-build
 	$(MAKE) package_install
 	$(MAKE) -s prepare_rootfs
 	$(MAKE) -s build_image
+ifneq ($(CONFIG_JSON_OVERVIEW_IMAGE_INFO),)
 	$(MAKE) -s json_overview_image_info
+endif
 	$(MAKE) -s checksum
 
 _call_manifest: FORCE
@@ -209,10 +211,8 @@ build_image: FORCE
 		$(if $(USER_PROFILE),PROFILE="$(USER_PROFILE)")
 
 $(BIN_DIR)/profiles.json: FORCE
-	$(if $(CONFIG_JSON_OVERVIEW_IMAGE_INFO), \
-		WORK_DIR=$(BUILD_DIR)/json_info_files \
-			$(SCRIPT_DIR)/json_overview_image_info.py $@ \
-	)
+	WORK_DIR=$(BUILD_DIR)/json_info_files \
+		$(SCRIPT_DIR)/json_overview_image_info.py $@
 
 json_overview_image_info: $(BIN_DIR)/profiles.json
 

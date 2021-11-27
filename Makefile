@@ -99,10 +99,8 @@ prereq: $(target/stamp-prereq) tmp/.prereq_packages
 	fi
 
 $(BIN_DIR)/profiles.json: FORCE
-	$(if $(CONFIG_JSON_OVERVIEW_IMAGE_INFO), \
-		WORK_DIR=$(BUILD_DIR)/json_info_files \
-			$(SCRIPT_DIR)/json_overview_image_info.py $@ \
-	)
+	WORK_DIR=$(BUILD_DIR)/json_info_files \
+		$(SCRIPT_DIR)/json_overview_image_info.py $@
 
 json_overview_image_info: $(BIN_DIR)/profiles.json
 
@@ -129,7 +127,9 @@ prepare: .config $(target/stamp-compile)
 
 world: prepare $(target/stamp-install) FORCE
 	$(_SINGLE)$(SUBMAKE) -r package/index
+ifneq ($(CONFIG_JSON_OVERVIEW_IMAGE_INFO),)
 	$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
+endif
 	$(_SINGLE)$(SUBMAKE) -r checksum
 ifneq ($(CONFIG_CCACHE),)
 	$(STAGING_DIR_HOST)/bin/ccache -s
