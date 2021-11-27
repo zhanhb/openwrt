@@ -62,8 +62,7 @@ endif
 
 
 compat_version=$(or $(DEVICE_COMPAT_VERSION),1.0)
-json_quote=$(subst ','\'',$(subst ",\",$(1)))
-#")')
+json_quote=$(subst ','\'',$(subst ",\",$(1)))#"))#')
 
 legacy_supported_message=$(SUPPORTED_DEVICES) - Image version mismatch: image $(compat_version), \
 	device 1.0. Please wipe config during upgrade (force required) or reinstall. \
@@ -360,7 +359,7 @@ define Build/jffs2
 		mkdir -p $(KDIR_TMP)/$(DEVICE_NAME)/jffs2/$$(dirname $(1)) && \
 		cp $@ $(KDIR_TMP)/$(DEVICE_NAME)/jffs2/$(1) && \
 		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 --pad \
-			$(if $(CONFIG_BIG_ENDIAN),--big-endian,--little-endian) \
+			--$(if $(CONFIG_BIG_ENDIAN),big,little)-endian \
 			--squash-uids -v -e $(BLOCKSIZE:%k=%KiB) \
 			-o $@.new \
 			-d $(KDIR_TMP)/$(DEVICE_NAME)/jffs2 \

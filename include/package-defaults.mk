@@ -53,11 +53,7 @@ ifneq ($(strip $(PKG_UNPACK)),)
 endif
 
 EXTRA_CXXFLAGS = $(EXTRA_CFLAGS)
-ifeq ($(CONFIG_BUILD_NLS),y)
-    DISABLE_NLS:=
-else
-    DISABLE_NLS:=--disable-nls
-endif
+DISABLE_NLS:=$(if $(CONFIG_BUILD_NLS),,--disable-nls)
 
 CONFIGURE_PREFIX:=/usr
 CONFIGURE_ARGS = \

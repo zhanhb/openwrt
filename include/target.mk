@@ -25,23 +25,10 @@ DEFAULT_PACKAGES:=\
 	uci \
 	uclient-fetch \
 	urandom-seed \
-	urngd
-
-ifneq ($(CONFIG_SELINUX),)
-DEFAULT_PACKAGES+=busybox-selinux procd-selinux
-else
-DEFAULT_PACKAGES+=busybox procd
-endif
-
-# include ujail on systems with enough storage
-ifeq ($(CONFIG_SMALL_FLASH),)
-DEFAULT_PACKAGES+=procd-ujail
-endif
-
-# include seccomp ld-preload hooks if kernel supports it
-ifneq ($(CONFIG_SECCOMP),)
-DEFAULT_PACKAGES+=procd-seccomp
-endif
+	urngd \
+	$(if $(CONFIG_SELINUX),busybox-selinux procd-selinux,busybox procd) \
+	$(if $(CONFIG_SMALL_FLASH),,procd-ujail) \
+	$(if $(CONFIG_SECCOMP),procd-seccomp)
 
 # For the basic set
 DEFAULT_PACKAGES.basic:=
@@ -334,7 +321,7 @@ define BuildTargets/DumpCurrent
   dumpinfo:
 	@echo 'Target: $(TARGETID)'; \
 	 echo 'Target-Board: $(BOARD)'; \
-	 echo 'Target-Name: $(BOARDNAME)$(if $(SUBTARGETS),$(if $(SUBTARGET),))'; \
+	 echo 'Target-Name: $(BOARDNAME)'; \
 	 echo 'Target-Arch: $(ARCH)'; \
 	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%))'; \
 	 echo 'Target-Features: $(FEATURES)'; \

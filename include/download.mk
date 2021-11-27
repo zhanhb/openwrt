@@ -326,10 +326,7 @@ define Download
     endif
   )
 
-  $(foreach dep,$(DOWNLOAD_RDEP),
-    $(dep): $(DL_DIR)/$(FILE)
-  )
-  download: $(DL_DIR)/$(FILE)
+  $(DOWNLOAD_RDEP) download: $(DL_DIR)/$(FILE)
 
   $(DL_DIR)/$(FILE):
 	mkdir -p $(DL_DIR)

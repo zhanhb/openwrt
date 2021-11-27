@@ -135,11 +135,8 @@ Package/dnsmasq-dhcpv6/conffiles = $(Package/dnsmasq/conffiles)
 Package/dnsmasq-full/conffiles = $(Package/dnsmasq/conffiles)
 
 COPTS = -DHAVE_UBUS -DHAVE_POLL_H \
-	$(if $(CONFIG_IPV6),,-DNO_IPV6)
-
-ifeq ($(BUILD_VARIANT),nodhcpv6)
-	COPTS += -DNO_DHCP6
-endif
+	$(if $(CONFIG_IPV6),,-DNO_IPV6) \
+	$(if $(filter nodhcpv6,$(BUILD_VARIANT)),-DNO_DHCP6)
 
 ifeq ($(BUILD_VARIANT),full)
 	COPTS += $(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_dhcp),,-DNO_DHCP) \

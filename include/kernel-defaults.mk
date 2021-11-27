@@ -18,11 +18,7 @@ export HOST_EXTRACFLAGS=-I$(STAGING_DIR_HOST)/include
 # defined in quilt.mk
 Kernel/Patch:=$(Kernel/Patch/Default)
 
-ifneq (,$(findstring .xz,$(LINUX_SOURCE)))
-  LINUX_CAT:=xzcat
-else
-  LINUX_CAT:=$(STAGING_DIR_HOST)/bin/libdeflate-gzip -dc
-endif
+LINUX_CAT:=$(if $(findstring .xz,$(LINUX_SOURCE)),xzcat,$(STAGING_DIR_HOST)/bin/libdeflate-gzip -dc)
 
 ifeq ($(strip $(CONFIG_EXTERNAL_KERNEL_TREE)),"")
   ifeq ($(strip $(CONFIG_KERNEL_GIT_CLONE_URI)),"")
