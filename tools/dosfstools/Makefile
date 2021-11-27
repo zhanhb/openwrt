@@ -20,8 +20,6 @@ HOST_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/host-build.mk
 
-ifeq ($(HOST_OS),Darwin)
-HOST_CFLAGS += -UHAVE_ENDIAN_H
-endif
+HOST_CFLAGS += $(if $(CONFIG_HOST_OS_MACOS),-UHAVE_ENDIAN_H)
 
 $(eval $(call HostBuild))
