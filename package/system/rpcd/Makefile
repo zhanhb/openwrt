@@ -88,7 +88,12 @@ define BuildPlugin
 
   define Package/rpcd-mod-$(1)/postinst
 #!/bin/sh
-[ -n "$$$${IPKG_INSTROOT}" ] || /etc/init.d/rpcd reload
+[ -n "$$$$IPKG_INSTROOT" ] || /etc/init.d/rpcd reload
+  endef
+
+  define Package/rpcd-mod-$(1)/postrm
+#!/bin/sh
+[ -n "$$$$IPKG_INSTROOT" ] || [ "$$$$PKG_UPGRADE" = 1 ] || /etc/init.d/rpcd reload
   endef
 
   define Package/rpcd-mod-$(1)/install
