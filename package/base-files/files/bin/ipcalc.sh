@@ -50,9 +50,14 @@ BEGIN {
 	limit=network+1
 	if (start<limit) start=limit
 
-	end=start+ARGV[IND+1]
 	limit=or(network,compl32(netmask))-1
-	if (end>limit) end=limit
+	count=int(ARGV[IND+1])
+	if (count) {
+		end = start+count
+		if (end>limit) end=limit
+	} else {
+		end=limit
+	}
 
 	print "IP="int2ip(ipaddr)
 	print "NETMASK="int2ip(netmask)
@@ -61,8 +66,8 @@ BEGIN {
 	print "PREFIX="32-bitcount(compl32(netmask))
 
 	# range calculations:
-	# ipcalc <ip> <netmask> [<start> <num>]
-	# ipcalc <ip>/<prefixlen> [<start> <num>]
+	# ipcalc <ip> <netmask> [<start> [<num>]]
+	# ipcalc <ip>/<prefixlen> [<start> [<num>]]
 
 	if (ARGC > IND) {
 		print "START="int2ip(start)
