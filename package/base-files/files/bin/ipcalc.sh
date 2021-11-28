@@ -28,28 +28,29 @@ function compl32(v) {
 
 BEGIN {
 	slpos=index(ARGV[1],"/")
+	IND=1
 	if (slpos == 0) {
-		ipaddr=ip2int(ARGV[1])
-		dotpos=index(ARGV[2],".")
+		ipaddr=ip2int(ARGV[IND++])
+		mask=ARGV[IND++]
+		dotpos=index(mask,".")
 		if (dotpos == 0)
-			netmask=compl32(2**(32-int(ARGV[2]))-1)
+			netmask=compl32(2**(32-int(mask))-1)
 		else
-			netmask=ip2int(ARGV[2])
+			netmask=ip2int(mask)
 	} else {
-		ipaddr=ip2int(substr(ARGV[1],0,slpos-1))
-		netmask=compl32(2**(32-int(substr(ARGV[1],slpos+1)))-1)
-		ARGV[4]=ARGV[3]
-		ARGV[3]=ARGV[2]
+		ipaddr=ip2int(substr(ARGV[IND],1,slpos-1))
+		netmask=compl32(2**(32-int(substr(ARGV[IND],slpos+1)))-1)
+		IND++
 	}
 
 	network=and(ipaddr,netmask)
 	broadcast=or(network,compl32(netmask))
 
-	start=or(network,and(ip2int(ARGV[3]),compl32(netmask)))
+	start=or(network,and(ip2int(ARGV[IND]),compl32(netmask)))
 	limit=network+1
 	if (start<limit) start=limit
 
-	end=start+ARGV[4]
+	end=start+ARGV[IND+1]
 	limit=or(network,compl32(netmask))-1
 	if (end>limit) end=limit
 
@@ -60,9 +61,10 @@ BEGIN {
 	print "PREFIX="32-bitcount(compl32(netmask))
 
 	# range calculations:
-	# ipcalc <ip> <netmask> <start> <num>
+	# ipcalc <ip> <netmask> [<start> <num>]
+	# ipcalc <ip>/<prefixlen> [<start> <num>]
 
-	if (ARGC > 3) {
+	if (ARGC > IND) {
 		print "START="int2ip(start)
 		print "END="int2ip(end)
 	}
