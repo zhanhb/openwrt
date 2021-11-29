@@ -106,6 +106,7 @@ endif
 	-$(CP) $(STAGING_DIR_IMAGE)/* $(IB_IDIR)/
 	$(INSTALL_DIR) $(PKG_BUILD_DIR)/staging_dir/host/bin
 	$(CP) $(STAGING_DIR_HOST)/bin/* $(PKG_BUILD_DIR)/staging_dir/host/bin/
+	find $(PKG_BUILD_DIR)/staging_dir/host/bin -lname '/*' -delete
 	(cd $(PKG_BUILD_DIR); find staging_dir/host/bin/ $(IB_LDIR)/scripts/dtc/ -type f | \
 		$(BUNDLER_COMMAND))
 	$(CP) $(TOPDIR)/staging_dir/host/lib/libfakeroot* $(PKG_BUILD_DIR)/staging_dir/host/lib
