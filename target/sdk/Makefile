@@ -112,6 +112,8 @@ $(BIN_DIR)/$(SDK_NAME).tar.xz: clean
 		$(SDK_DIRS) $(KERNEL_FILES) | \
 		$(TAR) -xf - -C $(SDK_BUILD_DIR)
 
+	find $(SDK_BUILD_DIR)/$(STAGING_SUBDIR_HOST)/bin -lname '/*' -delete
+
 	$(TAR) -cf - -C $(TOPDIR) $(USERSPACE_FILES) | \
 		$(TAR) -xf - -C $(SDK_BUILD_DIR)
 
