@@ -18,7 +18,7 @@ endif
 export REVISION
 export SOURCE_DATE_EPOCH
 export GIT_CONFIG_PARAMETERS='core.autocrlf=false'
-export GIT_ASKPASS:=/bin/true
+export GIT_ASKPASS:=$(firstword $(wildcard /usr/bin/true /bin/true))
 export MAKE_JOBSERVER=$(filter --jobserver%,$(MAKEFLAGS))
 export GNU_HOST_NAME:=$(shell $(TOPDIR)/scripts/config.guess)
 export HOST_OS:=$(shell uname)
