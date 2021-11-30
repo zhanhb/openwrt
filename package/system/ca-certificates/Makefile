@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ca-certificates
 PKG_VERSION:=20211016
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 PKG_MAINTAINER:=
 
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION).tar.xz
@@ -32,6 +32,7 @@ define Package/ca-bundle
   TITLE:=System CA certificates as a bundle
   PKGARCH:=all
   PROVIDES:=ca-certs
+  ALTERNATIVES:=200:/etc/ssl/cert.pem:certs/ca-certificates.crt
 endef
 
 define Build/Prepare
@@ -65,7 +66,7 @@ endef
 define Package/ca-bundle/install
 	$(INSTALL_DIR) $(1)/etc/ssl/certs
 	cat $(PKG_INSTALL_DIR)/usr/share/ca-certificates/*/*.crt >$(1)/etc/ssl/certs/ca-certificates.crt
-	$(LN) /etc/ssl/certs/ca-certificates.crt $(1)/etc/ssl/cert.pem
 endef
+
 $(eval $(call BuildPackage,ca-bundle))
 $(eval $(call BuildPackage,ca-certificates))
