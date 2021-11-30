@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# shellcheck disable=SC3043
 
 CONFIG_APPEND=
 uci_load() {
@@ -27,8 +28,8 @@ uci_load() {
 	_C=0
 	if [ -z "$CONFIG_APPEND" ]; then
 		for VAR in $CONFIG_LIST_STATE; do
-			export ${NO_EXPORT:+-n} CONFIG_${VAR}=
-			export ${NO_EXPORT:+-n} CONFIG_${VAR}_LENGTH=
+			export ${NO_EXPORT:+-n} "CONFIG_${VAR}="
+			export ${NO_EXPORT:+-n} "CONFIG_${VAR}_LENGTH="
 		done
 		export ${NO_EXPORT:+-n} CONFIG_LIST_STATE=
 		export ${NO_EXPORT:+-n} CONFIG_SECTIONS=
@@ -38,36 +39,26 @@ uci_load() {
 
 	DATA="$(/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${LOAD_STATE:+-P /var/state} -S -n export "$PACKAGE" 2>/dev/null)"
 	RET="$?"
-	[ "$RET" != 0 -o -z "$DATA" ] || eval "$DATA"
+	[ "$RET" != 0 ] || [ -z "$DATA" ] || eval "$DATA"
 	unset DATA
 
 	${CONFIG_SECTION:+config_cb}
 	return "$RET"
 }
 
-uci_set_default() {
-	local PACKAGE="$1"
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -q show "$PACKAGE" > /dev/null && return 0
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} import "$PACKAGE"
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} commit "$PACKAGE"
+uci_set_default() { # <PACKAGE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -q show "$1" >/dev/null && return 0
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} import "$1"
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} commit "$1"
 }
 
-uci_revert_state() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state revert "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+uci_revert_state() { # <PACKAGE> <CONFIG> <OPTION>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state revert "$1${2:+.$2}${3:+.$3}"
 }
 
-uci_set_state() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local VALUE="$4"
-
+uci_set_state() { # <PACKAGE> <CONFIG> <OPTION> <VALUE>
 	[ "$#" = 4 ] || return 0
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set "$PACKAGE.$CONFIG${OPTION:+.$OPTION}=$VALUE"
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -P /var/state set "$1.$2${3:+.$3}=$4"
 }
 
 uci_toggle_state() {
@@ -75,89 +66,51 @@ uci_toggle_state() {
 	uci_set_state "$1" "$2" "$3" "$4"
 }
 
-uci_set() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local VALUE="$4"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+uci_set() { # <PACKAGE> <CONFIG> <OPTION> <VALUE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set "$1.$2.$3=$4"
 }
 
-uci_add_list() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local VALUE="$4"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+uci_add_list() { # <PACKAGE> <CONFIG> <OPTION> <VALUE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$1.$2.$3=$4"
 }
 
-uci_get_state() {
-	uci_get "$1" "$2" "$3" "$4" "/var/state"
+uci_get_state() { # <PACKAGE> <CONFIG> <OPTION> <DEFAULT>
+	uci_get "$1" "$2" "$3" "$4" /var/state
 }
 
-uci_get() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local DEFAULT="$4"
-	local STATE="$5"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${STATE:+-P $STATE} -q get "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+uci_get() { # <PACKAGE> <CONFIG> <OPTION> <DEFAULT> <STATE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${5:+-P $5} -q get "$1${2:+.$2}${3:+.$3}"
 	RET="$?"
-	[ "$RET" -ne 0 ] && [ -n "$DEFAULT" ] && echo "$DEFAULT"
+	[ "$RET" -ne 0 ] && [ -n "$4" ] && echo "$4"
 	return "$RET"
 }
 
-uci_add() {
-	local PACKAGE="$1"
-	local TYPE="$2"
-	local CONFIG="$3"
-
-	if [ -z "$CONFIG" ]; then
-		export ${NO_EXPORT:+-n} CONFIG_SECTION="$(/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add "$PACKAGE" "$TYPE")"
+uci_add() { # <PACKAGE> <TYPE> <CONFIG>
+	if [ -z "$3" ]; then
+		CONFIG_SECTION="$(/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add "$1" "$2")"
+		export ${NO_EXPORT:+-n} CONFIG_SECTION
 	else
-		/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set "$PACKAGE.$CONFIG=$TYPE"
-		export ${NO_EXPORT:+-n} CONFIG_SECTION="$CONFIG"
+		/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set "$1.$3=$2"
+		export ${NO_EXPORT:+-n} CONFIG_SECTION="$3"
 	fi
 }
 
-uci_rename() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local VALUE="$4"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} rename "$PACKAGE.$CONFIG${VALUE:+.$OPTION}=${VALUE:-$OPTION}"
+uci_rename() { # <PACKAGE> <CONFIG> <OPTION> <VALUE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} rename "$1.$2${4:+.$3}=${4:-$3}"
 }
 
-uci_remove() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} del "$PACKAGE.$CONFIG${OPTION:+.$OPTION}"
+uci_remove() { # <PACKAGE> <CONFIG> <OPTION>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} del "$1.$2${3:+.$3}"
 }
 
-uci_remove_list() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-	local VALUE="$4"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} del_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+uci_remove_list() { # <PACKAGE> <CONFIG> <OPTION> <VALUE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} del_list "$1.$2.$3=$4"
 }
 
-uci_revert() {
-	local PACKAGE="$1"
-	local CONFIG="$2"
-	local OPTION="$3"
-
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} revert "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+uci_revert() { # <PACKAGE> <CONFIG> <OPTION>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} revert "$1${2:+.$2}${3:+.$3}"
 }
 
-uci_commit() {
-	local PACKAGE="$1"
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} commit $PACKAGE
+uci_commit() { # <PACKAGE>
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} commit $1
 }
