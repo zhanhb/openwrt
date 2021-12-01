@@ -40,7 +40,7 @@ endef
 define Package/uci
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+libuci
+  DEPENDS:=+libubox +libuci
   TITLE:=Utility for the Unified Configuration Interface (UCI)
 endef
 

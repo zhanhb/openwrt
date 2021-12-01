@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubus
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/ubus.git
@@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/ubus
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+libubus +libblobmsg-json +ubusd
+  DEPENDS:=+libubox +libubus +libblobmsg-json +ubusd
   TITLE:=OpenWrt RPC client utility
 endef
 
@@ -47,7 +47,7 @@ endef
 define Package/libubus-lua
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libubus +liblua
+  DEPENDS:=+libubox +libubus +liblua
   TITLE:=Lua binding for the OpenWrt RPC client
 endef
 
