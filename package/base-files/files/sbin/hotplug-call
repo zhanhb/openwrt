@@ -11,8 +11,9 @@ USER=root
 export PATH LOGNAME USER
 export DEVICENAME="${DEVPATH##*/}"
 
-if [ \! -z "$1" -a -d /etc/hotplug.d/$1 ]; then
-	for script in $(ls /etc/hotplug.d/$1/* 2>&-); do (
-		[ -f $script ] && . $script
-	); done
+if [ -n "$1" ] && [ -d "/etc/hotplug.d/$1" ]; then
+	for script in "/etc/hotplug.d/$1"/*; do
+		[ -f "$script" ] || continue
+		(. "$script")
+	done
 fi
