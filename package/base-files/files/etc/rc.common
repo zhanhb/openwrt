@@ -1,11 +1,14 @@
 #!/bin/sh
 # Copyright (C) 2006-2012 OpenWrt.org
+# shellcheck disable=SC2034,SC2120,SC3043
 
-. $IPKG_INSTROOT/lib/functions.sh
-. $IPKG_INSTROOT/lib/functions/service.sh
+# shellcheck source=./../lib/functions.sh
+. "$IPKG_INSTROOT/lib/functions.sh"
+# shellcheck source=./../lib/functions/service.sh
+. "$IPKG_INSTROOT/lib/functions/service.sh"
 
-initscript=$1
-action=${2:-help}
+initscript="$1"
+action="${2:-help}"
 shift 2
 
 start() {
@@ -36,30 +39,31 @@ shutdown() {
 }
 
 disable() {
-	name="$(basename "${initscript}")"
-	rm -f "$IPKG_INSTROOT"/etc/rc.d/S??$name
-	rm -f "$IPKG_INSTROOT"/etc/rc.d/K??$name
+	name="${initscript##*/}"
+	rm -f "$IPKG_INSTROOT"/etc/rc.d/S??"$name"
+	rm -f "$IPKG_INSTROOT"/etc/rc.d/K??"$name"
 }
 
 enable() {
 	err=1
-	name="$(basename "${initscript}")"
-	[ "$START" ] && \
-		ln -sf "../init.d/$name" "$IPKG_INSTROOT/etc/rc.d/S${START}${name##S[0-9][0-9]}" && \
+	name="${initscript##*/}"
+	name="${name##[SK][0-9][0-9]}"
+	[ "$START" ] &&
+		ln -sf "../init.d/$name" "$IPKG_INSTROOT/etc/rc.d/S$START$name" &&
 		err=0
-	[ "$STOP" ] && \
-		ln -sf "../init.d/$name" "$IPKG_INSTROOT/etc/rc.d/K${STOP}${name##K[0-9][0-9]}" && \
+	[ "$STOP" ] &&
+		ln -sf "../init.d/$name" "$IPKG_INSTROOT/etc/rc.d/K$STOP$name" &&
 		err=0
-	return $err
+	return "$err"
 }
 
 enabled() {
-	name="$(basename "${initscript}")"
+	name="${initscript##*/}"
 	name="${name##[SK][0-9][0-9]}"
 	{
-		[ -z "${START:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/S${START}$name" ]
+		[ -z "${START:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/S$START$name" ]
 	} && {
-		[ -z "${STOP:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/K${STOP}$name" ]
+		[ -z "${STOP:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/K$STOP$name" ]
 	}
 }
 
@@ -67,15 +71,12 @@ depends() {
 	return 0
 }
 
-ALL_HELP=""
+ALL_HELP=
 ALL_COMMANDS="boot shutdown depends"
-extra_command() {
-	local cmd="$1"
-	local help="$2"
 
-	local extra="$(printf "%-16s%s" "${cmd}" "${help}")"
-	ALL_HELP="${ALL_HELP}\t${extra}\n"
-	ALL_COMMANDS="${ALL_COMMANDS} ${cmd}"
+extra_command() { # <cmd> <help>
+	ALL_HELP="$ALL_HELP\t$(printf "%-16s%s" "$1" "$2")\n"
+	ALL_COMMANDS="$ALL_COMMANDS $1"
 }
 
 help() {
@@ -84,7 +85,7 @@ Syntax: $initscript [command]
 
 Available commands:
 EOF
-	echo -e "$ALL_HELP"
+	printf "%b\n" "$ALL_HELP"
 }
 
 # for procd
@@ -105,42 +106,40 @@ service_data() {
 }
 
 service_running() {
-	local instance="${1:-*}"
-
-	procd_running "$(basename $initscript)" "$instance"
+	procd_running "${initscript##*/}" "${1:-*}"
 }
 
 ${INIT_TRACE:+set -x}
 
-extra_command "start" "Start the service"
-extra_command "stop" "Stop the service"
-extra_command "restart" "Restart the service"
-extra_command "reload" "Reload configuration files (or restart if service does not implement reload)"
-extra_command "enable" "Enable service autostart"
-extra_command "disable" "Disable service autostart"
-extra_command "enabled" "Check if service is started on boot"
+extra_command start "Start the service"
+extra_command stop "Stop the service"
+extra_command restart "Restart the service"
+extra_command reload "Reload configuration files (or restart if service does not implement reload)"
+extra_command enable "Enable service autostart"
+extra_command disable "Disable service autostart"
+extra_command enabled "Check if service is started on boot"
 
 . "$initscript"
 
 [ -n "$USE_PROCD" ] && {
-	extra_command "running" "Check if service is running"
-	extra_command "status" "Service status"
-	extra_command "trace" "Start with syscall trace"
-	extra_command "info" "Dump procd service info"
+	extra_command running "Check if service is running"
+	extra_command status "Service status"
+	extra_command trace "Start with syscall trace"
+	extra_command info "Dump procd service info"
 
-	. $IPKG_INSTROOT/lib/functions/procd.sh
-	basescript=$(readlink "$initscript")
+	. "$IPKG_INSTROOT/lib/functions/procd.sh"
+	basescript="$(readlink "$initscript")"
 	rc_procd() {
-		local method="set"
-		[ -n "$2" ] && method="add"
-		procd_open_service "$(basename ${basescript:-$initscript})" "$initscript"
+		local method=set
+		[ -n "$2" ] && method=add
+		procd_open_service "$(basename "${basescript:-"$initscript"}")" "$initscript"
 		"$@"
 		procd_close_service "$method"
 	}
 
 	start() {
 		rc_procd start_service "$@"
-		if eval "type service_started" 2>/dev/null >/dev/null; then
+		if eval "type service_started" >/dev/null 2>&1; then
 			service_started
 		fi
 	}
@@ -160,14 +159,14 @@ extra_command "enabled" "Check if service is started on boot"
 	stop() {
 		procd_lock
 		stop_service "$@"
-		procd_kill "$(basename ${basescript:-$initscript})" "$1"
-		if eval "type service_stopped" 2>/dev/null >/dev/null; then
+		procd_kill "$(basename "${basescript:-"$initscript"}")" "$1"
+		if eval "type service_stopped" >/dev/null 2>&1; then
 			service_stopped
 		fi
 	}
 
 	reload() {
-		if eval "type reload_service" 2>/dev/null >/dev/null; then
+		if eval "type reload_service" >/dev/null 2>&1; then
 			procd_lock
 			reload_service "$@"
 		else
@@ -180,15 +179,15 @@ extra_command "enabled" "Check if service is started on boot"
 	}
 
 	status() {
-		if eval "type status_service" 2>/dev/null >/dev/null; then
+		if eval "type status_service" >/dev/null 2>&1; then
 			status_service "$@"
 		else
-			_procd_status "$(basename ${basescript:-$initscript})" "$1"
+			_procd_status "$(basename "${basescript:-"$initscript"}")" "$1"
 		fi
 	}
 }
 
-ALL_COMMANDS="${ALL_COMMANDS} ${EXTRA_COMMANDS}"
-ALL_HELP="${ALL_HELP}${EXTRA_HELP}"
+ALL_COMMANDS="$ALL_COMMANDS $EXTRA_COMMANDS"
+ALL_HELP="$ALL_HELP$EXTRA_HELP"
 list_contains ALL_COMMANDS "$action" || action=help
 $action "$@"
