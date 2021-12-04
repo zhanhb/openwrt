@@ -23,7 +23,7 @@ PKG_CPE_ID:=cpe:/a:gnu:gettext
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
-PKG_BUILD_DEPENDS:=gettext-full/host
+PKG_BUILD_DEPENDS:=gettext-full/host PACKAGE_libxml2:libxml2
 PKG_BUILD_PARALLEL:=0
 HOST_BUILD_PARALLEL:=0
 
