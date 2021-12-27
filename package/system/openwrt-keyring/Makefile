@@ -3,7 +3,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openwrt-keyring
-PKG_RELEASE:=3
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/keyring.git
@@ -32,6 +32,7 @@ Build/Compile=
 
 define Package/openwrt-keyring/install
 	$(INSTALL_DIR) $(1)/etc/opkg/keys/
+	$(INSTALL_DATA) ./files/9d676015a075a679 $(1)/etc/opkg/keys/
 	# Public usign key for 22.03 release builds
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/usign/4d017e6f1ed5d616 $(1)/etc/opkg/keys/
 endef
