@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 07:32:48 +0800
+Subject: [PATCH] libbb: clean last_char_is.c
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libbb/last_char_is.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+--- a/libbb/last_char_is.c
++++ b/libbb/last_char_is.c
+@@ -29,12 +29,8 @@
+ char *last_char_is(const char *s, int c)
+ {
+ 	char *sret;
+-	if (!s)
++	if (!s || !*s)
+ 		return NULL;
+ 	sret = (char *)s + strlen(s) - 1;
+-	if (sret >= s && *sret == c) {
+-		return sret;
+-	} else {
+-		return NULL;
+-	}
++	return *sret == c ? sret : NULL;
+ }

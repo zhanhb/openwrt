@@ -1,0 +1,236 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 06:14:28 +0800
+Subject: [PATCH] libopkg: replace sprintf_alloc with concat_path_file
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/opkg.c          | 10 +++++-----
+ libopkg/opkg_cmd.c      |  8 ++++----
+ libopkg/opkg_conf.c     |  6 +++---
+ libopkg/opkg_download.c | 12 ++++++------
+ libopkg/opkg_install.c  |  2 +-
+ libopkg/pkg.c           |  2 +-
+ libopkg/pkg_dest.c      |  4 ++--
+ libopkg/pkg_extract.c   |  2 +-
+ libopkg/pkg_hash.c      |  2 +-
+ 9 files changed, 24 insertions(+), 24 deletions(-)
+
+--- a/libopkg/opkg.c
++++ b/libopkg/opkg.c
+@@ -277,7 +277,7 @@ opkg_install_package(const char *package
+ 
+ 		filename = pkg_get_string(pkg, PKG_FILENAME);
+ 		urlencoded_path = urlencode_path(filename);
+-		sprintf_alloc(&url, "%s/%s", pkg->src->value, urlencoded_path);
++		url = concat_path_file(pkg->src->value, urlencoded_path);
+ 		free(urlencoded_path);
+ 
+ 		/* Get the filename part, without any directory */
+@@ -285,7 +285,7 @@ opkg_install_package(const char *package
+ 		if (!stripped_filename)
+ 			stripped_filename = (char *)filename;
+ 
+-		sprintf_alloc(&local_filename, "%s/%s", conf->tmp_dir,
++		local_filename = concat_path_file(conf->tmp_dir,
+ 			      stripped_filename);
+ 
+ 		pkg_set_string(pkg, PKG_LOCAL_FILENAME, local_filename);
+@@ -529,10 +529,10 @@ opkg_update_package_lists(opkg_progress_
+ 
+ 		src = (pkg_src_t *) iter->data;
+ 
+-		sprintf_alloc(&url, "%s/%s", src->value,
++		url = concat_path_file(src->value,
+ 			      src->gzip ? "Packages.gz" : "Packages");
+ 
+-		sprintf_alloc(&list_file_name, "%s/%s", lists_dir, src->name);
++		list_file_name = concat_path_file(lists_dir, src->name);
+ 
+ 		if (opkg_download(url, list_file_name, 0)) {
+ 			opkg_msg(ERROR, "Couldn't retrieve %s\n", url);
+@@ -545,7 +545,7 @@ opkg_update_package_lists(opkg_progress_
+ 			char *sig_file_name;
+ 			/* download detached signitures to verify the package lists */
+ 			/* get the url for the sig file */
+-			sprintf_alloc(&url, "%s/%s", src->value,
++			url = concat_path_file(src->value,
+ 				      "Packages.sig");
+ 
+ 			/* create filename for signature */
+--- a/libopkg/opkg_cmd.c
++++ b/libopkg/opkg_cmd.c
+@@ -136,10 +136,10 @@ static int opkg_update_cmd(int argc, cha
+ 
+ 		src = (pkg_src_t *) iter->data;
+ 
+-		sprintf_alloc(&url, "%s/%s", src->value,
++		url = concat_path_file(src->value,
+ 			      src->gzip ? "Packages.gz" : "Packages");
+ 
+-		sprintf_alloc(&list_file_name, "%s/%s", lists_dir, src->name);
++		list_file_name = concat_path_file(lists_dir, src->name);
+ 		pkglist_dl_error = 0;
+ 		if (opkg_download(url, list_file_name, 0)) {
+ 			failures++;
+@@ -157,7 +157,7 @@ static int opkg_update_cmd(int argc, cha
+ 		if (pkglist_dl_error == 0 && conf->check_signature) {
+ 			/* download detached signitures to verify the package lists */
+ 			/* get the url for the sig file */
+-			sprintf_alloc(&url, "%s/%s", src->value,
++			url = concat_path_file(src->value,
+ 				      "Packages.sig");
+ 
+ 			/* create temporary file for it */
+@@ -269,7 +269,7 @@ static int opkg_finalize_intercepts(opkg
+ 			if (de->d_name[0] == '.')
+ 				continue;
+ 
+-			sprintf_alloc(&path, "%s/%s", ctx->statedir,
++			path = concat_path_file(ctx->statedir,
+ 				      de->d_name);
+ 			if (access(path, X_OK) == 0) {
+ 				const char *argv[] = { "/bin/sh", "-c", path, NULL };
+--- a/libopkg/opkg_conf.c
++++ b/libopkg/opkg_conf.c
+@@ -490,7 +490,7 @@ int opkg_conf_load(void)
+ 	globfree(&globbuf);
+ 
+ 	if (conf->offline_root)
+-		sprintf_alloc(&lock_file, "%s/%s", conf->offline_root,
++		lock_file = concat_path_file(conf->offline_root,
+ 			      OPKGLOCKFILE);
+ 	else
+ 		lock_file = xstrdup(OPKGLOCKFILE);
+@@ -515,7 +515,7 @@ int opkg_conf_load(void)
+ 	else
+ 		tmp_dir_base = getenv("TMPDIR");
+ 
+-	sprintf_alloc(&tmp, "%s/%s",
++	tmp = concat_path_file(
+ 		      tmp_dir_base ? tmp_dir_base :
+ 		      OPKG_CONF_DEFAULT_TMP_DIR_BASE, OPKG_CONF_TMP_DIR_SUFFIX);
+ 	if (conf->tmp_dir)
+@@ -539,7 +539,7 @@ int opkg_conf_load(void)
+ 		conf->verify_program = xstrdup(OPKG_CONF_DEFAULT_VERIFY_PROGRAM);
+ 
+ 	if (conf->offline_root) {
+-		sprintf_alloc(&tmp, "%s/%s", conf->offline_root,
++		tmp = concat_path_file(conf->offline_root,
+ 			      conf->lists_dir);
+ 		free(conf->lists_dir);
+ 		conf->lists_dir = tmp;
+--- a/libopkg/opkg_download.c
++++ b/libopkg/opkg_download.c
+@@ -118,7 +118,7 @@ opkg_download(const char *src, const cha
+ 		return err;
+ 	}
+ 
+-	sprintf_alloc(&tmp_file_location, "%s/%s", conf->tmp_dir, src_base);
++	tmp_file_location = concat_path_file(conf->tmp_dir, src_base);
+ 	free(src_basec);
+ 	err = unlink(tmp_file_location);
+ 	if (err && errno != ENOENT) {
+@@ -224,7 +224,7 @@ opkg_download_cache(const char *src, con
+ 	}
+ 
+ 	cache_name = get_cache_filename(dest_file_name);
+-	sprintf_alloc(&cache_location, "%s/%s", conf->cache, cache_name);
++	cache_location = concat_path_file(conf->cache, cache_name);
+ 	if (file_exists(cache_location))
+ 		opkg_msg(NOTICE, "Copying %s.\n", cache_location);
+ 	else {
+@@ -272,7 +272,7 @@ int opkg_download_pkg(pkg_t * pkg, const
+ 	}
+ 
+ 	urlencoded_path = urlencode_path(filename);
+-	sprintf_alloc(&url, "%s/%s", pkg->src->value, urlencoded_path);
++	url = concat_path_file(pkg->src->value, urlencoded_path);
+ 	free(urlencoded_path);
+ 
+ 	/* The filename might be something like
+@@ -284,13 +284,13 @@ int opkg_download_pkg(pkg_t * pkg, const
+ 	if (!stripped_filename)
+ 		stripped_filename = filename;
+ 
+-	sprintf_alloc(&local_filename, "%s/%s", dir, stripped_filename);
++	local_filename = concat_path_file(dir, stripped_filename);
+ 	pkg_set_string(pkg, PKG_LOCAL_FILENAME, local_filename);
+ 
+ 	/* Invalidate/remove cached package if it has an incorrect checksum. */
+ 	if (conf->cache) {
+ 		cache_name = get_cache_filename(local_filename);
+-		sprintf_alloc(&cache_location, "%s/%s", conf->cache, cache_name);
++		cache_location = concat_path_file(conf->cache, cache_name);
+ 		free(cache_name);
+ 		if (file_exists(cache_location)) {
+ 			err = opkg_verify_integrity(pkg, cache_location);
+@@ -327,7 +327,7 @@ int opkg_prepare_url_for_install(const c
+ 		char *file_basec = xstrdup(url);
+ 		char *file_base = basename(file_basec);
+ 
+-		sprintf_alloc(&tmp_file, "%s/%s", conf->tmp_dir, file_base);
++		tmp_file = concat_path_file(conf->tmp_dir, file_base);
+ 		err = opkg_download(url, tmp_file, 0);
+ 		if (err)
+ 			return err;
+--- a/libopkg/opkg_install.c
++++ b/libopkg/opkg_install.c
+@@ -1331,7 +1331,7 @@ int opkg_install_pkg(pkg_t * pkg, int fr
+ 		lists_dir = xstrdup((conf->restrict_to_default_dest)
+ 			      ? conf->default_dest->lists_dir
+ 			      : conf->lists_dir);
+-		sprintf_alloc(&list_file_name, "%s/%s", lists_dir,
++		list_file_name = concat_path_file(lists_dir,
+ 			      pkg->src->name);
+ 		sprintf_alloc(&sig_file_name, "%s/%s.sig", lists_dir,
+ 			      pkg->src->name);
+--- a/libopkg/pkg.c
++++ b/libopkg/pkg.c
+@@ -1390,7 +1390,7 @@ int pkg_run_script(pkg_t * pkg, const ch
+ 				 pkg->name);
+ 			return -1;
+ 		}
+-		sprintf_alloc(&path, "%s/%s", tmp_unpack_dir, script);
++		path = concat_path_file(tmp_unpack_dir, script);
+ 	}
+ 
+ 	opkg_msg(INFO, "Running script %s.\n", path);
+--- a/libopkg/pkg_dest.c
++++ b/libopkg/pkg_dest.c
+@@ -49,11 +49,11 @@ int pkg_dest_init(pkg_dest_t * dest, con
+ 
+ 	file_mkdir_hier(dest->lists_dir, 0755);
+ 
+-	sprintf_alloc(&dest->info_dir, "%s/%s",
++	dest->info_dir = concat_path_file(
+ 		      dest->opkg_dir, OPKG_INFO_DIR_SUFFIX);
+ 	file_mkdir_hier(dest->info_dir, 0755);
+ 
+-	sprintf_alloc(&dest->status_file_name, "%s/%s",
++	dest->status_file_name = concat_path_file(
+ 		      dest->opkg_dir, OPKG_STATUS_FILE_SUFFIX);
+ 
+ 	return 0;
+--- a/libopkg/pkg_extract.c
++++ b/libopkg/pkg_extract.c
+@@ -38,7 +38,7 @@ pkg_extract_control_files_to_dir_with_pr
+ 	int err;
+ 	char *dir_with_prefix;
+ 
+-	sprintf_alloc(&dir_with_prefix, "%s/%s", dir, prefix);
++	dir_with_prefix = concat_path_file(dir, prefix);
+ 
+ 	deb_extract(pkg_get_string(pkg, PKG_LOCAL_FILENAME), stderr,
+ 		    extract_control_tar_gz
+--- a/libopkg/pkg_hash.c
++++ b/libopkg/pkg_hash.c
+@@ -171,7 +171,7 @@ int pkg_hash_load_feeds(int state_flags,
+ 
+ 		src = (pkg_src_t *) iter->data;
+ 
+-		sprintf_alloc(&list_file, "%s/%s", lists_dir, src->name);
++		list_file = concat_path_file(lists_dir, src->name);
+ 
+ 		if (file_exists(list_file)) {
+ 			if (pkg_hash_add_from_file(list_file, src, NULL, 0, state_flags, cb, priv)) {

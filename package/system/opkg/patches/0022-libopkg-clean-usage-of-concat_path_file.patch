@@ -1,0 +1,288 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 06:43:48 +0800
+Subject: [PATCH] libopkg: clean usage of concat_path_file
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/opkg.c             | 12 +++++-------
+ libopkg/opkg_cmd.c         | 11 ++++-------
+ libopkg/opkg_conf.c        | 28 +++++++---------------------
+ libopkg/opkg_install.c     | 10 +++++-----
+ libopkg/pkg.c              |  6 ++----
+ libopkg/pkg_alternatives.c |  4 +---
+ libopkg/pkg_dest.c         | 20 +++++---------------
+ 7 files changed, 29 insertions(+), 62 deletions(-)
+
+--- a/libopkg/opkg.c
++++ b/libopkg/opkg.c
+@@ -285,8 +285,7 @@ opkg_install_package(const char *package
+ 		if (!stripped_filename)
+ 			stripped_filename = (char *)filename;
+ 
+-		local_filename = concat_path_file(conf->tmp_dir,
+-			      stripped_filename);
++		local_filename = concat_path_file(conf->tmp_dir, stripped_filename);
+ 
+ 		pkg_set_string(pkg, PKG_LOCAL_FILENAME, local_filename);
+ 
+@@ -489,7 +488,7 @@ opkg_update_package_lists(opkg_progress_
+ 	pdata.pkg = NULL;
+ 	progress(pdata, 0);
+ 
+-	lists_dir = xstrdup((conf->restrict_to_default_dest)
++	lists_dir = xstrdup(conf->restrict_to_default_dest
+ 		      ? conf->default_dest->lists_dir : conf->lists_dir);
+ 
+ 	if (!file_is_dir(lists_dir)) {
+@@ -508,7 +507,7 @@ opkg_update_package_lists(opkg_progress_
+ 		}
+ 	}
+ 
+-	sprintf_alloc(&tmp, "%s/update-XXXXXX", conf->tmp_dir);
++	tmp = concat_path_file(conf->tmp_dir, "update-XXXXXX");
+ 	if (mkdtemp(tmp) == NULL) {
+ 		opkg_perror(ERROR, "Coundn't create temporary directory %s",
+ 			    tmp);
+@@ -545,8 +544,7 @@ opkg_update_package_lists(opkg_progress_
+ 			char *sig_file_name;
+ 			/* download detached signitures to verify the package lists */
+ 			/* get the url for the sig file */
+-			url = concat_path_file(src->value,
+-				      "Packages.sig");
++			url = concat_path_file(src->value, "Packages.sig");
+ 
+ 			/* create filename for signature */
+ 			sprintf_alloc(&sig_file_name, "%s/%s.sig", lists_dir,
+@@ -747,7 +745,7 @@ int opkg_repository_accessibility_check(
+ 		if (iter1)
+ 			continue;
+ 
+-		sprintf_alloc(&repo_ptr, "%s/index.html", stmp);
++		repo_ptr = concat_path_file(stmp, "index.html");
+ 		free(stmp);
+ 
+ 		str_list_append(src, repo_ptr);
+--- a/libopkg/opkg_cmd.c
++++ b/libopkg/opkg_cmd.c
+@@ -124,7 +124,7 @@ static int opkg_update_cmd(int argc, cha
+ 
+ 	failures = 0;
+ 
+-	sprintf_alloc(&tmp, "%s/update-XXXXXX", conf->tmp_dir);
++	tmp = concat_path_file(conf->tmp_dir, "update-XXXXXX");
+ 	if (mkdtemp(tmp) == NULL) {
+ 		opkg_perror(ERROR, "Failed to make temp dir %s", conf->tmp_dir);
+ 		return -1;
+@@ -157,8 +157,7 @@ static int opkg_update_cmd(int argc, cha
+ 		if (pkglist_dl_error == 0 && conf->check_signature) {
+ 			/* download detached signitures to verify the package lists */
+ 			/* get the url for the sig file */
+-			url = concat_path_file(src->value,
+-				      "Packages.sig");
++			url = concat_path_file(src->value, "Packages.sig");
+ 
+ 			/* create temporary file for it */
+ 			char *tmp_file_name;
+@@ -225,8 +224,7 @@ static opkg_intercept_t opkg_prep_interc
+ 	sprintf_alloc(&newpath, "%s/opkg/intercept:%s", DATADIR,
+ 	              ctx->oldpath ? ctx->oldpath : PATH_SPEC);
+ 
+-	sprintf_alloc(&ctx->statedir, "%s/opkg-intercept-XXXXXX",
+-	              conf->tmp_dir);
++	ctx->statedir = concat_path_file(conf->tmp_dir, "opkg-intercept-XXXXXX");
+ 
+ 	if (mkdtemp(ctx->statedir) == NULL) {
+ 		opkg_perror(ERROR, "Failed to make temp dir %s", ctx->statedir);
+@@ -269,8 +267,7 @@ static int opkg_finalize_intercepts(opkg
+ 			if (de->d_name[0] == '.')
+ 				continue;
+ 
+-			path = concat_path_file(ctx->statedir,
+-				      de->d_name);
++			path = concat_path_file(ctx->statedir, de->d_name);
+ 			if (access(path, X_OK) == 0) {
+ 				const char *argv[] = { "/bin/sh", "-c", path, NULL };
+ 				xsystem(argv);
+--- a/libopkg/opkg_conf.c
++++ b/libopkg/opkg_conf.c
+@@ -27,7 +27,6 @@
+ #include "pkg_vec.h"
+ #include "pkg.h"
+ #include "xregex.h"
+-#include "sprintf_alloc.h"
+ #include "opkg_message.h"
+ #include "file_util.h"
+ #include "opkg_defines.h"
+@@ -90,8 +89,7 @@ static int resolve_pkg_dest_list(void)
+ 		nv_pair = (nv_pair_t *) iter->data;
+ 
+ 		if (conf->offline_root) {
+-			sprintf_alloc(&root_dir, "%s%s", conf->offline_root,
+-				      nv_pair->value);
++			root_dir = concat_path_file(conf->offline_root, nv_pair->value);
+ 		} else {
+ 			root_dir = xstrdup(nv_pair->value);
+ 		}
+@@ -404,10 +402,7 @@ int opkg_conf_write_status_files(void)
+ 
+ char *root_filename_alloc(char *filename)
+ {
+-	char *root_filename;
+-	sprintf_alloc(&root_filename, "%s%s",
+-		      (conf->offline_root ? conf->offline_root : ""), filename);
+-	return root_filename;
++	return concat_path_file(conf->offline_root, filename);
+ }
+ 
+ static int glob_errfunc(const char *epath, int eerrno)
+@@ -455,14 +450,12 @@ int opkg_conf_load(void)
+ 	}
+ 
+ 	if (conf->offline_root)
+-		sprintf_alloc(&etc_opkg_conf_pattern, "%s/etc/opkg/*.conf",
+-			      conf->offline_root);
++		etc_opkg_conf_pattern = concat_path_file(conf->offline_root, "/etc/opkg/*.conf");
+ 	else {
+ 		const char *conf_file_dir = getenv("OPKG_CONF_DIR");
+ 		if (conf_file_dir == NULL)
+ 			conf_file_dir = OPKG_CONF_DEFAULT_CONF_FILE_DIR;
+-		sprintf_alloc(&etc_opkg_conf_pattern, "%s/*.conf",
+-			      conf_file_dir);
++		etc_opkg_conf_pattern = concat_path_file(conf_file_dir, "*.conf");
+ 	}
+ 
+ 	memset(&globbuf, 0, sizeof(globbuf));
+@@ -489,11 +482,7 @@ int opkg_conf_load(void)
+ 
+ 	globfree(&globbuf);
+ 
+-	if (conf->offline_root)
+-		lock_file = concat_path_file(conf->offline_root,
+-			      OPKGLOCKFILE);
+-	else
+-		lock_file = xstrdup(OPKGLOCKFILE);
++	lock_file = concat_path_file(conf->offline_root, OPKGLOCKFILE);
+ 
+ 	lock_fd = creat(lock_file, S_IRUSR | S_IWUSR | S_IRGRP);
+ 	if (lock_fd == -1) {
+@@ -515,9 +504,7 @@ int opkg_conf_load(void)
+ 	else
+ 		tmp_dir_base = getenv("TMPDIR");
+ 
+-	tmp = concat_path_file(
+-		      tmp_dir_base ? tmp_dir_base :
+-		      OPKG_CONF_DEFAULT_TMP_DIR_BASE, OPKG_CONF_TMP_DIR_SUFFIX);
++	tmp = concat_path_file(tmp_dir_base ? tmp_dir_base : OPKG_CONF_DEFAULT_TMP_DIR_BASE, OPKG_CONF_TMP_DIR_SUFFIX);
+ 	if (conf->tmp_dir)
+ 		free(conf->tmp_dir);
+ 	conf->tmp_dir = mkdtemp(tmp);
+@@ -539,8 +526,7 @@ int opkg_conf_load(void)
+ 		conf->verify_program = xstrdup(OPKG_CONF_DEFAULT_VERIFY_PROGRAM);
+ 
+ 	if (conf->offline_root) {
+-		tmp = concat_path_file(conf->offline_root,
+-			      conf->lists_dir);
++		tmp = concat_path_file(conf->offline_root, conf->lists_dir);
+ 		free(conf->lists_dir);
+ 		conf->lists_dir = tmp;
+ 	}
+--- a/libopkg/opkg_install.c
++++ b/libopkg/opkg_install.c
+@@ -266,8 +266,7 @@ static int unpack_pkg_control_files(pkg_
+ 		return 0;
+ 	}
+ 
+-	sprintf_alloc(&conffiles_file_name, "%s/conffiles",
+-		      tmp_unpack_dir);
++	conffiles_file_name = concat_path_file(tmp_unpack_dir, "conffiles");
+ 	if (!file_exists(conffiles_file_name)) {
+ 		free(conffiles_file_name);
+ 		return 0;
+@@ -305,12 +304,13 @@ static int unpack_pkg_control_files(pkg_
+ 		/* Prepend dest->root_dir to conffile name.
+ 		   Take pains to avoid multiple slashes. */
+ 		root_dir = pkg->dest->root_dir;
+-		if (conf->offline_root)
++		if (conf->offline_root) {
+ 			/* skip the offline_root prefix */
+ 			root_dir =
+ 			    pkg->dest->root_dir + strlen(conf->offline_root);
+-		sprintf_alloc(&cf_name_in_dest, "%s%s", root_dir,
+-			      cf_name[0] == '/' ? (cf_name + 1) : cf_name);
++			if (*root_dir != '/') --root_dir;
++		}
++		cf_name_in_dest = concat_path_file(root_dir, cf_name);
+ 
+ 		/* Can't get an md5sum now, (file isn't extracted yet).
+ 		   We'll wait until resolve_conffiles */
+--- a/libopkg/pkg.c
++++ b/libopkg/pkg.c
+@@ -1267,14 +1267,12 @@ str_list_t *pkg_get_installed_files(pkg_
+ 			if (*file_name == '/') {
+ 				file_name++;
+ 			}
+-			sprintf_alloc(&installed_file_name, "%s%s",
+-				      pkg->dest->root_dir, file_name);
++			installed_file_name = concat_path_file(pkg->dest->root_dir, file_name);
+ 		} else {
+ 			if (conf->offline_root &&
+ 			    strncmp(conf->offline_root, file_name,
+ 				    rootdirlen)) {
+-				sprintf_alloc(&installed_file_name, "%s%s",
+-					      conf->offline_root, file_name);
++				installed_file_name = concat_path_file(conf->offline_root, file_name);
+ 			} else {
+ 				// already contains root_dir as header -> ABSOLUTE
+ 				installed_file_name = xstrdup(
+--- a/libopkg/pkg_alternatives.c
++++ b/libopkg/pkg_alternatives.c
+@@ -99,9 +99,7 @@ static int pkg_alternatives_update_path(
+ 		opkg_msg(ERROR, "Alternatives path '%s' must be an absolute one\n", path);
+ 		return -1;
+ 	}
+-	sprintf_alloc(&path_in_dest, "%s%s", the_pkg->dest->root_dir, &path[1]);
+-	if (!path_in_dest)
+-		return -1;
++	path_in_dest = concat_path_file(the_pkg->dest->root_dir, path);
+ 
+ 	if (the_alt) {
+ 		target_path = the_alt->altpath;
+--- a/libopkg/pkg_dest.c
++++ b/libopkg/pkg_dest.c
+@@ -31,30 +31,20 @@ int pkg_dest_init(pkg_dest_t * dest, con
+ 	dest->name = xstrdup(name);
+ 
+ 	/* Guarantee that dest->root_dir ends with a '/' */
+-	if (root_dir[strlen(root_dir) - 1] == '/') {
+-		dest->root_dir = xstrdup(root_dir);
+-	} else {
+-		sprintf_alloc(&dest->root_dir, "%s/", root_dir);
+-	}
++	dest->root_dir = concat_path_file(root_dir, "/");
+ 	file_mkdir_hier(dest->root_dir, 0755);
+ 
+-	sprintf_alloc(&dest->opkg_dir, "%s%s",
+-		      dest->root_dir, OPKG_STATE_DIR_PREFIX);
++	dest->opkg_dir = concat_path_file(dest->root_dir, OPKG_STATE_DIR_PREFIX);
+ 	file_mkdir_hier(dest->opkg_dir, 0755);
+ 
+-	if (lists_dir[0] == '/')
+-		dest->lists_dir = xstrdup(lists_dir);
+-	else
+-		sprintf_alloc(&dest->lists_dir, "/%s", lists_dir);
++	dest->lists_dir = concat_path_file(NULL, lists_dir);
+ 
+ 	file_mkdir_hier(dest->lists_dir, 0755);
+ 
+-	dest->info_dir = concat_path_file(
+-		      dest->opkg_dir, OPKG_INFO_DIR_SUFFIX);
++	dest->info_dir = concat_path_file(dest->opkg_dir, OPKG_INFO_DIR_SUFFIX);
+ 	file_mkdir_hier(dest->info_dir, 0755);
+ 
+-	dest->status_file_name = concat_path_file(
+-		      dest->opkg_dir, OPKG_STATUS_FILE_SUFFIX);
++	dest->status_file_name = concat_path_file(dest->opkg_dir, OPKG_STATUS_FILE_SUFFIX);
+ 
+ 	return 0;
+ }

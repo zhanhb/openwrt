@@ -1,0 +1,68 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Mon, 8 Nov 2021 01:42:46 +0800
+Subject: [PATCH] libbb: unarchive: extract_quiet
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libbb/unarchive.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+--- a/libbb/unarchive.c
++++ b/libbb/unarchive.c
+@@ -127,7 +127,7 @@ static char *extract_archive(struct gzip
+ 					unlink(full_name);	/* Directories might not be empty etc */
+ 				}
+ 			} else {
+-				if ((function & extract_quiet) != extract_quiet) {
++				if (!(function & extract_quiet)) {
+ 					*err = -1;
+ 					error_msg
+ 					    ("%s not created: newer or same age file exists",
+@@ -142,7 +142,7 @@ static char *extract_archive(struct gzip
+ 			buf = xstrdup(full_name);
+ 			parent = dirname(buf);
+ 			if (make_directory(parent, -1, FILEUTILS_RECUR) != 0) {
+-				if ((function & extract_quiet) != extract_quiet) {
++				if (!(function & extract_quiet)) {
+ 					*err = -1;
+ 					error_msg
+ 					    ("couldn't create leading directories");
+@@ -154,8 +154,7 @@ static char *extract_archive(struct gzip
+ 		case S_IFREG:
+ 			if (file_entry->link_name) {	/* Found a cpio hard link */
+ 				if (link(full_link_name, full_name) != 0) {
+-					if ((function & extract_quiet) !=
+-					    extract_quiet) {
++					if (!(function & extract_quiet)) {
+ 						*err = -1;
+ 						perror_msg
+ 						    ("Cannot link from %s to '%s'",
+@@ -181,8 +180,7 @@ static char *extract_archive(struct gzip
+ 		case S_IFDIR:
+ 			if (stat_res != 0) {
+ 				if (mkdir(full_name, file_entry->mode) < 0) {
+-					if ((function & extract_quiet) !=
+-					    extract_quiet) {
++					if (!(function & extract_quiet)) {
+ 						*err = -1;
+ 						perror_msg("Cannot make dir %s",
+ 							   full_name);
+@@ -192,7 +190,7 @@ static char *extract_archive(struct gzip
+ 			break;
+ 		case S_IFLNK:
+ 			if (symlink(file_entry->link_name, full_name) < 0) {
+-				if ((function & extract_quiet) != extract_quiet) {
++				if (!(function & extract_quiet)) {
+ 					*err = -1;
+ 					perror_msg
+ 					    ("Cannot create symlink from %s to '%s'",
+@@ -209,7 +207,7 @@ static char *extract_archive(struct gzip
+ 			if (mknod
+ 			    (full_name, file_entry->mode,
+ 			     file_entry->device) == -1) {
+-				if ((function & extract_quiet) != extract_quiet) {
++				if (!(function & extract_quiet)) {
+ 					*err = -1;
+ 					perror_msg("Cannot create node %s",
+ 						   file_entry->name);
