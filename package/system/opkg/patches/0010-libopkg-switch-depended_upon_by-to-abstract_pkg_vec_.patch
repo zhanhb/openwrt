@@ -1,0 +1,115 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Mon, 8 Nov 2021 04:16:14 +0800
+Subject: [PATCH] libopkg: switch depended_upon_by to abstract_pkg_vec_t
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/opkg_remove.c | 14 ++++++++++----
+ libopkg/pkg.h         |  4 +---
+ libopkg/pkg_depends.c | 23 ++---------------------
+ libopkg/pkg_hash.c    |  2 +-
+ 4 files changed, 14 insertions(+), 29 deletions(-)
+
+--- a/libopkg/opkg_remove.c
++++ b/libopkg/opkg_remove.c
+@@ -40,11 +40,14 @@ int pkg_has_installed_dependents(pkg_t *
+ 
+ 	while (provider && *provider) {
+ 		abstract_pkg_t *providee = *provider++;
+-		abstract_pkg_t **dependers = providee->depended_upon_by;
++		abstract_pkg_vec_t *dependers = providee->depended_upon_by;
+ 		abstract_pkg_t *dep_ab_pkg;
+ 		if (dependers == NULL)
+ 			continue;
+-		while ((dep_ab_pkg = *dependers++) != NULL) {
++		unsigned ndependers = dependers->len;
++		int j;
++		for (j = 0; j < ndependers; ++j) {
++			dep_ab_pkg = dependers->pkgs[j];
+ 			if (dep_ab_pkg->state_status == SS_INSTALLED) {
+ 				n_installed_dependents++;
+ 			}
+@@ -63,11 +66,14 @@ int pkg_has_installed_dependents(pkg_t *
+ 
+ 		while (provider && *provider) {
+ 			abstract_pkg_t *providee = *provider++;
+-			abstract_pkg_t **dependers = providee->depended_upon_by;
++			abstract_pkg_vec_t *dependers = providee->depended_upon_by;
+ 			abstract_pkg_t *dep_ab_pkg;
+ 			if (dependers == NULL)
+ 				continue;
+-			while ((dep_ab_pkg = *dependers++) != NULL) {
++			unsigned ndependers = dependers->len;
++			int j;
++			for (j = 0; j < ndependers; ++j) {
++				dep_ab_pkg = dependers->pkgs[j];
+ 				if (dep_ab_pkg->state_status == SS_INSTALLED
+ 				    && !(dep_ab_pkg->state_flag & SF_MARKED)) {
+ 					dependents[p++] = dep_ab_pkg;
+--- a/libopkg/pkg.h
++++ b/libopkg/pkg.h
+@@ -108,9 +108,7 @@ struct abstract_pkg {
+ 	char *name;
+ 	pkg_vec_t *pkgs;
+ 
+-	/* XXX: This should be abstract_pkg_vec_t for consistency. */
+-	struct abstract_pkg **depended_upon_by;
+-
++	abstract_pkg_vec_t *depended_upon_by;
+ 	abstract_pkg_vec_t *provided_by;
+ 	abstract_pkg_vec_t *replaced_by;
+ 
+--- a/libopkg/pkg_depends.c
++++ b/libopkg/pkg_depends.c
+@@ -978,10 +978,8 @@ char *pkg_depend_str(pkg_t * pkg, int id
+ void buildDependedUponBy(pkg_t * pkg, abstract_pkg_t * ab_pkg)
+ {
+ 	compound_depend_t *depends;
+-	int othercount;
+ 	int j;
+ 	abstract_pkg_t *ab_depend;
+-	abstract_pkg_t **temp;
+ 
+ 	for (depends = pkg_get_ptr(pkg, PKG_DEPENDS); depends && depends->type; depends++) {
+ 		if (depends->type != PREDEPEND
+@@ -990,26 +988,9 @@ void buildDependedUponBy(pkg_t * pkg, ab
+ 		for (j = 0; j < depends->possibility_count; j++) {
+ 			ab_depend = depends->possibilities[j]->pkg;
+ 			if (!ab_depend->depended_upon_by) {
+-				ab_depend->depended_upon_by =
+-				    xcalloc(1, sizeof(abstract_pkg_t *));
++				ab_depend->depended_upon_by = abstract_pkg_vec_alloc();
+ 			}
+-
+-			temp = ab_depend->depended_upon_by;
+-			othercount = 1;
+-			while (*temp) {
+-				temp++;
+-				othercount++;
+-			}
+-			*temp = ab_pkg;
+-
+-			ab_depend->depended_upon_by =
+-			    xrealloc(ab_depend->depended_upon_by,
+-				     (othercount +
+-				      1) * sizeof(abstract_pkg_t *));
+-
+-			/* the array may have been moved by realloc */
+-			temp = ab_depend->depended_upon_by + othercount;
+-			*temp = NULL;
++			abstract_pkg_vec_insert(ab_depend->depended_upon_by, ab_pkg);
+ 		}
+ 	}
+ }
+--- a/libopkg/pkg_hash.c
++++ b/libopkg/pkg_hash.c
+@@ -59,7 +59,7 @@ static void free_pkgs(const char *key, v
+ 	abstract_pkg_vec_free(ab_pkg->provided_by);
+ 	abstract_pkg_vec_free(ab_pkg->replaced_by);
+ 	pkg_vec_free(ab_pkg->pkgs);
+-	free(ab_pkg->depended_upon_by);
++	abstract_pkg_vec_free(ab_pkg->depended_upon_by);
+ 	free(ab_pkg->name);
+ 	free(ab_pkg);
+ }
