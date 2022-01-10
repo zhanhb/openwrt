@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 04:19:59 +0800
+Subject: [PATCH] libbb: mode_string: fix IDE warning
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libbb/mode_string.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/libbb/mode_string.c
++++ b/libbb/mode_string.c
+@@ -59,9 +59,9 @@ const char *mode_string(int mode)
+ 	buf[0] = TYPECHAR(mode);
+ 	for (i = 0; i < 9; i++) {
+ 		if (mode & SBIT[i])
+-			buf[i + 1] = (mode & MBIT[i]) ? SMODE1[i] : SMODE0[i];
++			buf[i + 1] = (mode & MBIT[i] ? SMODE1 : SMODE0)[i];
+ 		else
+-			buf[i + 1] = (mode & MBIT[i]) ? MODE1[i] : MODE0[i];
++			buf[i + 1] = (mode & MBIT[i] ? MODE1 : MODE0)[i];
+ 	}
+ 	return buf;
+ }

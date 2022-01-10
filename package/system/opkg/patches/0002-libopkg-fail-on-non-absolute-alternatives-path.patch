@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Wed, 10 Jun 2020 08:07:58 +0800
+Subject: [PATCH] libopkg: fail on non absolute alternatives path
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/pkg_alternatives.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/libopkg/pkg_alternatives.c
++++ b/libopkg/pkg_alternatives.c
+@@ -91,7 +91,10 @@ static int pkg_alternatives_update_path(
+ 		}
+ 	}
+ 
+-	/* path is assumed to be an absolute one */
++	if (path[0] != '/') {
++		opkg_msg(ERROR, "Alternatives path '%s' must be an absolute one\n", path);
++		return -1;
++	}
+ 	sprintf_alloc(&path_in_dest, "%s%s", the_pkg->dest->root_dir, &path[1]);
+ 	if (!path_in_dest)
+ 		return -1;

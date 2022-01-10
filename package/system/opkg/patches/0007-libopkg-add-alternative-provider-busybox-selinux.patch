@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Tue, 2 Nov 2021 21:17:23 +0800
+Subject: [PATCH] libopkg: add alternative provider busybox-selinux
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/pkg_alternatives.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/libopkg/pkg_alternatives.c
++++ b/libopkg/pkg_alternatives.c
+@@ -37,6 +37,10 @@ static const struct alternative_provider
+ 		.name = "busybox",
+ 		.altpath = "/bin/busybox",
+ 	},
++	{
++		.name = "busybox-selinux",
++		.altpath = "/bin/busybox",
++	},
+ };
+ 
+ static const char *pkg_alternatives_check_providers(const char *path)

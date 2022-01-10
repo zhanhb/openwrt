@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Sun, 31 Oct 2021 08:56:53 +0800
+Subject: [PATCH] libopkg: continue to remove remain auto installed
+ packages
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/opkg_remove.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/libopkg/opkg_remove.c
++++ b/libopkg/opkg_remove.c
+@@ -194,7 +194,7 @@ static int remove_autoinstalled(pkg_t *
+ 			 * already been removed.
+ 			 */
+ 			if (!p)
+-				return -1;
++				continue;
+ 
+ 			if (!p->auto_installed)
+ 				continue;
