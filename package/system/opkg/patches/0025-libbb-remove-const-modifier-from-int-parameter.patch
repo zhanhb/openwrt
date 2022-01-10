@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 04:19:33 +0800
+Subject: [PATCH] libbb: remove const modifier from int parameter
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libbb/libbb.h     | 2 +-
+ libbb/unarchive.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/libbb/libbb.h
++++ b/libbb/libbb.h
+@@ -98,7 +98,7 @@ enum extract_functions_e {
+ };
+ 
+ char *deb_extract(const char *package_filename, FILE * out_stream,
+-		  const int extract_function, const char *prefix,
++		  int extract_function, const char *prefix,
+ 		  const char *filename, int *err);
+ 
+ int make_directory(const char *path, long mode, int flags);
+--- a/libbb/unarchive.c
++++ b/libbb/unarchive.c
+@@ -64,7 +64,7 @@ static ssize_t seek_forward(struct gzip_
+  */
+ static char *extract_archive(struct gzip_handle *src_stream, FILE * out_stream,
+ 			     const file_header_t * file_entry,
+-			     const int function, const char *prefix, int *err)
++			     int function, const char *prefix, int *err)
+ {
+ 	FILE *dst_stream = NULL;
+ 	char *full_name = NULL;
+@@ -517,7 +517,7 @@ static void free_header_tar(file_header_
+ }
+ 
+ char *deb_extract(const char *package_filename, FILE * out_stream,
+-		  const int extract_function, const char *prefix,
++		  int extract_function, const char *prefix,
+ 		  const char *filename, int *err)
+ {
+ 	FILE *deb_stream = NULL;

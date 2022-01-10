@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Thu, 25 Nov 2021 06:06:27 +0800
+Subject: [PATCH] libopkg: replace sprintf_alloc with xstrdup
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/opkg.c         | 2 +-
+ libopkg/opkg_cmd.c     | 2 +-
+ libopkg/opkg_conf.c    | 2 +-
+ libopkg/opkg_install.c | 2 +-
+ libopkg/pkg.c          | 2 +-
+ libopkg/pkg_dest.c     | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+--- a/libopkg/opkg.c
++++ b/libopkg/opkg.c
+@@ -489,7 +489,7 @@ opkg_update_package_lists(opkg_progress_
+ 	pdata.pkg = NULL;
+ 	progress(pdata, 0);
+ 
+-	sprintf_alloc(&lists_dir, "%s", (conf->restrict_to_default_dest)
++	lists_dir = xstrdup((conf->restrict_to_default_dest)
+ 		      ? conf->default_dest->lists_dir : conf->lists_dir);
+ 
+ 	if (!file_is_dir(lists_dir)) {
+--- a/libopkg/opkg_cmd.c
++++ b/libopkg/opkg_cmd.c
+@@ -104,7 +104,7 @@ static int opkg_update_cmd(int argc, cha
+ 	pkg_src_list_elt_t *iter;
+ 	pkg_src_t *src;
+ 
+-	sprintf_alloc(&lists_dir, "%s",
++	lists_dir = xstrdup(
+ 		      conf->restrict_to_default_dest ? conf->default_dest->
+ 		      lists_dir : conf->lists_dir);
+ 
+--- a/libopkg/opkg_conf.c
++++ b/libopkg/opkg_conf.c
+@@ -493,7 +493,7 @@ int opkg_conf_load(void)
+ 		sprintf_alloc(&lock_file, "%s/%s", conf->offline_root,
+ 			      OPKGLOCKFILE);
+ 	else
+-		sprintf_alloc(&lock_file, "%s", OPKGLOCKFILE);
++		lock_file = xstrdup(OPKGLOCKFILE);
+ 
+ 	lock_fd = creat(lock_file, S_IRUSR | S_IWUSR | S_IRGRP);
+ 	if (lock_fd == -1) {
+--- a/libopkg/opkg_install.c
++++ b/libopkg/opkg_install.c
+@@ -1328,7 +1328,7 @@ int opkg_install_pkg(pkg_t * pkg, int fr
+ 
+ 	/* check to ensure the package has come from a repository */
+ 	if (conf->check_signature && pkg->src) {
+-		sprintf_alloc(&lists_dir, "%s", (conf->restrict_to_default_dest)
++		lists_dir = xstrdup((conf->restrict_to_default_dest)
+ 			      ? conf->default_dest->lists_dir
+ 			      : conf->lists_dir);
+ 		sprintf_alloc(&list_file_name, "%s/%s", lists_dir,
+--- a/libopkg/pkg.c
++++ b/libopkg/pkg.c
+@@ -1277,7 +1277,7 @@ str_list_t *pkg_get_installed_files(pkg_
+ 					      conf->offline_root, file_name);
+ 			} else {
+ 				// already contains root_dir as header -> ABSOLUTE
+-				sprintf_alloc(&installed_file_name, "%s",
++				installed_file_name = xstrdup(
+ 					      file_name);
+ 			}
+ 		}
+--- a/libopkg/pkg_dest.c
++++ b/libopkg/pkg_dest.c
+@@ -43,7 +43,7 @@ int pkg_dest_init(pkg_dest_t * dest, con
+ 	file_mkdir_hier(dest->opkg_dir, 0755);
+ 
+ 	if (lists_dir[0] == '/')
+-		sprintf_alloc(&dest->lists_dir, "%s", lists_dir);
++		dest->lists_dir = xstrdup(lists_dir);
+ 	else
+ 		sprintf_alloc(&dest->lists_dir, "/%s", lists_dir);
+ 

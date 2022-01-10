@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Mon, 8 Nov 2021 12:55:37 +0800
+Subject: [PATCH] libopkg: add attribute printf for function
+ springf_alloc
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ libopkg/sprintf_alloc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/libopkg/sprintf_alloc.h
++++ b/libopkg/sprintf_alloc.h
+@@ -18,6 +18,6 @@
+ #ifndef SPRINTF_ALLOC_H
+ #define SPRINTF_ALLOC_H
+ 
+-void sprintf_alloc(char **str, const char *fmt, ...);
++void sprintf_alloc(char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+ 
+ #endif
