@@ -16,6 +16,9 @@ PKG_HASH:=62adfca89b0a1c0164c2cdca59ca210c1d44c3ffc46daf9931cf4942664cb02a
 PKG_FIXUP := autoreconf
 PKG_CPE_ID:=cpe:/a:gnu:bc
 
+HOSTCC := $(HOSTCC_NOCACHE)
+HOSTCXX := $(HOSTCXX_NOCACHE)
+
 include $(INCLUDE_DIR)/host-build.mk
 
 define Host/Uninstall
