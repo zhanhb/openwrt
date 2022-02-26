@@ -41,7 +41,7 @@ endef
 define Build/append-rootfshdr
 	mkimage -A $(LINUX_KARCH) \
 		-O linux -T filesystem \
-		-C lzma -a $(KERNEL_LOADADDR) -e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-C lzma -a $(KERNEL_LOADADDR) -e $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-n root.squashfs -d $(IMAGE_ROOTFS) $@.new
 	cat $(IMAGE_KERNEL) > $@.$1
 	dd if=$@.new bs=64 count=1 >> $@.$1

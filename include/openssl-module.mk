@@ -25,7 +25,7 @@ define Package/openssl/add-module
   $(eval MOD_TYPE:=$(1))
   $(eval MOD_NAME:=$(2))
   $(eval MOD_DIR:=$(3))
-  $(eval OSSL_PKG:=$(if $(4),$(4),libopenssl-$(MOD_NAME)))
+  $(eval OSSL_PKG:=$(or $(4),libopenssl-$(MOD_NAME)))
   $(info Package/openssl/add-module 1='$(1)'; 2='$(2)'; 3='$(3)' 4='$(4)')
   $(info MOD_TYPE='$(MOD_TYPE)'; MOD_NAME='$(MOD_NAME)'; MOD_DIR='$(MOD_DIR)' OSSL_PKG='$(OSSL_PKG)')
   Package/$(OSSL_PKG)/conffiles:=/etc/ssl/modules.cnf.d/$(MOD_NAME).cnf

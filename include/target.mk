@@ -154,7 +154,7 @@ GENERIC_FILES_DIR := $(foreach dir,$(wildcard $(GENERIC_PLATFORM_DIR)/files $(GE
 
 __config_name_list = $(1)/config-$(KERNEL_PATCHVER) $(1)/config-default
 __config_list = $(firstword $(wildcard $(call __config_name_list,$(1))))
-find_kernel_config=$(if $(__config_list),$(__config_list),$(lastword $(__config_name_list)))
+find_kernel_config=$(or $(__config_list),$(lastword $(__config_name_list)))
 
 GENERIC_LINUX_CONFIG = $(call find_kernel_config,$(GENERIC_PLATFORM_DIR))
 LINUX_TARGET_CONFIG = $(call find_kernel_config,$(PLATFORM_DIR))
@@ -336,10 +336,10 @@ define BuildTargets/DumpCurrent
 	 echo 'Target-Board: $(BOARD)'; \
 	 echo 'Target-Name: $(BOARDNAME)$(if $(SUBTARGETS),$(if $(SUBTARGET),))'; \
 	 echo 'Target-Arch: $(ARCH)'; \
-	 echo 'Target-Arch-Packages: $(if $(ARCH_PACKAGES),$(ARCH_PACKAGES),$(ARCH)$(if $(CPU_TYPE),_$(CPU_TYPE))$(if $(CPU_SUBTYPE),_$(CPU_SUBTYPE)))'; \
+	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(if $(CPU_TYPE),_$(CPU_TYPE))$(if $(CPU_SUBTYPE),_$(CPU_SUBTYPE)))'; \
 	 echo 'Target-Features: $(FEATURES)'; \
 	 echo 'Target-Depends: $(DEPENDS)'; \
-	 echo 'Target-Optimization: $(if $(CFLAGS),$(CFLAGS),$(DEFAULT_CFLAGS))'; \
+	 echo 'Target-Optimization: $(or $(CFLAGS),$(DEFAULT_CFLAGS))'; \
 	 echo 'CPU-Type: $(CPU_TYPE)$(if $(CPU_SUBTYPE),+$(CPU_SUBTYPE))'; \
 	 echo 'Linux-Version: $(LINUX_VERSION)'; \
 	$(if $(LINUX_TESTING_VERSION),echo 'Linux-Testing-Version: $(LINUX_TESTING_VERSION)';) \

@@ -61,7 +61,7 @@ endef
 endif
 
 
-compat_version=$(if $(DEVICE_COMPAT_VERSION),$(DEVICE_COMPAT_VERSION),1.0)
+compat_version=$(or $(DEVICE_COMPAT_VERSION),1.0)
 json_quote=$(subst ','\'',$(subst ",\",$(1)))
 #")')
 
@@ -84,7 +84,7 @@ metadata_json = \
 			"version": "$(call json_quote,$(VERSION_NUMBER))", \
 			"revision": "$(call json_quote,$(REVISION))", \
 			"target": "$(call json_quote,$(TARGETID))", \
-			"board": "$(call json_quote,$(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)))" \
+			"board": "$(call json_quote,$(or $(BOARD_NAME),$(DEVICE_NAME)))" \
 		} \
 	}'
 
@@ -215,7 +215,7 @@ endef
 
 define Build/check-size
 	@imagesize="$$(stat -c%s $@)"; \
-	limitsize="$$(($(subst k,* 1024,$(subst m, * 1024k,$(if $(1),$(1),$(IMAGE_SIZE))))))"; \
+	limitsize="$$(($(subst k,* 1024,$(subst m, * 1024k,$(or $(1),$(IMAGE_SIZE))))))"; \
 	[ $$limitsize -ge $$imagesize ] || { \
 		$(call ERROR_MESSAGE,    WARNING: Image file $@ is too big: $$imagesize > $$limitsize); \
 		rm -f $@; \
@@ -233,7 +233,7 @@ endef
 
 define Build/elecom-product-header
 	$(eval product=$(word 1,$(1)))
-	$(eval fw=$(if $(word 2,$(1)),$(word 2,$(1)),$@))
+	$(eval fw=$(or $(word 2,$(1)),$@))
 
 	( \
 		echo -n -e "ELECOM\x00\x00$(product)" | dd bs=40 count=1 conv=sync; \
@@ -303,12 +303,12 @@ define Build/fit
 		$(if $(findstring with-initrd,$(word 3,$(1))), \
 			$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS_SEPARATE), \
 				-i $(KERNEL_BUILD_DIR)/initrd.cpio$(strip $(call Build/initrd_compression)))) \
-		-a $(KERNEL_LOADADDR) -e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-a $(KERNEL_LOADADDR) -e $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		$(if $(DEVICE_FDT_NUM),-n $(DEVICE_FDT_NUM)) \
 		$(if $(DEVICE_DTS_DELIMITER),-l $(DEVICE_DTS_DELIMITER)) \
 		$(if $(DEVICE_DTS_LOADADDR),-s $(DEVICE_DTS_LOADADDR)) \
 		$(if $(DEVICE_DTS_OVERLAY),$(foreach dtso,$(DEVICE_DTS_OVERLAY), -O $(dtso):$(KERNEL_BUILD_DIR)/image-$(dtso).dtbo)) \
-		-c $(if $(DEVICE_DTS_CONFIG),$(DEVICE_DTS_CONFIG),"config-1") \
+		-c $(or $(DEVICE_DTS_CONFIG),"config-1") \
 		-A $(LINUX_KARCH) -v $(LINUX_VERSION)
 	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage $(if $(findstring external,$(word 3,$(1))),\
 		-E -B 0x1000 $(if $(findstring static,$(word 3,$(1))),-p 0x1000)) -f $@.its $@.new
@@ -517,7 +517,7 @@ endef
 
 define Build/sysupgrade-tar
 	sh $(TOPDIR)/scripts/sysupgrade-tar.sh \
-		--board $(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)) \
+		--board $(or $(BOARD_NAME),$(DEVICE_NAME)) \
 		--kernel $(call param_get_default,kernel,$(1),$(IMAGE_KERNEL)) \
 		--rootfs $(call param_get_default,rootfs,$(1),$(IMAGE_ROOTFS)) \
 		$@
@@ -538,7 +538,7 @@ endef
 define Build/tplink-v1-header
 	$(STAGING_DIR_HOST)/bin/mktplinkfw \
 		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
-		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-E $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-m $(TPLINK_HEADER_VERSION) -N "$(VERSION_DIST)" -V $(REVISION) \
 		-k $@ -o $@.new $(1)
 	@mv $@.new $@
@@ -565,7 +565,7 @@ endef
 define Build/tplink-v2-header
 	$(STAGING_DIR_HOST)/bin/mktplinkfw2 \
 		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
-		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR))  \
+		-E $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR))  \
 		-w $(TPLINK_HWREVADD) -F "$(TPLINK_FLASHLAYOUT)" \
 		-T $(TPLINK_HVERSION) -V "ver. 2.0" \
 		-k $@ -o $@.new $(1)
@@ -590,8 +590,8 @@ define Build/uImage
 		-T kernel \
 		-C $(word 1,$(1)) \
 		-a $(KERNEL_LOADADDR) \
-		-e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
-		-n '$(if $(UIMAGE_NAME),$(UIMAGE_NAME),$(call toupper,$(LINUX_KARCH)) $(VERSION_DIST) Linux-$(LINUX_VERSION))' \
+		-e $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-n '$(or $(UIMAGE_NAME),$(call toupper,$(LINUX_KARCH)) $(VERSION_DIST) Linux-$(LINUX_VERSION))' \
 		$(if $(UIMAGE_MAGIC),-M $(UIMAGE_MAGIC)) \
 		$(wordlist 2,$(words $(1)),$(1)) \
 		-d $@ $@.new
@@ -609,7 +609,7 @@ define Build/zip
 	mv $@ $@.tmp/$(word 1,$(1))
 	TZ=UTC $(STAGING_DIR_HOST)/bin/zip -j -X \
 		$(wordlist 2,$(words $(1)),$(1)) \
-		$@ $@.tmp/$(if $(word 1,$(1)),$(word 1,$(1)),$$(basename $@))
+		$@ $@.tmp/$(or $(word 1,$(1)),$$(basename $@))
 	rm -rf $@.tmp
 endef
 

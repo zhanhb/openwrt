@@ -127,7 +127,7 @@ define CleanStaging
 endef
 
 
-PKG_INSTALL_STAMP:=$(PKG_INFO_DIR)/$(PKG_DIR_NAME).$(if $(BUILD_VARIANT),$(BUILD_VARIANT),default).install
+PKG_INSTALL_STAMP:=$(PKG_INFO_DIR)/$(PKG_DIR_NAME).$(or $(BUILD_VARIANT),default).install
 
 include $(INCLUDE_DIR)/package-defaults.mk
 include $(INCLUDE_DIR)/package-dumpinfo.mk
@@ -320,8 +320,8 @@ endif
   $(if $(DUMP), \
     $(if $(CHECK),,$(Dumpinfo/Package)), \
     $(foreach target, \
-      $(if $(Package/$(1)/targets),$(Package/$(1)/targets), \
-        $(if $(PKG_TARGETS),$(PKG_TARGETS), ipkg) \
+      $(or $(Package/$(1)/targets), \
+        $(or $(PKG_TARGETS), ipkg) \
       ), $(BuildTarget/$(target)) \
     ) \
   )

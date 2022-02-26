@@ -174,7 +174,7 @@ ROOTFS_PARTSIZE=$(shell echo $$(($(CONFIG_TARGET_ROOTFS_PARTSIZE)*1024*1024)))
 endif
 
 define Image/pad-root-squashfs
-	$(call Image/pad-to,$(KDIR)/root.squashfs,$(if $(1),$(1),$(ROOTFS_PARTSIZE)))
+	$(call Image/pad-to,$(KDIR)/root.squashfs,$(or $(1),$(ROOTFS_PARTSIZE)))
 endef
 
 # $(1) source dts file
@@ -551,7 +551,7 @@ define Device/Build/initramfs
 	DEVICE_TITLE="$$(DEVICE_TITLE)" \
 	DEVICE_PACKAGES="$$(DEVICE_PACKAGES)" \
 	TARGET="$(BOARD)" \
-	SUBTARGET="$(if $(SUBTARGET),$(SUBTARGET),generic)" \
+	SUBTARGET="$(or $(SUBTARGET),generic)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
 	SUPPORTED_DEVICES="$$(SUPPORTED_DEVICES)" \
@@ -595,13 +595,13 @@ endif
 define Device/Build/kernel
   $$(eval $$(foreach dts,$$(DEVICE_DTS), \
 	$$(call Device/Build/dtb,$$(notdir $$(dts)), \
-		$$(if $$(DEVICE_DTS_DIR),$$(DEVICE_DTS_DIR),$$(DTS_DIR)), \
+		$$(or $$(DEVICE_DTS_DIR),$$(DTS_DIR)), \
 		$$(dts) \
 	) \
   ))
   $$(eval $$(foreach dtso,$$(DEVICE_DTS_OVERLAY), \
 	$$(call Device/Build/dtbo,$$(notdir $$(dtso)), \
-		$$(if $$(DEVICE_DTS_DIR),$$(DEVICE_DTS_DIR),$$(DTS_DIR)), \
+		$$(or $$(DEVICE_DTS_DIR),$$(DTS_DIR)), \
 		$$(dtso) \
 	) \
   ))
@@ -642,7 +642,7 @@ define Device/Build/image
   $(KDIR)/tmp/$(call DEVICE_IMG_NAME,$(1),$(2)): $$(KDIR_KERNEL_IMAGE) $$(ROOTFS/$(1)/$(3))
 	@rm -f $$@
 	[ -f $$(word 1,$$^) -a -f $$(word 2,$$^) ]
-	$$(call concat_cmd,$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
+	$$(call concat_cmd,$(or $(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
 
   .IGNORE: $(BIN_DIR)/$(call DEVICE_IMG_NAME,$(1),$(2))
 
@@ -682,7 +682,7 @@ define Device/Build/image
 	DEVICE_TITLE="$(DEVICE_TITLE)" \
 	DEVICE_PACKAGES="$(DEVICE_PACKAGES)" \
 	TARGET="$(BOARD)" \
-	SUBTARGET="$(if $(SUBTARGET),$(SUBTARGET),generic)" \
+	SUBTARGET="$(or $(SUBTARGET),generic)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
 	SUPPORTED_DEVICES="$(SUPPORTED_DEVICES)" \
@@ -733,7 +733,7 @@ define Device/Build/artifact
 	DEVICE_TITLE="$(DEVICE_TITLE)" \
 	DEVICE_PACKAGES="$(DEVICE_PACKAGES)" \
 	TARGET="$(BOARD)" \
-	SUBTARGET="$(if $(SUBTARGET),$(SUBTARGET),generic)" \
+	SUBTARGET="$(or $(SUBTARGET),generic)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
 	SUPPORTED_DEVICES="$(SUPPORTED_DEVICES)" \

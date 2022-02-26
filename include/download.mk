@@ -30,7 +30,7 @@ endef
 define dl_method
 $(strip \
   $(if $(filter git,$(2)),$(call dl_method_git,$(1),$(2)),
-    $(if $(2),$(2), \
+    $(or $(2), \
       $(if $(filter @OPENWRT @APACHE/% @DEBIAN/% @GITHUB/% @GNOME/% @GNU/% @KERNEL/% @SF/% @SAVANNAH/% ftp://% http://% https://% file://%,$(1)),default, \
         $(if $(filter git://%,$(1)),$(call dl_method_git,$(1),$(2)), \
           $(if $(filter svn://%,$(1)),svn, \
@@ -56,7 +56,7 @@ dl_pack/xz=xz -zc -7e > $(1)
 dl_pack/zst=zstd -T0 --ultra -20 -c > $(1)
 dl_pack/unknown=$(error ERROR: Unknown pack format for file $(1))
 define dl_pack
-	$(if $(dl_pack/$(call ext,$(1))),$(dl_pack/$(call ext,$(1))),$(dl_pack/unknown))
+	$(or $(dl_pack/$(call ext,$(1))),$(dl_pack/unknown))
 endef
 define dl_tar_pack
 	$(TAR) --numeric-owner --owner=0 --group=0 --mode=a-s --sort=name \

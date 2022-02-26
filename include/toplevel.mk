@@ -129,7 +129,7 @@ confdefault:=$(confdefault-$(CONFDEFAULT))
 
 oldconfig: scripts/config/conf prepare-tmpinfo FORCE
 	[ -L .config ] && export KCONFIG_OVERWRITECONFIG=1; \
-		$< $(KCONF_FLAGS) --$(if $(confdefault),$(confdefault),old)config Config.in
+		$< $(KCONF_FLAGS) --$(or $(confdefault),old)config Config.in
 
 menuconfig: scripts/config/mconf prepare-tmpinfo FORCE
 	if [ \! -e .config -a -e $(HOME)/.openwrt/defconfig ]; then \

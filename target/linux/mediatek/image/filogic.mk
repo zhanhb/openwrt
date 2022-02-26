@@ -68,7 +68,7 @@ metadata_gl_json = \
 			"version": "$(call json_quote,$(VERSION_NUMBER))", \
 			"revision": "$(call json_quote,$(REVISION))", \
 			"target": "$(call json_quote,$(TARGETID))", \
-			"board": "$(call json_quote,$(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)))" \
+			"board": "$(call json_quote,$(or $(BOARD_NAME),$(DEVICE_NAME)))" \
 		} \
 	}'
 
