@@ -6,10 +6,9 @@
 # See /LICENSE for more information.
 #
 
-TOPDIR:=${CURDIR}
-LC_ALL:=C
-LANG:=C
-export TOPDIR LC_ALL LANG
+export TOPDIR:=${CURDIR}
+export LC_ALL:=C
+export LANG:=C
 export OPENWRT_VERBOSE=s
 all: help
 
