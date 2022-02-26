@@ -35,7 +35,7 @@ define Build/loader-lzma
 	rm -rf $@.src
 	$(MAKE) -C lzma-loader \
 		KDIR=$(KDIR) \
-		LOADER_ADDR=$(if $(DEVICE_LOADADDR),$(DEVICE_LOADADDR),$(LOADER_ENTRY)) \
+		LOADER_ADDR=$(or $(DEVICE_LOADADDR),$(LOADER_ENTRY)) \
 		KERNEL_ADDR=$(KERNEL_LOADADDR) \
 		RAMSIZE=$(RAMSIZE) \
 		LZMA_TEXT_START=$(LZMA_TEXT_START) \
@@ -163,8 +163,8 @@ define Build/cfe-jffs2-kernel
 	$(TOPDIR)/scripts/cfe-bin-header.py \
 		--input-file $@ \
 		--output-file $@-kernel/vmlinux.lz \
-		--load-addr $(if $(DEVICE_LOADADDR),$(DEVICE_LOADADDR),$(LOADER_ENTRY)) \
-		--entry-addr $(if $(DEVICE_LOADADDR),$(DEVICE_LOADADDR),$(LOADER_ENTRY))
+		--load-addr $(or $(DEVICE_LOADADDR),$(LOADER_ENTRY)) \
+		--entry-addr $(or $(DEVICE_LOADADDR),$(LOADER_ENTRY))
 
 	# The JFFS2 partition creation should result in the following
 	# layout:
@@ -257,7 +257,7 @@ define Build/cfe-wfi-tag
 	$(TOPDIR)/scripts/cfe-wfi-tag.py \
 		--input-file $@ \
 		--output-file $@.new \
-		--version $(if $(1),$(1),$(CFE_WFI_VERSION)) \
+		--version $(or $(1),$(CFE_WFI_VERSION)) \
 		--chip-id $(CFE_WFI_CHIP_ID) \
 		--flash-type $(CFE_WFI_FLASH_TYPE) \
 		$(if $(CFE_WFI_FLAGS),--flags $(CFE_WFI_FLAGS))

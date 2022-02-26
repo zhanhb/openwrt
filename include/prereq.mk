@@ -114,5 +114,5 @@ define SetupHostCommand
 	exit 1
   endef
 
-  $$(eval $$(call Require,$(1),$(if $(2),$(2),Missing $(1) command)))
+  $$(eval $$(call Require,$(1),$(or $(2),Missing $(1) command)))
 endef
