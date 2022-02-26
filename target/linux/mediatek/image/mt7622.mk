@@ -9,7 +9,7 @@ endef
 define Build/buffalo-kernel-trx
 	$(eval magic=$(word 1,$(1)))
 	$(eval dummy=$(word 2,$(1)))
-	$(eval kern_size=$(if $(KERNEL_SIZE),$(KERNEL_SIZE),0x400000))
+	$(eval kern_size=$(or $(KERNEL_SIZE),0x400000))
 
 	$(if $(dummy),touch $(dummy))
 	$(STAGING_DIR_HOST)/bin/otrx create $@.new \

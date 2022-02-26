@@ -33,7 +33,7 @@ define Device/bcm63xx
   IMAGE_OFFSET :=
   FLASH_MB := 4
   CFE_BOARD_ID :=
-  CFE_EXTRAS = --block-size $$(BLOCK_SIZE) --image-offset $$(if $$(IMAGE_OFFSET),$$(IMAGE_OFFSET),$$(BLOCK_SIZE))
+  CFE_EXTRAS = --block-size $$(BLOCK_SIZE) --image-offset $$(or $$(IMAGE_OFFSET),$$(BLOCK_SIZE))
 endef
 
 define Device/bcm63xx-legacy

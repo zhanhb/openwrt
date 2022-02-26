@@ -134,7 +134,7 @@ endef
 define Build/teltonika-v1-header
 	$(STAGING_DIR_HOST)/bin/mktplinkfw \
 		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
-		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-E $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-m $(TPLINK_HEADER_VERSION) -N "$(VERSION_DIST)" -V "RUT2xx      " \
 		-k $@ -o $@.new $(1)
 	@mv $@.new $@
@@ -159,7 +159,7 @@ metadata_json_teltonika = \
 			"version": "$(call json_quote,$(VERSION_NUMBER))", \
 			"revision": "$(call json_quote,$(REVISION))", \
 			"target": "$(call json_quote,$(TARGETID))", \
-			"board": "$(call json_quote,$(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)))" \
+			"board": "$(call json_quote,$(or $(BOARD_NAME),$(DEVICE_NAME)))" \
 		}, \
 		"hw_support": {}, \
 		"hw_mods": {} \
