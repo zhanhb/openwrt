@@ -2,11 +2,10 @@
 #
 # Copyright (C) 2007 OpenWrt.org
 
-TOPDIR:=${CURDIR}
-LC_ALL:=C
-LANG:=C
-TZ:=UTC
-export TOPDIR LC_ALL LANG TZ
+export TOPDIR:=${CURDIR}
+export LC_ALL:=C
+export LANG:=C
+export TZ:=UTC
 
 empty:=
 space:= $(empty) $(empty)
@@ -24,10 +23,8 @@ ifneq ($(OPENWRT_BUILD),1)
 
   override OPENWRT_BUILD=1
   export OPENWRT_BUILD
-  GREP_OPTIONS=
-  export GREP_OPTIONS
-  CDPATH=
-  export CDPATH
+  export GREP_OPTIONS=
+  export CDPATH=
   include $(TOPDIR)/include/debug.mk
   include $(TOPDIR)/include/depends.mk
   include $(TOPDIR)/include/toplevel.mk
