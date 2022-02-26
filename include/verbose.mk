@@ -17,8 +17,7 @@ ifeq ($(OPENWRT_VERBOSE),99)
 endif
 
 ifeq ($(NO_TRACE_MAKE),)
-NO_TRACE_MAKE := $(MAKE) V=s$(OPENWRT_VERBOSE)
-export NO_TRACE_MAKE
+export NO_TRACE_MAKE := $(MAKE) V=s$(OPENWRT_VERBOSE)
 endif
 
 ifeq ($(IS_TTY),1)

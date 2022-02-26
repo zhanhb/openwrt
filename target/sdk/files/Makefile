@@ -6,11 +6,10 @@
 # See /LICENSE for more information.
 #
 
-TOPDIR:=${CURDIR}
-LC_ALL:=C
-LANG:=C
-SDK:=1
-export TOPDIR LC_ALL LANG SDK
+export TOPDIR:=${CURDIR}
+export LC_ALL:=C
+export LANG:=C
+export SDK:=1
 
 world:
 
