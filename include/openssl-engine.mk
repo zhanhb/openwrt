@@ -14,7 +14,7 @@ endef
 # 1 = engine name
 # 2 - package name, defaults to libopenssl-$(1)
 define Package/openssl/add-engine
-  OSSL_ENG_PKG:=$(if $(2),$(2),libopenssl-$(1))
+  OSSL_ENG_PKG:=$(or $(2),libopenssl-$(1))
   Package/$$(OSSL_ENG_PKG)/conffiles:=/etc/ssl/engines.cnf.d/$(1).cnf
 
   define Package/$$(OSSL_ENG_PKG)/install

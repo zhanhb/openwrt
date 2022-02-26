@@ -41,7 +41,7 @@ opkg = \
 	--force-postinstall \
 	--add-dest root:/ \
 	--add-arch all:100 \
-	--add-arch $(if $(ARCH_PACKAGES),$(ARCH_PACKAGES),$(BOARD)):200
+	--add-arch $(or $(ARCH_PACKAGES),$(BOARD)):200
 
 TARGET_DIR_ORIG := $(TARGET_ROOTFS_DIR)/root.orig-$(BOARD)
 

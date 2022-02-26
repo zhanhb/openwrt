@@ -127,7 +127,7 @@ endef
 
 define Kernel/CompileModules/Default
 	rm -f $(LINUX_DIR)/vmlinux $(LINUX_DIR)/System.map
-	+$(KERNEL_MAKE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
+	+$(KERNEL_MAKE) $(or $(KERNELNAME),all) modules
 	# If .config did not change, use the previous timestamp to avoid package rebuilds
 	cmp -s $(LINUX_DIR)/.config $(LINUX_DIR)/.config.modules.save && \
 		mv $(LINUX_DIR)/.config.modules.save $(LINUX_DIR)/.config; \
@@ -147,7 +147,7 @@ define Kernel/CopyImage
 		$(KERNEL_CROSS)objcopy $(OBJCOPY_STRIP) -S $(LINUX_DIR)/vmlinux $(KERNEL_BUILD_DIR)/vmlinux$(1).elf; \
 		$(CP) $(LINUX_DIR)/vmlinux $(KERNEL_BUILD_DIR)/vmlinux$(1).debug; \
 		$(foreach k, \
-			$(if $(KERNEL_IMAGES),$(KERNEL_IMAGES),$(filter-out vmlinux dtbs,$(KERNELNAME))), \
+			$(or $(KERNEL_IMAGES),$(filter-out vmlinux dtbs,$(KERNELNAME))), \
 			$(CP) $(LINUX_DIR)/arch/$(LINUX_KARCH)/boot/$(IMAGES_DIR)/$(k) $(KERNEL_BUILD_DIR)/$(k)$(1); \
 		) \
 	}
@@ -159,7 +159,7 @@ endef
 # will fail to build.
 define Kernel/CompileImage/Default
 	rm -f $(TARGET_DIR)/init
-	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
+	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(or $(KERNELNAME),all) modules
 	$(call Kernel/CopyImage)
 endef
 
@@ -185,7 +185,7 @@ endif
 # ?	$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_LZ4),)
 	$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD),$(STAGING_DIR_HOST)/bin/zstd -T0 -f -o $(KERNEL_BUILD_DIR)/initrd.cpio.zstd $(KERNEL_BUILD_DIR)/initrd.cpio)
 endif
-	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
+	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(or $(KERNELNAME),all) modules
 	$(call Kernel/CopyImage,-initramfs)
 endef
 else

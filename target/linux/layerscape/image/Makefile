@@ -54,7 +54,7 @@ endef
 define Build/traverse-fit
 	./mkits-multiple-config.sh -o $@.its -A $(LINUX_KARCH) \
 		-v $(LINUX_VERSION) -k $@ -a $(KERNEL_LOADADDR) \
-		-e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-e $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-C gzip -c 1 -c 2 \
 		-d $(DEVICE_DTS_DIR)/freescale/traverse-ls1043s.dtb \
 		-D "Traverse_LS1043S" -n "ls1043s" -a $(FDT_LOADADDR) -c 1 \

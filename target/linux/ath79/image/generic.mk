@@ -150,7 +150,7 @@ endef
 define Build/teltonika-v1-header
 	$(STAGING_DIR_HOST)/bin/mktplinkfw \
 		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
-		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-E $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-m $(TPLINK_HEADER_VERSION) -N "$(VERSION_DIST)" -V "RUT2xx      " \
 		-k $@ -o $@.new $(1)
 	@mv $@.new $@

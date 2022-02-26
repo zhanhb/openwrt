@@ -17,7 +17,7 @@ define Device/bcm63xx-cfe
   FLASH_MB :=
   CFE_BOARD_ID :=
   CFE_EXTRAS = --block-size $$(BLOCKSIZE) \
-    --image-offset $$(if $$(IMAGE_OFFSET),$$(IMAGE_OFFSET),$$(BLOCKSIZE))
+    --image-offset $$(or $$(IMAGE_OFFSET),$$(BLOCKSIZE))
 endef
 
 # Legacy CFEs with specific LZMA parameters and no length

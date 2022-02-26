@@ -45,7 +45,7 @@ endif
 
 endef
 
-ifeq ($(filter .%,$(MAKECMDGOALS)),$(if $(MAKECMDGOALS),$(MAKECMDGOALS),x))
+ifeq ($(filter .%,$(MAKECMDGOALS)),$(or $(MAKECMDGOALS),x))
   define rdep
     $(2): $(2)_check
   endef
