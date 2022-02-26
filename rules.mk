@@ -143,7 +143,7 @@ endif
 PACKAGE_DIR:=$(BIN_DIR)/packages
 PACKAGE_DIR_ALL:=$(TOPDIR)/staging_dir/packages/$(BOARD)
 BUILD_DIR:=$(BUILD_DIR_BASE)/$(TARGET_DIR_NAME)
-STAGING_DIR:=$(TOPDIR)/staging_dir/$(TARGET_DIR_NAME)
+export STAGING_DIR:=$(TOPDIR)/staging_dir/$(TARGET_DIR_NAME)
 BUILD_DIR_TOOLCHAIN:=$(BUILD_DIR_BASE)/$(TOOLCHAIN_DIR_NAME)
 TOOLCHAIN_DIR:=$(TOPDIR)/staging_dir/$(TOOLCHAIN_DIR_NAME)
 STAMP_DIR:=$(BUILD_DIR)/stamp
@@ -156,8 +156,8 @@ BUILD_LOG_DIR:=$(or $(call qstrip,$(CONFIG_BUILD_LOG_DIR)),$(TOPDIR)/logs)
 PKG_INFO_DIR := $(STAGING_DIR)/pkginfo
 
 BUILD_DIR_HOST:=$(if $(IS_PACKAGE_BUILD),$(BUILD_DIR_BASE)/hostpkg,$(BUILD_DIR_BASE)/host)
-STAGING_DIR_HOST:=$(abspath $(STAGING_DIR)/../host)
-STAGING_DIR_HOSTPKG:=$(abspath $(STAGING_DIR)/../hostpkg)
+export STAGING_DIR_HOST:=$(abspath $(STAGING_DIR)/../host)
+export STAGING_DIR_HOSTPKG:=$(abspath $(STAGING_DIR)/../hostpkg)
 
 TARGET_PATH:=$(subst $(space),:,$(filter-out .,$(filter-out ./,$(subst :,$(space),$(PATH)))))
 TARGET_INIT_PATH:=$(or $(call qstrip,$(CONFIG_TARGET_INIT_PATH)),/usr/sbin:/sbin:/usr/bin:/bin)
@@ -224,12 +224,9 @@ endif
 
 export ORIG_PATH:=$(or $(ORIG_PATH),$(PATH))
 export PATH:=$(TARGET_PATH)
-export STAGING_DIR STAGING_DIR_HOST STAGING_DIR_HOSTPKG
 export SH_FUNC:=. $(INCLUDE_DIR)/shell.sh;
 
-PKG_CONFIG:=$(STAGING_DIR_HOST)/bin/pkg-config
-
-export PKG_CONFIG
+export PKG_CONFIG:=$(STAGING_DIR_HOST)/bin/pkg-config
 
 HOSTCC:=gcc
 HOSTCXX:=g++
@@ -251,9 +248,8 @@ KPATCH:=$(SCRIPT_DIR)/patch-kernel.sh
 FILECMD:=$(STAGING_DIR_HOST)/bin/file
 SED:=$(STAGING_DIR_HOST)/bin/sed -i -e
 ESED:=$(STAGING_DIR_HOST)/bin/sed -E -i -e
-MKHASH:=$(STAGING_DIR_HOST)/bin/mkhash
 # MKHASH is used in /scripts, so we export it here.
-export MKHASH
+export MKHASH:=$(STAGING_DIR_HOST)/bin/mkhash
 CP:=cp -fpR
 LN:=ln -sf
 XARGS:=xargs -r
@@ -278,14 +274,10 @@ INSTALL_DIR:=install -d -m0755
 INSTALL_DATA:=install -m0644
 INSTALL_CONF:=install -m0600
 
-TARGET_CC_NOCACHE:=$(TARGET_CC)
-TARGET_CXX_NOCACHE:=$(TARGET_CXX)
-HOSTCC_NOCACHE:=$(HOSTCC)
-HOSTCXX_NOCACHE:=$(HOSTCXX)
-export TARGET_CC_NOCACHE
-export TARGET_CXX_NOCACHE
-export HOSTCC_NOCACHE
-export HOSTCXX_NOCACHE
+export TARGET_CC_NOCACHE:=$(TARGET_CC)
+export TARGET_CXX_NOCACHE:=$(TARGET_CXX)
+export HOSTCC_NOCACHE:=$(HOSTCC)
+export HOSTCXX_NOCACHE:=$(HOSTCXX)
 
 ifneq ($(CONFIG_CCACHE),)
   TARGET_CC:= ccache $(TARGET_CC)
