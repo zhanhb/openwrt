@@ -47,7 +47,7 @@ else
   LINUX_DIR ?= $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)
   LINUX_UAPI_DIR=uapi/
   LINUX_VERMAGIC:=$(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null))
-  LINUX_VERMAGIC:=$(if $(LINUX_VERMAGIC),$(LINUX_VERMAGIC),unknown)
+  LINUX_VERMAGIC:=$(or $(LINUX_VERMAGIC),unknown)
 
   LINUX_UNAME_VERSION:=$(KERNEL_BASE)
   ifneq ($(findstring -rc,$(LINUX_VERSION)),)
@@ -214,7 +214,7 @@ define KernelPackage
     CATEGORY:=Kernel modules
     DESCRIPTION:=$(DESCRIPTION)
     EXTRA_DEPENDS:=kernel (=$(LINUX_VERSION)~$(LINUX_VERMAGIC)-r$(LINUX_RELEASE))
-    VERSION:=$(LINUX_VERSION)$(if $(PKG_VERSION),.$(PKG_VERSION))-r$(if $(PKG_RELEASE),$(PKG_RELEASE),$(LINUX_RELEASE))
+    VERSION:=$(LINUX_VERSION)$(if $(PKG_VERSION),.$(PKG_VERSION))-r$(or $(PKG_RELEASE),$(LINUX_RELEASE))
     PKGFLAGS:=$(PKGFLAGS)
     $(call KernelPackage/$(1))
     $(call KernelPackage/$(1)/$(BOARD))
@@ -281,7 +281,7 @@ version_filter=$(if $(findstring @,$(1)),$(shell $(SCRIPT_DIR)/package-metadata.
 # 2: module list
 # 3: boot flag
 define AutoLoad
-  $(if $(1),$(1),0) $(if $(3),1,0) $(call version_filter,$(2))
+  $(or $(1),0) $(if $(3),1,0) $(call version_filter,$(2))
 endef
 
 # 1: module list
@@ -290,7 +290,7 @@ define AutoProbe
   $(call AutoLoad,,$(1),$(2))
 endef
 
-version_field=$(if $(word $(1),$(2)),$(word $(1),$(2)),0)
+version_field=$(or $(word $(1),$(2)),0)
 kernel_version_merge=$$(( ($(call version_field,1,$(1)) << 24) + ($(call version_field,2,$(1)) << 16) + ($(call version_field,3,$(1)) << 8) + $(call version_field,4,$(1)) ))
 
 ifdef DUMP

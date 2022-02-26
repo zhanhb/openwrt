@@ -57,7 +57,7 @@ endef
 define Build/traverse-fit-ls1088
     ./mkits-multiple-config.sh -o $@.its -A $(LINUX_KARCH) \
 	-v $(LINUX_VERSION) -k $@ -a $(KERNEL_LOADADDR) \
-	-e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+	-e $(or $(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 	-C gzip -c 1 -c 2 \
 	-d $(DTS_DIR)/freescale/fsl-ls1088a-ten64.dtb \
 	-D "TEN64" -n "ten64" -a $(FDT_LOADADDR) -c 1 \

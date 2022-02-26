@@ -139,7 +139,7 @@ endif
     endif
 
     TARGET_VARIANT:=$$(if $(ALL_VARIANTS),$$(if $$(VARIANT),$$(filter-out *,$$(VARIANT)),$(firstword $(ALL_VARIANTS))))
-    ifeq ($(BUILD_VARIANT),$$(if $$(TARGET_VARIANT),$$(TARGET_VARIANT),$(BUILD_VARIANT)))
+    ifeq ($(BUILD_VARIANT),$$(or $$(TARGET_VARIANT),$(BUILD_VARIANT)))
     do_install=
     ifdef Package/$(1)/install
       do_install=yes
