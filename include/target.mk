@@ -74,10 +74,8 @@ ifneq ($(TARGET_BUILD),1)
       include $(PLATFORM_SUBDIR)/target.mk
     endif
   endif
-else
-  ifneq ($(SUBTARGET),)
-    -include ./$(SUBTARGET)/target.mk
-  endif
+else ifneq ($(SUBTARGET),)
+  -include ./$(SUBTARGET)/target.mk
 endif
 
 # Add device specific packages (here below to allow device type set from subtarget)
