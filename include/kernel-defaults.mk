@@ -52,8 +52,7 @@ ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
 	echo 'CONFIG_BLK_DEV_INITRD=y' >> $(LINUX_DIR)/.config
 	echo 'CONFIG_INITRAMFS_SOURCE=""' >> $(LINUX_DIR)/.config
     endef
-  else
-  ifeq ($(strip $(CONFIG_EXTERNAL_CPIO)),"")
+  else ifeq ($(strip $(CONFIG_EXTERNAL_CPIO)),"")
     define Kernel/SetInitramfs/PreConfigure
 	grep -v -e INITRAMFS -e CONFIG_RD_ -e CONFIG_BLK_DEV_INITRD $(LINUX_DIR)/.config.old > $(LINUX_DIR)/.config
 	echo 'CONFIG_BLK_DEV_INITRD=y' >> $(LINUX_DIR)/.config
@@ -65,7 +64,6 @@ ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
 	echo 'CONFIG_INITRAMFS_SOURCE="$(call qstrip,$(CONFIG_EXTERNAL_CPIO))"' >> $(LINUX_DIR)/.config
     endef
   endif
-endif
 
   define Kernel/SetInitramfs
 	rm -f $(LINUX_DIR)/.config.prev

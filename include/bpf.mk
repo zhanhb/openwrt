@@ -8,11 +8,9 @@ ifneq ($(CONFIG_USE_LLVM_HOST),)
   BPF_PATH:=$(if $(BPF_TOOLCHAIN_HOST_PATH),$(BPF_TOOLCHAIN_HOST_PATH)/bin:)$(PATH)
   CLANG:=$(firstword $(shell PATH='$(BPF_PATH)' command -v clang clang-13 clang-12 clang-11))
   LLVM_VER:=$(subst clang,,$(notdir $(CLANG)))
-endif
-ifneq ($(CONFIG_USE_LLVM_PREBUILT),)
+else ifneq ($(CONFIG_USE_LLVM_PREBUILT),)
   CLANG:=$(TOPDIR)/llvm-bpf/bin/clang
-endif
-ifneq ($(CONFIG_USE_LLVM_BUILD),)
+else ifneq ($(CONFIG_USE_LLVM_BUILD),)
   CLANG:=$(STAGING_DIR_HOST)/llvm-bpf/bin/clang
 endif
 
