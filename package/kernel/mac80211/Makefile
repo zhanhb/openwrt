@@ -96,7 +96,7 @@ include realtek.mk
 
 PKG_CONFIG_DEPENDS += \
 	CONFIG_WIFI_SCRIPTS_UCODE \
-	$(patsubst %,CONFIG_PACKAGE_kmod-%,$(PKG_DRIVERS))
+	$(PKG_DRIVERS:%=CONFIG_PACKAGE_kmod-%)
 
 define KernelPackage/cfg80211
   $(call KernelPackage/mac80211/Default)

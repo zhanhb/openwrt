@@ -45,16 +45,12 @@ LOCAL_TYPE=$(strip \
 
 LOCAL_AND_LIB_VARIANT=$(patsubst hostapd-%,%,\
 		      $(patsubst wpad-%,%,\
-		      $(patsubst supplicant-%,%,\
-		      $(BUILD_VARIANT)\
-		      )))
+		      $(BUILD_VARIANT:supplicant-%=%)))
 
 LOCAL_VARIANT=$(patsubst %-internal,%,\
 	      $(patsubst %-openssl,%,\
 	      $(patsubst %-wolfssl,%,\
-	      $(patsubst %-mbedtls,%,\
-	      $(LOCAL_AND_LIB_VARIANT)\
-	      ))))
+	      $(LOCAL_AND_LIB_VARIANT:%-mbedtls=%))))
 
 SSL_VARIANT=$(strip \
 		$(if $(findstring openssl,$(LOCAL_AND_LIB_VARIANT)),openssl,\
@@ -513,7 +509,7 @@ define Package/hostapd-utils
   SUBMENU:=WirelessAPD
   TITLE:=IEEE 802.1x Authenticator (utils)
   URL:=https://w1.fi/hostapd/
-  DEPENDS:=@$(subst $(space),||,$(foreach pkg,$(HOSTAPD_PROVIDERS),PACKAGE_$(pkg)))
+  DEPENDS:=@$(subst $(space),||,$(HOSTAPD_PROVIDERS:%=PACKAGE_%))
   VARIANT:=*
 endef
 
@@ -526,7 +522,7 @@ define Package/wpa-cli
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=WirelessAPD
-  DEPENDS:=@$(subst $(space),||,$(foreach pkg,$(SUPPLICANT_PROVIDERS),PACKAGE_$(pkg)))
+  DEPENDS:=@$(subst $(space),||,$(SUPPLICANT_PROVIDERS:%=PACKAGE_%))
   TITLE:=WPA Supplicant command line control utility
   VARIANT:=*
 endef

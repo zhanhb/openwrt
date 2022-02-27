@@ -174,7 +174,7 @@ tools-core += patch
 tools-core += tar
 tools-core += zstd
 
-$(foreach tool, $(tools-y), $(eval $(curdir)/$(tool)/compile += $(patsubst %,$(curdir)/%/compile,$(tools-core))))
+$(foreach tool, $(tools-y), $(eval $(curdir)/$(tool)/compile += $(tools-core:%=$(curdir)/%/compile)))
 tools-y += $(tools-core)
 
 # make some core tools depend on sed and flock

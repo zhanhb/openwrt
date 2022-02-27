@@ -45,9 +45,8 @@ define Build/AT91Bootstrap/Target
       DEPENDS += @$(TARGET_DEP)
       ifneq ($(BUILD_DEVICES),)
         DEFAULT := y if ($(TARGET_DEP)_Default \
-          $(patsubst %,|| $(TARGET_DEP)_DEVICE_%,$(BUILD_DEVICES)) \
-          $(patsubst %,|| $(patsubst TARGET_%,TARGET_DEVICE_%, \
-          $(TARGET_DEP))_DEVICE_%,$(BUILD_DEVICES)))
+          $(BUILD_DEVICES:%=|| $(TARGET_DEP)_DEVICE_%) \
+          $(BUILD_DEVICES:%=|| $(TARGET_DEP:TARGET_%=TARGET_DEVICE_%)_DEVICE_%))
       endif
     endif
     $(if $(DEFAULT),DEFAULT:=$(DEFAULT))

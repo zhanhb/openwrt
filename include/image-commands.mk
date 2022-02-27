@@ -8,7 +8,7 @@ $(shell printf %.16s "$(word 2, $(subst _, ,$(1)))")
 endef
 
 define rootfs_align
-$(patsubst %-256k,0x40000,$(patsubst %-128k,0x20000,$(patsubst %-64k,0x10000,$(patsubst squashfs%,0x4,$(patsubst root.%,%,$(1))))))
+$(patsubst %-256k,0x40000,$(patsubst %-128k,0x20000,$(patsubst %-64k,0x10000,$(patsubst squashfs%,0x4,$(1:root.%=%)))))
 endef
 
 
@@ -197,7 +197,7 @@ define Build/append-ubi
 	sh $(TOPDIR)/scripts/ubinize-image.sh \
 		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
 		$(if $(KERNEL_IN_UBI),--kernel $(IMAGE_KERNEL)) \
-		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
+		$(UBINIZE_PARTS:%=--part %) \
 		--rootfs $(IMAGE_ROOTFS) \
 		$@.tmp \
 		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
@@ -512,12 +512,12 @@ define Build/jffs2
 		cp $@ $(KDIR_TMP)/$(DEVICE_NAME)/jffs2/$(word 1,$(1)) && \
 		$(STAGING_DIR_HOST)/bin/mkfs.jffs2 --pad \
 			$(if $(CONFIG_BIG_ENDIAN),--big-endian,--little-endian) \
-			--squash-uids -v -e $(patsubst %k,%KiB,$(BLOCKSIZE)) \
+			--squash-uids -v -e $(BLOCKSIZE:%k=%KiB) \
 			-o $@.new \
 			-d $(KDIR_TMP)/$(DEVICE_NAME)/jffs2 \
 			$(wordlist 2,$(words $(1)),$(1)) \
 			2>&1 1>/dev/null | awk '/^.+$$$$/' && \
-		$(STAGING_DIR_HOST)/bin/padjffs2 $@.new -J $(patsubst %k,,$(BLOCKSIZE))
+		$(STAGING_DIR_HOST)/bin/padjffs2 $@.new -J $(filter-out %k,$(BLOCKSIZE))
 	-rm -rf $(KDIR_TMP)/$(DEVICE_NAME)/jffs2/
 	@mv $@.new $@
 endef

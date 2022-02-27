@@ -112,12 +112,12 @@ EROFSCOMP := lzma,109
 endif
 
 fs-types-$(CONFIG_TARGET_ROOTFS_SQUASHFS) += squashfs
-fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addprefix jffs2-,$(JFFS2_BLOCKSIZE))
-fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2_NAND) += $(addprefix jffs2-nand-,$(NAND_BLOCKSIZE))
+fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(JFFS2_BLOCKSIZE:%=jffs2-%)
+fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2_NAND) += $(NAND_BLOCKSIZE:%=jffs2-nand-%)
 fs-types-$(CONFIG_TARGET_ROOTFS_EXT4FS) += ext4
 fs-types-$(CONFIG_TARGET_ROOTFS_UBIFS) += ubifs
 fs-types-$(CONFIG_TARGET_ROOTFS_EROFS) += erofs
-fs-subtypes-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addsuffix -raw,$(addprefix jffs2-,$(JFFS2_BLOCKSIZE)))
+fs-subtypes-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(JFFS2_BLOCKSIZE:%=jffs2-%-raw)
 
 TARGET_FILESYSTEMS := $(fs-types-y)
 
@@ -251,7 +251,7 @@ endef
 define Image/mkfs/jffs2/sub-raw
 	$(STAGING_DIR_HOST)/bin/mkfs.jffs2 \
 		$(2) \
-		-e $(patsubst %k,%KiB,$(1)) \
+		-e $(1:%k=%KiB) \
 		-o $@ -d $(call mkfs_target_dir,$(3)) \
 		-v 2>&1 1>/dev/null | awk '/^.+$$$$/'
 endef
@@ -366,7 +366,7 @@ ifdef CONFIG_TARGET_ROOTFS_TARGZ
   define Image/Build/targz
 	$(TAR) -cp --numeric-owner --owner=0 --group=0 --mode=a-s --sort=name \
 		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)") \
-		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-rootfs.tar.gz
+		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(PROFILE_SANITIZED:%=-%)-rootfs.tar.gz
   endef
 endif
 
@@ -583,7 +583,7 @@ DEVICE_EXTRA_PACKAGES = $(call qstrip,$(CONFIG_TARGET_DEVICE_PACKAGES_$(call tar
 define merge_packages
   $(1) :=
   $(foreach pkg,$(2),
-    $(1) := $$(strip $$(filter-out -$$(patsubst -%,%,$(pkg)) $$(patsubst -%,%,$(pkg)),$$($(1))) $(pkg))
+    $(1) := $$(strip $$(filter-out -$(pkg:-%=%) $(pkg:-%=%),$$($(1))) $(pkg))
   )
 endef
 
