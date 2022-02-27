@@ -101,12 +101,10 @@ endef
 
 ifeq ($(HOST_OS),Darwin)
 	LUA_OS:=macosx
+else ifeq ($(HOST_OS),FreeBSD)
+	LUA_OS:=freebsd
 else
-	ifeq ($(HOST_OS),FreeBSD)
-		LUA_OS:=freebsd
-	else
-		LUA_OS:=linux
-	endif
+	LUA_OS:=linux
 endif
 
 define Host/Compile

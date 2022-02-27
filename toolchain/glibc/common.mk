@@ -32,11 +32,9 @@ HOST_STAMP_INSTALLED:=$(TOOLCHAIN_DIR)/stamp/.glibc_$(VARIANT)_installed
 ifeq ($(ARCH),mips64)
   ifdef CONFIG_MIPS64_ABI_N64
     TARGET_CFLAGS += -mabi=64
-  endif
-  ifdef CONFIG_MIPS64_ABI_N32
+  else ifdef CONFIG_MIPS64_ABI_N32
     TARGET_CFLAGS += -mabi=n32
-  endif
-  ifdef CONFIG_MIPS64_ABI_O32
+  else ifdef CONFIG_MIPS64_ABI_O32
     TARGET_CFLAGS += -mabi=32
   endif
 endif

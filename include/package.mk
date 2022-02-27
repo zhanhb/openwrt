@@ -64,15 +64,12 @@ include $(INCLUDE_DIR)/depends.mk
 ifneq ($(wildcard $(TOPDIR)/git-src/$(PKG_NAME)/.git),)
   USE_GIT_SRC_CHECKOUT:=1
   QUILT:=1
-endif
-ifneq ($(if $(CONFIG_SRC_TREE_OVERRIDE),$(wildcard ./git-src)),)
+else ifneq ($(if $(CONFIG_SRC_TREE_OVERRIDE),$(wildcard ./git-src)),)
   USE_GIT_TREE:=1
   QUILT:=1
-endif
-ifdef USE_SOURCE_DIR
+else ifdef USE_SOURCE_DIR
   QUILT:=1
-endif
-ifneq ($(wildcard $(PKG_BUILD_DIR)/.source_dir),)
+else ifneq ($(wildcard $(PKG_BUILD_DIR)/.source_dir),)
   QUILT:=1
 endif
 
@@ -165,8 +162,7 @@ ifdef USE_GIT_SRC_CHECKOUT
 		git submodule foreach git checkout .; \
 	)
   endef
-endif
-ifdef USE_GIT_TREE
+else ifdef USE_GIT_TREE
   define Build/Prepare/Default
 	mkdir -p $(PKG_BUILD_DIR)
 	ln -s $(CURDIR)/git-src $(PKG_BUILD_DIR)/.git
@@ -177,8 +173,7 @@ ifdef USE_GIT_TREE
 		git submodule foreach git checkout .; \
 	)
   endef
-endif
-ifdef USE_SOURCE_DIR
+else ifdef USE_SOURCE_DIR
   define Build/Prepare/Default
 	rm -rf $(PKG_BUILD_DIR)
 	$(if $(wildcard $(USE_SOURCE_DIR)/*),,@echo "Error: USE_SOURCE_DIR=$(USE_SOURCE_DIR) path not found"; false)

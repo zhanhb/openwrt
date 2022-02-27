@@ -163,17 +163,15 @@ ifndef DUMP
     TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/usr/include $(if $(CONFIG_USE_MUSL),-I$(TOOLCHAIN_DIR)/include/fortify) -I$(TOOLCHAIN_DIR)/include
     TARGET_LDFLAGS+= -L$(TOOLCHAIN_DIR)/usr/lib -L$(TOOLCHAIN_DIR)/lib
     TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(TARGET_PATH)
-  else
-    ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
-      TARGET_CROSS:=$(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
-      TOOLCHAIN_ROOT_DIR:=$(call qstrip,$(CONFIG_TOOLCHAIN_ROOT))
-      TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
-      TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
-      TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
-      TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(if $(TOOLCHAIN_BIN_DIRS),$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):)$(TARGET_PATH)
-      TARGET_CPPFLAGS+= $(TOOLCHAIN_INC_DIRS:%=-I%)
-      TARGET_LDFLAGS+= $(TOOLCHAIN_LIB_DIRS:%=-L%)
-    endif
+  else ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
+    TARGET_CROSS:=$(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
+    TOOLCHAIN_ROOT_DIR:=$(call qstrip,$(CONFIG_TOOLCHAIN_ROOT))
+    TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
+    TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
+    TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
+    TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(if $(TOOLCHAIN_BIN_DIRS),$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):)$(TARGET_PATH)
+    TARGET_CPPFLAGS+= $(TOOLCHAIN_INC_DIRS:%=-I%)
+    TARGET_LDFLAGS+= $(TOOLCHAIN_LIB_DIRS:%=-L%)
   endif
 endif
 TARGET_PATH_PKG:=$(STAGING_DIR)/host/bin:$(STAGING_DIR_HOSTPKG)/bin:$(TARGET_PATH)
@@ -269,10 +267,8 @@ ifneq ($(CONFIG_NO_STRIP),)
 else
   ifneq ($(CONFIG_USE_STRIP),)
     STRIP:=$(TARGET_CROSS)strip $(call qstrip,$(CONFIG_STRIP_ARGS))
-  else
-    ifneq ($(CONFIG_USE_SSTRIP),)
-      STRIP:=$(STAGING_DIR_HOST)/bin/sstrip $(call qstrip,$(CONFIG_SSTRIP_ARGS))
-    endif
+  else ifneq ($(CONFIG_USE_SSTRIP),)
+    STRIP:=$(STAGING_DIR_HOST)/bin/sstrip $(call qstrip,$(CONFIG_SSTRIP_ARGS))
   endif
   RSTRIP= \
     export CROSS="$(TARGET_CROSS)" \
