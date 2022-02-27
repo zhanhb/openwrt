@@ -172,7 +172,7 @@ ifndef DUMP
 		touch $(HOST_STAMP_BUILT)
 		touch $$@
 
-  $(call DefaultTargets,$(patsubst %,host-%,$(DEFAULT_SUBDIR_TARGETS)))
+  $(call DefaultTargets,$(DEFAULT_SUBDIR_TARGETS:%=host-%))
   ifndef STAMP_BUILT
     $(foreach t,$(DEFAULT_SUBDIR_TARGETS),
       $(t): host-$(t)

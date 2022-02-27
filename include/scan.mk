@@ -14,7 +14,7 @@ OVERRIDELIST:=$(TMP_DIR)/info/.overrides-$(SCAN_TARGET)-$(SCAN_COOKIE)
 export PATH:=$(TOPDIR)/staging_dir/host/bin:$(PATH)
 
 define feedname
-$(if $(patsubst feeds/%,,$(1)),,$(word 2,$(subst /, ,$(1))))
+$(if $(filter feeds/%,$(1)),$(word 2,$(subst /, ,$(1))))
 endef
 
 ifeq ($(SCAN_NAME),target)
