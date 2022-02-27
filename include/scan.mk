@@ -15,7 +15,7 @@ export ORIG_PATH:=$(or $(ORIG_PATH),$(PATH))
 export PATH:=$(STAGING_DIR_HOST)/bin:$(PATH)
 
 define feedname
-$(if $(patsubst feeds/%,,$(1)),,$(word 2,$(subst /, ,$(1))))
+$(if $(filter feeds/%,$(1)),$(word 2,$(subst /, ,$(1))))
 endef
 
 ifeq ($(SCAN_NAME),target)

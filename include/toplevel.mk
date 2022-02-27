@@ -73,7 +73,7 @@ ifdef SDK
   IGNORE_PACKAGES = linux
 endif
 
-_ignore = $(foreach p,$(IGNORE_PACKAGES),--ignore $(p))
+_ignore = $(IGNORE_PACKAGES:%=--ignore %)
 
 prepare-tmpinfo: FORCE
 	@+$(MAKE) -r -s $(STAGING_DIR_HOST)/.prereq-build $(PREP_MK)

@@ -155,11 +155,11 @@ BUILD_DIR_BASE:=$(TOPDIR)/build_dir
 ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   GCCV:=$(call qstrip,$(CONFIG_GCC_VERSION))
   LIBC:=$(call qstrip,$(CONFIG_LIBC))
-  REAL_GNU_TARGET_NAME=$(OPTIMIZE_FOR_CPU)-openwrt-linux$(if $(TARGET_SUFFIX),-$(TARGET_SUFFIX))
+  REAL_GNU_TARGET_NAME=$(OPTIMIZE_FOR_CPU)-openwrt-linux$(TARGET_SUFFIX:%=-%)
   GNU_TARGET_NAME=$(OPTIMIZE_FOR_CPU)-openwrt-linux
   DIR_SUFFIX:=_$(LIBC)$(if $(CONFIG_arm),_eabi)
   BIN_DIR:=$(BIN_DIR)$(if $(CONFIG_USE_MUSL),,-$(LIBC))
-  TARGET_DIR_NAME = target-$(ARCH)$(ARCH_SUFFIX)$(DIR_SUFFIX)$(if $(BUILD_SUFFIX),_$(BUILD_SUFFIX))
+  TARGET_DIR_NAME = target-$(ARCH)$(ARCH_SUFFIX)$(DIR_SUFFIX)$(BUILD_SUFFIX:%=_%)
   TOOLCHAIN_DIR_NAME = toolchain-$(ARCH)$(ARCH_SUFFIX)_gcc-$(GCCV)$(DIR_SUFFIX)
 else
   ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
@@ -169,7 +169,7 @@ else
   endif
   REAL_GNU_TARGET_NAME=$(GNU_TARGET_NAME)
   LIBC:=$(call qstrip,$(CONFIG_LIBC))
-  TARGET_DIR_NAME:=target-$(GNU_TARGET_NAME)_$(LIBC)$(if $(BUILD_SUFFIX),_$(BUILD_SUFFIX))
+  TARGET_DIR_NAME:=target-$(GNU_TARGET_NAME)_$(LIBC)$(BUILD_SUFFIX:%=_%)
   TOOLCHAIN_DIR_NAME:=toolchain-$(GNU_TARGET_NAME)
 endif
 
@@ -220,7 +220,7 @@ ifndef DUMP
   ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
     -include $(TOOLCHAIN_DIR)/info.mk
     export GCC_HONOUR_COPTS:=0
-    TARGET_CROSS:=$(or $(TARGET_CROSS),$(OPTIMIZE_FOR_CPU)-openwrt-linux$(if $(TARGET_SUFFIX),-$(TARGET_SUFFIX))-)
+    TARGET_CROSS:=$(or $(TARGET_CROSS),$(OPTIMIZE_FOR_CPU)-openwrt-linux$(TARGET_SUFFIX:%=-%)-)
     TOOLCHAIN_ROOT_DIR:=$(TOPDIR)/staging_dir/$(TOOLCHAIN_DIR_NAME)
     TOOLCHAIN_BIN_DIRS:=$(TOOLCHAIN_ROOT_DIR)/bin
     TOOLCHAIN_INC_DIRS:=$(TOOLCHAIN_ROOT_DIR)/usr/include $(TOOLCHAIN_ROOT_DIR)/include
@@ -237,17 +237,16 @@ ifndef DUMP
       TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
       TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
       TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
+      ifneq ($(TOOLCHAIN_BIN_DIRS),)
+        TARGET_PATH:=$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):$(TARGET_PATH)
+      endif
     endif
   endif
   ifneq ($(TOOLCHAIN_BIN_DIRS),)
     TARGET_PATH:=$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):$(TARGET_PATH)
   endif
-  ifneq ($(TOOLCHAIN_INC_DIRS),)
-    TARGET_CPPFLAGS+= $(patsubst %,-I%,$(TOOLCHAIN_INC_DIRS))
-  endif
-  ifneq ($(TOOLCHAIN_LIB_DIRS),)
-    TARGET_LDFLAGS+= $(patsubst %,-L%,$(TOOLCHAIN_LIB_DIRS))
-  endif
+  TARGET_CPPFLAGS+= $(TOOLCHAIN_INC_DIRS:%=-I%)
+  TARGET_LDFLAGS+= $(TOOLCHAIN_LIB_DIRS:%=-L%)
 endif
 
 TARGET_LINKER?=bfd
