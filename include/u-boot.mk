@@ -21,7 +21,7 @@ PKG_BUILD_PARALLEL:=1
 export GCC_HONOUR_COPTS=s
 
 define Package/u-boot/install/default
-	$(CP) $(patsubst %,$(PKG_BUILD_DIR)/%,$(UBOOT_IMAGE)) $(1)/
+	$(CP) $(UBOOT_IMAGE:%=$(PKG_BUILD_DIR)/%) $(1)/
 endef
 
 Package/u-boot/install = $(Package/u-boot/install/default)
@@ -68,8 +68,8 @@ define Build/U-Boot/Target
       DEPENDS += @$(TARGET_DEP)
       ifneq ($(BUILD_DEVICES),)
         DEFAULT := y if ($(TARGET_DEP)_Default \
-		$(patsubst %,|| $(TARGET_DEP)_DEVICE_%,$(BUILD_DEVICES)) \
-		$(patsubst %,|| $(patsubst TARGET_%,TARGET_DEVICE_%,$(TARGET_DEP))_DEVICE_%,$(BUILD_DEVICES)))
+		$(BUILD_DEVICES:%=|| $(TARGET_DEP)_DEVICE_%) \
+		$(BUILD_DEVICES:%=|| $(TARGET_DEP:TARGET_%=TARGET_DEVICE_%)_DEVICE_%))
       endif
     endif
     $(if $(DEFAULT),DEFAULT:=$(DEFAULT))

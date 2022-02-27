@@ -22,7 +22,7 @@ include $(INCLUDE_DIR)/host-build.mk
 
 export GNULIB_SRCDIR:=$(HOST_GNULIB_SRCDIR)
 
-BUILD_BINS = $(patsubst %,src/%,$(BUILD_PROGRAMS))
+BUILD_BINS = $(BUILD_PROGRAMS:%=src/%)
 
 HOST_CONFIGURE_ARGS += \
 	 --enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))

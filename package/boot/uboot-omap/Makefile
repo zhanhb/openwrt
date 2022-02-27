@@ -44,7 +44,7 @@ define Build/InstallDev
 		$(INSTALL_DIR) $(STAGING_DIR_IMAGE)/$(device)
 	)
 	$(foreach device,$(BUILD_DEVICES), \
-		$(CP) $(patsubst %,$(PKG_BUILD_DIR)/%,$(UBOOT_IMAGE)) $(STAGING_DIR_IMAGE)/$(device)/
+		$(CP) $(UBOOT_IMAGE:%=$(PKG_BUILD_DIR)/%) $(STAGING_DIR_IMAGE)/$(device)/
 	)
 	$(foreach device,$(BUILD_DEVICES), \
 		mkimage -C none -A arm -T script -d ./files/boot.scr.txt \

@@ -43,7 +43,7 @@ else
     PATCH_DIR ?= $(CURDIR)/patches$(if $(wildcard ./patches-$(KERNEL_PATCHVER)),-$(KERNEL_PATCHVER))
     FILES_DIR ?= $(foreach dir,$(wildcard $(CURDIR)/files $(CURDIR)/files-$(KERNEL_PATCHVER)),"$(dir)")
   endif
-  KERNEL_BUILD_DIR ?= $(BUILD_DIR)/linux-$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET))
+  KERNEL_BUILD_DIR ?= $(BUILD_DIR)/linux-$(BOARD)$(SUBTARGET:%=_%)
   LINUX_DIR ?= $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)
   LINUX_UAPI_DIR=uapi/
   LINUX_VERMAGIC:=$(strip $(shell cat $(LINUX_DIR)/.vermagic 2>/dev/null))
@@ -74,7 +74,7 @@ else
   TARGET_MODULES_DIR:=$(LINUX_TARGET_DIR)/$(MODULES_SUBDIR)
 
   ifneq ($(TARGET_BUILD),1)
-    PKG_BUILD_DIR ?= $(KERNEL_BUILD_DIR)/$(if $(BUILD_VARIANT),$(PKG_NAME)-$(BUILD_VARIANT)/)$(PKG_NAME)$(if $(PKG_VERSION),-$(PKG_VERSION))
+    PKG_BUILD_DIR ?= $(KERNEL_BUILD_DIR)/$(BUILD_VARIANT:%=$(PKG_NAME)-%/)$(PKG_NAME)$(PKG_VERSION:%=-%)
   endif
 endif
 
@@ -208,7 +208,7 @@ define KernelPackage
     CATEGORY:=Kernel modules
     DESCRIPTION:=$(DESCRIPTION)
     EXTRA_DEPENDS:=kernel (=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC))
-    VERSION:=$(LINUX_VERSION)$(if $(PKG_VERSION),+$(PKG_VERSION))-$(or $(PKG_RELEASE),$(LINUX_RELEASE))
+    VERSION:=$(LINUX_VERSION)$(PKG_VERSION:%=+%)-$(or $(PKG_RELEASE),$(LINUX_RELEASE))
     PKGFLAGS:=$(PKGFLAGS)
     $(call KernelPackage/$(1))
     $(call KernelPackage/$(1)/$(BOARD))

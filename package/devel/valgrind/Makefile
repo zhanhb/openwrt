@@ -82,7 +82,7 @@ define Package/valgrind/description
 	to speed up and reduce memory use of your programs.
 endef
 
-CPU := $(patsubst x86_64,amd64,$(patsubst x86,i386,$(patsubst um,$(ARCH),$(LINUX_KARCH))))
+CPU := $(patsubst x86_64,amd64,$(patsubst x86,i386,$(LINUX_KARCH:um=$(ARCH))))
 
 CONFIGURE_VARS += \
 	UNAME_R=$(LINUX_VERSION)

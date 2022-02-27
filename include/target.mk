@@ -77,8 +77,8 @@ else
   endif
 endif
 
-TARGETID:=$(BOARD)$(if $(SUBTARGET),/$(SUBTARGET))
-PLATFORM_SUBDIR:=$(PLATFORM_DIR)$(if $(SUBTARGET),/$(SUBTARGET))
+TARGETID:=$(BOARD)$(SUBTARGET:%=/%)
+PLATFORM_SUBDIR:=$(PLATFORM_DIR)$(SUBTARGET:%=/%)
 
 ifneq ($(TARGET_BUILD),1)
   ifndef DUMP
@@ -336,11 +336,11 @@ define BuildTargets/DumpCurrent
 	 echo 'Target-Board: $(BOARD)'; \
 	 echo 'Target-Name: $(BOARDNAME)$(if $(SUBTARGETS),$(if $(SUBTARGET),))'; \
 	 echo 'Target-Arch: $(ARCH)'; \
-	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(if $(CPU_TYPE),_$(CPU_TYPE))$(if $(CPU_SUBTYPE),_$(CPU_SUBTYPE)))'; \
+	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%))'; \
 	 echo 'Target-Features: $(FEATURES)'; \
 	 echo 'Target-Depends: $(DEPENDS)'; \
 	 echo 'Target-Optimization: $(or $(CFLAGS),$(DEFAULT_CFLAGS))'; \
-	 echo 'CPU-Type: $(CPU_TYPE)$(if $(CPU_SUBTYPE),+$(CPU_SUBTYPE))'; \
+	 echo 'CPU-Type: $(CPU_TYPE)$(CPU_SUBTYPE:%=+%)'; \
 	 echo 'Linux-Version: $(LINUX_VERSION)'; \
 	$(if $(LINUX_TESTING_VERSION),echo 'Linux-Testing-Version: $(LINUX_TESTING_VERSION)';) \
 	 echo 'Linux-Release: $(LINUX_RELEASE)'; \
