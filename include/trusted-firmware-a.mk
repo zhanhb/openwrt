@@ -19,7 +19,7 @@ PKG_BUILD_PARALLEL:=1
 export GCC_HONOUR_COPTS=s
 
 define Package/trusted-firmware-a/install/default
-	$(CP) $(patsubst %,$(PKG_BUILD_DIR)/build/$(PLAT)/release/%,$(TFA_IMAGE)) $(1)/
+	$(CP) $(TFA_IMAGE:%=$(PKG_BUILD_DIR)/build/$(PLAT)/release/%) $(1)/
 endef
 
 Package/trusted-firmware-a/install = $(Package/trusted-firmware-a/install/default)
@@ -55,8 +55,8 @@ define Build/Trusted-Firmware-A/Target
       DEPENDS += @$(TARGET_DEP)
       ifneq ($(BUILD_DEVICES),)
         DEFAULT := y if ($(TARGET_DEP)_Default \
-		$(patsubst %,|| $(TARGET_DEP)_DEVICE_%,$(BUILD_DEVICES)) \
-		$(patsubst %,|| $(patsubst TARGET_%,TARGET_DEVICE_%,$(TARGET_DEP))_DEVICE_%,$(BUILD_DEVICES)))
+		$(BUILD_DEVICES:%=|| $(TARGET_DEP)_DEVICE_%) \
+		$(BUILD_DEVICES:%=|| $(TARGET_DEP:TARGET_%=TARGET_DEVICE_%)_DEVICE_%))
       endif
     endif
     $(if $(DEFAULT),DEFAULT:=$(DEFAULT))

@@ -60,7 +60,7 @@ ALLWIFIBOARDS:= \
 	teltonika_rutx \
 	zte_mf286d
 
-ALLWIFIPACKAGES:=$(foreach BOARD,$(ALLWIFIBOARDS),ipq-wifi-$(BOARD))
+ALLWIFIPACKAGES:=$(ALLWIFIBOARDS:%=ipq-wifi-%)
 
 define Package/ipq-wifi-default
   SUBMENU:=ath10k Board-Specific Overrides

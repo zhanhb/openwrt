@@ -6,7 +6,7 @@
 #
 
 define AddDepends/nls
-  DEPENDS+= +kmod-nls-base $(foreach cp,$(1),+kmod-nls-$(cp))
+  DEPENDS+= +kmod-nls-base $(1:%=+kmod-nls-%)
 endef
 
 define AddDepends/rfkill

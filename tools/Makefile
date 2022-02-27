@@ -100,7 +100,7 @@ $(foreach tool, $(filter-out xz,$(tools-y)), $(eval $(curdir)/$(tool)/compile +=
 # make any tool depend on tar, xz and patch to ensure that archives can be unpacked and patched properly
 tools-core := tar xz patch
 
-$(foreach tool, $(tools-y), $(eval $(curdir)/$(tool)/compile += $(patsubst %,$(curdir)/%/compile,$(tools-core))))
+$(foreach tool, $(tools-y), $(eval $(curdir)/$(tool)/compile += $(tools-core:%=$(curdir)/%/compile)))
 tools-y += $(tools-core)
 
 # make core tools depend on sed and flock

@@ -45,7 +45,7 @@ define Package/trace-cmd/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/lib/traceevent/plugins
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/trace-cmd $(1)/usr/bin/
 	$(CP) \
-		$(patsubst %,$(PLUGINS_DIR)/plugin_%.so,$(PLUGINS_MAIN)) \
+		$(PLUGINS_MAIN:%=$(PLUGINS_DIR)/plugin_%.so) \
 		$(1)/usr/lib/traceevent/plugins
 endef
 

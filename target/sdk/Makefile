@@ -13,7 +13,7 @@ include $(INCLUDE_DIR)/download.mk
 
 override MAKEFLAGS=
 
-SDK_NAME:=$(VERSION_DIST_SANITIZED)-sdk-$(if $(CONFIG_VERSION_FILENAMES),$(VERSION_NUMBER)-)$(BOARD)$(if $(SUBTARGET),-$(SUBTARGET))$(if $(GCCV),_gcc-$(GCCV))$(DIR_SUFFIX).$(HOST_OS)-$(HOST_ARCH)
+SDK_NAME:=$(VERSION_DIST_SANITIZED)-sdk-$(if $(CONFIG_VERSION_FILENAMES),$(VERSION_NUMBER)-)$(BOARD)$(SUBTARGET:%=-%)$(GCCV:%=_gcc-%)$(DIR_SUFFIX).$(HOST_OS)-$(HOST_ARCH)
 SDK_BUILD_DIR:=$(BUILD_DIR)/$(SDK_NAME)
 
 STAGING_SUBDIR_HOST := staging_dir/host
@@ -78,9 +78,9 @@ KERNEL_FILES_BASE := \
 	include \
 	Module.symvers \
 	modules.builtin \
-	$(foreach arch,$(KDIR_ARCHES),$(addprefix arch/$(arch)/,$(KERNEL_FILES_ARCH)))
+	$(foreach arch,$(KDIR_ARCHES),$(KERNEL_FILES_ARCH:%=arch/$(arch)/%))
 
-KERNEL_FILES := $(patsubst $(TOPDIR)/%,%,$(wildcard $(addprefix $(LINUX_DIR)/,$(KERNEL_FILES_BASE))))
+KERNEL_FILES := $(patsubst $(TOPDIR)/%,%,$(wildcard $(KERNEL_FILES_BASE:%=$(LINUX_DIR)/%)))
 
 all: compile
 

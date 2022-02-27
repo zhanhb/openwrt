@@ -137,7 +137,7 @@ ifeq ($(DUMP),)
 
     DEPENDS:=$(call PKG_FIXUP_DEPENDS,$(1),$(DEPENDS))
     IDEPEND_$(1):=$$(call filter_deps,$$(DEPENDS))
-    IDEPEND += $$(patsubst %,$(1):%,$$(IDEPEND_$(1)))
+    IDEPEND += $$(IDEPEND_$(1):%=$(1):%)
     $(FixupDependencies)
     $(FixupReverseDependencies)
 
@@ -208,7 +208,7 @@ $(_endef)
 	-find $$(IDIR_$(1)) -name 'CVS' -o -name '.svn' -o -name '.#*' -o -name '*~'| $(XARGS) rm -rf
 	@( \
 		find $$(IDIR_$(1)) -name lib\*.so\* -or -name \*.ko | awk -F/ '{ print $$$$NF }'; \
-		for file in $$(patsubst %,$(PKG_INFO_DIR)/%.provides,$$(IDEPEND_$(1))); do \
+		for file in $$(IDEPEND_$(1):%=$(PKG_INFO_DIR)/%.provides); do \
 			if [ -f "$$$$file" ]; then \
 				cat $$$$file; \
 			fi; \

@@ -52,7 +52,7 @@ endif
 ifeq ($(origin CPU_TYPE),undefined)
 MESON_CPU:="generic"
 else
-MESON_CPU:="$(CPU_TYPE)$(if $(CPU_SUBTYPE),+$(CPU_SUBTYPE))"
+MESON_CPU:="$(CPU_TYPE)$(CPU_SUBTYPE:%=+%)"
 endif
 
 define Meson
@@ -61,14 +61,14 @@ endef
 
 define Meson/CreateNativeFile
 	$(STAGING_DIR_HOST)/bin/sed \
-		-e "s|@CC@|$(foreach BIN,$(HOSTCC),'$(BIN)',)|" \
-		-e "s|@CXX@|$(foreach BIN,$(HOSTCXX),'$(BIN)',)|" \
+		-e "s|@CC@|$(HOSTCC:%='%',)|" \
+		-e "s|@CXX@|$(HOSTCXX:%='%',)|" \
 		-e "s|@PKGCONFIG@|$(PKG_CONFIG)|" \
 		-e "s|@CMAKE@|$(STAGING_DIR_HOST)/bin/cmake|" \
 		-e "s|@PYTHON@|$(STAGING_DIR_HOST)/bin/python3|" \
 		-e "s|@CFLAGS@|$(foreach FLAG,$(HOST_CFLAGS) $(HOST_CPPFLAGS),'$(FLAG)',)|" \
 		-e "s|@CXXFLAGS@|$(foreach FLAG,$(HOST_CXXFLAGS) $(HOST_CPPFLAGS),'$(FLAG)',)|" \
-		-e "s|@LDFLAGS@|$(foreach FLAG,$(HOST_LDFLAGS),'$(FLAG)',)|" \
+		-e "s|@LDFLAGS@|$(HOST_LDFLAGS:%='%',)|" \
 		-e "s|@PREFIX@|$(HOST_BUILD_PREFIX)|" \
 		< $(MESON_DIR)/openwrt-native.txt.in \
 		> $(1)
@@ -76,8 +76,8 @@ endef
 
 define Meson/CreateCrossFile
 	$(STAGING_DIR_HOST)/bin/sed \
-		-e "s|@CC@|$(foreach BIN,$(TARGET_CC),'$(BIN)',)|" \
-		-e "s|@CXX@|$(foreach BIN,$(TARGET_CXX),'$(BIN)',)|" \
+		-e "s|@CC@|$(TARGET_CC:%='%',)|" \
+		-e "s|@CXX@|$(TARGET_CXX:%='%',)|" \
 		-e "s|@AR@|$(TARGET_AR)|" \
 		-e "s|@STRIP@|$(TARGET_CROSS)strip|" \
 		-e "s|@NM@|$(TARGET_NM)|" \
