@@ -204,17 +204,15 @@ ifndef DUMP
     ifeq ($(CONFIG_USE_MUSL),y)
       TOOLCHAIN_INC_DIRS+= $(TOOLCHAIN_DIR)/include/fortify
     endif
-  else
-    ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
-      -include $(TOOLCHAIN_DIR)/info.mk
-      TARGET_CROSS:=$(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
-      TOOLCHAIN_ROOT_DIR:=$(call qstrip,$(CONFIG_TOOLCHAIN_ROOT))
-      TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
-      TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
-      TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
-      ifneq ($(TOOLCHAIN_BIN_DIRS),)
-        TARGET_PATH:=$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):$(TARGET_PATH)
-      endif
+  else ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
+    -include $(TOOLCHAIN_DIR)/info.mk
+    TARGET_CROSS:=$(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
+    TOOLCHAIN_ROOT_DIR:=$(call qstrip,$(CONFIG_TOOLCHAIN_ROOT))
+    TOOLCHAIN_BIN_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_BIN_PATH)))
+    TOOLCHAIN_INC_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_INC_PATH)))
+    TOOLCHAIN_LIB_DIRS:=$(patsubst ./%,$(TOOLCHAIN_ROOT_DIR)/%,$(call qstrip,$(CONFIG_TOOLCHAIN_LIB_PATH)))
+    ifneq ($(TOOLCHAIN_BIN_DIRS),)
+      TARGET_PATH:=$(subst $(space),:,$(TOOLCHAIN_BIN_DIRS)):$(TARGET_PATH)
     endif
   endif
   ifneq ($(TOOLCHAIN_BIN_DIRS),)
@@ -331,10 +329,8 @@ ifneq ($(CONFIG_NO_STRIP),)
 else
   ifneq ($(CONFIG_USE_STRIP),)
     STRIP:=$(TARGET_CROSS)strip $(call qstrip,$(CONFIG_STRIP_ARGS))
-  else
-    ifneq ($(CONFIG_USE_SSTRIP),)
-      STRIP:=$(STAGING_DIR_HOST)/bin/sstrip $(if $(CONFIG_SSTRIP_DISCARD_TRAILING_ZEROES),-z)
-    endif
+  else ifneq ($(CONFIG_USE_SSTRIP),)
+    STRIP:=$(STAGING_DIR_HOST)/bin/sstrip $(if $(CONFIG_SSTRIP_DISCARD_TRAILING_ZEROES),-z)
   endif
   RSTRIP= \
     export CROSS="$(TARGET_CROSS)" \
