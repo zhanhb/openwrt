@@ -75,11 +75,11 @@ endif
 
 define CompileBPF
 	$(CLANG) -g -target $(BPF_ARCH)-linux-gnu $(BPF_CFLAGS) $(2) \
-		-c $(1) -o $(patsubst %.c,%.bc,$(1))
-	$(LLVM_OPT) -O2 -mtriple=$(BPF_TARGET) < $(patsubst %.c,%.bc,$(1)) > $(patsubst %.c,%.opt,$(1))
-	$(LLVM_DIS) < $(patsubst %.c,%.opt,$(1)) > $(patsubst %.c,%.S,$(1))
-	$(LLVM_LLC) -march=$(BPF_TARGET) -mcpu=v3 -filetype=obj -o $(patsubst %.c,%.o,$(1)) < $(patsubst %.c,%.S,$(1))
-	$(CP) $(patsubst %.c,%.o,$(1)) $(patsubst %.c,%.debug.o,$(1))
-	$(LLVM_STRIP) --strip-debug $(patsubst %.c,%.o,$(1))
+		-c $(1) -o $(1:.c=.bc)
+	$(LLVM_OPT) -O2 -mtriple=$(BPF_TARGET) < $(1:.c=.bc) > $(1:.c=.opt)
+	$(LLVM_DIS) < $(1:.c=.opt) > $(1:.c=.S)
+	$(LLVM_LLC) -march=$(BPF_TARGET) -mcpu=v3 -filetype=obj -o $(1:.c=.o) < $(1:.c=.S)
+	$(CP) $(1:.c=.o) $(1:.c=.debug.o)
+	$(LLVM_STRIP) --strip-debug $(1:.c=.o)
 endef
 

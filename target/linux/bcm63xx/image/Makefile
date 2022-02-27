@@ -101,7 +101,7 @@ define Build/cfe-jffs2
 		--big-endian \
 		--pad \
 		--no-cleanmarkers \
-		--eraseblock=$(patsubst %k,%KiB,$(BLOCKSIZE)) \
+		--eraseblock=$(BLOCKSIZE:%k=%KiB) \
 		--root=$(1) \
 		--output=$@ \
 		--compression-mode=none

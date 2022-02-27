@@ -10,7 +10,7 @@ LEDE_GIT = $(PROJECT_GIT)
 
 ifdef PKG_SOURCE_VERSION
   ifndef PKG_VERSION
-    PKG_VERSION := $(if $(PKG_SOURCE_DATE),$(PKG_SOURCE_DATE)-)$(call version_abbrev,$(PKG_SOURCE_VERSION))
+    PKG_VERSION := $(PKG_SOURCE_DATE:%=%-)$(call version_abbrev,$(PKG_SOURCE_VERSION))
   endif
   PKG_SOURCE_SUBDIR ?= $(PKG_NAME)-$(PKG_VERSION)
   PKG_SOURCE ?= $(PKG_SOURCE_SUBDIR).tar.xz
@@ -143,7 +143,7 @@ define DownloadMethod/unknown
 endef
 
 define DownloadMethod/default
-	$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(HASH)" "$(URL_FILE)" $(foreach url,$(URL),"$(url)") \
+	$(SCRIPT_DIR)/download.pl "$(DL_DIR)" "$(FILE)" "$(HASH)" "$(URL_FILE)" $(URL:%="%") \
 	$(if $(filter check,$(1)), \
 		$(call check_hash,$(FILE),$(HASH),$(2)$(call hash_var,$(MD5SUM))) \
 		$(call check_md5,$(MD5SUM),$(2)MD5SUM,$(2)HASH) \

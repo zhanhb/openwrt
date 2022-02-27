@@ -34,7 +34,7 @@ O_FORMAT = $(shell $(OBJDUMP) -i | head -2 | grep elf32)
 # Drop some uninteresting sections in the kernel.
 # This is only relevant for ELF kernels but doesn't hurt a.out
 drop-sections   = .reginfo .mdebug .comment
-strip-flags     = $(addprefix --remove-section=,$(drop-sections))
+strip-flags     = $(drop-sections:%=--remove-section=%)
 
 all : lzma.elf lzma.bin
 

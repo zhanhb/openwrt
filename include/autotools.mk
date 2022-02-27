@@ -5,7 +5,7 @@
 ifneq ($(__autotools_inc),1)
 __autotools_inc=1
 
-autoconf_bool = $(patsubst %,$(if $($(1)),--enable,--disable)-%,$(2))
+autoconf_bool = $(2:%=--$(if $($(1)),en,dis)able-%)
 
 # delete *.la-files from staging_dir - we can not yet remove respective lines within all package
 # Makefiles, since backfire still uses libtool v1.5.x which (may) require those files
@@ -35,7 +35,7 @@ AM_TOOL_PATHS_FAKE:=$(subst = ,=,$(patsubst "%,"$(TRUE)",$(subst =,= ",$(AM_TOOL
 # 5: extra m4 dirs
 define autoreconf
 	(cd $(1); \
-		$(patsubst %,rm -f %;,$(2)) \
+		$(2:%=rm -f %;) \
 		$(foreach p,$(3), \
 			if [ -f $(p)/configure.ac ] || [ -f $(p)/configure.in ]; then \
 				[ -d $(p)/autom4te.cache ] && rm -rf $(p)/autom4te.cache; \
@@ -47,8 +47,8 @@ define autoreconf
 					$(STAGING_DIR_HOST)/bin/autoreconf -v -f -i -s \
 					$(if $(word 2,$(3)),--no-recursive) \
 					-B $(STAGING_DIR_HOST)/share/aclocal \
-					$(patsubst %,-I %,$(5)) \
-					$(patsubst %,-I %,$(4)) $(p) || true; \
+					$(5:%=-I %) \
+					$(4:%=-I %) $(p) || true; \
 			fi; \
 		) \
 	);

@@ -1736,7 +1736,7 @@ endef
 $(eval $(call KernelPackage,usbmon))
 
 XHCI_MODULES := xhci-pci xhci-plat-hcd
-XHCI_FILES := $(wildcard $(patsubst %,$(LINUX_DIR)/drivers/usb/host/%.ko,$(XHCI_MODULES)))
+XHCI_FILES := $(wildcard $(XHCI_MODULES:%=$(LINUX_DIR)/drivers/usb/host/%.ko))
 XHCI_AUTOLOAD := $(patsubst $(LINUX_DIR)/drivers/usb/host/%.ko,%,$(XHCI_FILES))
 
 define KernelPackage/usb3

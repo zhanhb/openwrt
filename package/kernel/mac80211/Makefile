@@ -87,7 +87,7 @@ include ralink.mk
 include realtek.mk
 
 PKG_CONFIG_DEPENDS += \
-	$(patsubst %,CONFIG_PACKAGE_kmod-%,$(PKG_DRIVERS))
+	$(PKG_DRIVERS:%=CONFIG_PACKAGE_kmod-%)
 
 define KernelPackage/cfg80211
   $(call KernelPackage/mac80211/Default)

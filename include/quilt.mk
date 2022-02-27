@@ -46,7 +46,7 @@ sed -e s,\\\#.*,, $(1) | grep -E \[a-zA-Z0-9\]
 endef
 
 define PatchDir/Quilt
-	@mkdir -p "$(1)/patches$(if $(3),/$(patsubst %/,%,$(3)))"
+	@mkdir -p "$(1)/patches$(if $(3),/$(3:%/=%))"
 	@if [ -s "$(2)/series" ]; then \
 		mkdir -p "$(1)/patches/$(3)"; \
 		cp "$(2)/series" "$(1)/patches/$(3)"; \

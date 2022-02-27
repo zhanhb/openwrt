@@ -1,4 +1,4 @@
-cmake_bool = $(patsubst %,-D%:BOOL=$(if $($(1)),ON,OFF),$(2))
+cmake_bool = $(2:%=-D%:BOOL=$(if $($(1)),ON,OFF))
 
 PKG_USE_NINJA ?= 1
 HOST_USE_NINJA ?= 1
