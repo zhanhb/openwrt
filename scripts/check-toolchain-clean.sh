@@ -1,14 +1,15 @@
 #!/bin/sh
-eval "$(grep CONFIG_GCC_VERSION .config)"
+eval "$(sed '/^CONFIG_GCC_VERSION/p;/^CONFIG_TARGET_ARCH_PACKAGES/p;/^CONFIG_TARGET_SUFFIX/p;d' .config)"
 CONFIG_TOOLCHAIN_BUILD_VER="$CONFIG_GCC_VERSION-$(cat toolchain/build_version)"
-touch .toolchain_build_ver
-CURRENT_TOOLCHAIN_BUILD_VER="$(cat .toolchain_build_ver)"
+CONFIG_TOOLCHAIN_BUILD_NAME=".toolchain_build_ver-$CONFIG_TARGET_ARCH_PACKAGES-$CONFIG_TARGET_SUFFIX"
+touch "$CONFIG_TOOLCHAIN_BUILD_NAME"
+CURRENT_TOOLCHAIN_BUILD_VER="$(cat "$CONFIG_TOOLCHAIN_BUILD_NAME")"
 [ -z "$CURRENT_TOOLCHAIN_BUILD_VER" ] && {
-	echo "$CONFIG_TOOLCHAIN_BUILD_VER" > .toolchain_build_ver
+	echo "$CONFIG_TOOLCHAIN_BUILD_VER" >"$CONFIG_TOOLCHAIN_BUILD_NAME"
 	exit 0
 }
 [ "$CONFIG_TOOLCHAIN_BUILD_VER" = "$CURRENT_TOOLCHAIN_BUILD_VER" ] && exit 0
 echo "Toolchain build version changed ($CONFIG_TOOLCHAIN_BUILD_VER != $CURRENT_TOOLCHAIN_BUILD_VER), running make targetclean"
 make targetclean
-echo "$CONFIG_TOOLCHAIN_BUILD_VER" > .toolchain_build_ver
+echo "$CONFIG_TOOLCHAIN_BUILD_VER" >"$CONFIG_TOOLCHAIN_BUILD_NAME"
 exit 0
