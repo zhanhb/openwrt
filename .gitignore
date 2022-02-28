@@ -6,6 +6,7 @@
 /.config
 /.config.old
 /.toolchain_build_ver
+/.toolchain_build_ver-*
 /bin
 /build_dir
 /staging_dir
