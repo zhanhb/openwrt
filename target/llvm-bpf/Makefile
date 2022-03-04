@@ -27,4 +27,4 @@ compile: $(LLVM_TAR)
 install: compile
 
 clean:
-	rm -f $(LLVM_TAR)
+	rm -f $(BIN_DIR)/llvm-bpf-*.tar.xz
