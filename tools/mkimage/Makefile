@@ -20,14 +20,19 @@ HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/u-boot-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 
+HOST_MAKE_FLAGS += \
+	HOSTCFLAGS="$(HOST_CFLAGS)" \
+	HOSTLDFLAGS="$(HOST_LDFLAGS)" \
+	PKG_CONFIG_EXTRAARGS="--static" \
+	NO_SDL=1 \
+	V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1)
+
+define Host/Configure
+	$(call Host/Compile/Default,tools-only_config)
+endef
+
 define Host/Compile
-	$(MAKE) -C $(HOST_BUILD_DIR) \
-		HOSTCFLAGS="$(HOST_CFLAGS)" \
-		HOSTLDFLAGS="$(HOST_LDFLAGS)" \
-		PKG_CONFIG_EXTRAARGS="--static" \
-		V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1) \
-		tools-only_config \
-		tools-only
+	$(call Host/Compile/Default,tools-only)
 endef
 
 define Host/Install
