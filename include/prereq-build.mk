@@ -68,12 +68,6 @@ $(eval $(call SetupHostCommand,rsync,Please install 'rsync', \
 	rsync --version </dev/null))
 endif # IB
 
-ifeq ($(HOST_OS),Linux)
-  zlib_link_flags := -Wl,-Bstatic -lz -Wl,-Bdynamic
-else
-  zlib_link_flags := -lz
-endif
-
 $(eval $(call TestHostCommand,perl-data-dumper, \
 	Please install the Perl Data::Dumper module, \
 	perl -MData::Dumper -e 1))
