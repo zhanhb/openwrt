@@ -55,12 +55,6 @@ $(eval $(call TestHostCommand,ncurses, \
 		gcc -include ncurses.h -x c -o $(TMP_DIR)/a.out - -lncurses))
 endif # IB
 
-ifeq ($(HOST_OS),Linux)
-  zlib_link_flags := -Wl,-Bstatic -lz -Wl,-Bdynamic
-else
-  zlib_link_flags := -lz
-endif
-
 $(eval $(call TestHostCommand,perl-data-dumper, \
 	Please install the Perl Data::Dumper module, \
 	perl -MData::Dumper -e 1))
