@@ -37,7 +37,8 @@ endef
 
 define Package/firewall4/conffiles
 /etc/config/firewall
-/etc/nftables.d/
+/etc/nftables.d/10-custom-filter-chains.nft
+/etc/nftables.d/README
 endef
 
 define Package/firewall4/install
