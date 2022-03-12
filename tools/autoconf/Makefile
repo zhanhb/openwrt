@@ -7,11 +7,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=autoconf
-PKG_VERSION:=2.69
+PKG_VERSION:=2.71
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/autoconf
-PKG_HASH:=64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684
+PKG_HASH:=f14c83cfebcc9427f2c3cea7258bd90df972d92eb26752da4ddad81c87a0faa4
 
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -20,6 +20,7 @@ HOST_CONFIGURE_ARGS += \
 
 HOST_CONFIGURE_VARS += \
 	PERL="/usr/bin/env perl"
+	ac_cv_prog_emacs_ok=no
 
 define Host/Compile
 	export SHELL="$(BASH)"; $(MAKE) -C $(HOST_BUILD_DIR)
