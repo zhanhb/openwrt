@@ -5,7 +5,7 @@
  our $VERSION = '@VERSION@';
  our $RELEASE_YEAR = '@RELEASE_YEAR@';
 -our $libdir = $ENV{"AUTOMAKE_LIBDIR"} || '@datadir@/@PACKAGE@-@APIVERSION@';
-+our $libdir = $ENV{'STAGING_DIR_HOST'} ? $ENV{'STAGING_DIR_HOST'} . '/share/@PACKAGE@-@APIVERSION@' : '@datadir@/@PACKAGE@-@APIVERSION@';
++our $libdir = $ENV{"AUTOMAKE_LIBDIR"} || ($ENV{'STAGING_DIR_HOST'} ? $ENV{'STAGING_DIR_HOST'} . '/share/@PACKAGE@-@APIVERSION@' : '@datadir@/@PACKAGE@-@APIVERSION@');
  
  our $perl_threads = 0;
  # We need at least this version for CLONE support.
