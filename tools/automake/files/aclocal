@@ -1,2 +1,2 @@
-#!/usr/bin/env sh
-aclocal.real $ACLOCAL_INCLUDE $@
+#!/bin/sh
+aclocal.real $ACLOCAL_INCLUDE "$@"
