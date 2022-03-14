@@ -29,7 +29,7 @@ endef
 # Try to guess the download method from the URL
 define dl_method
 $(strip \
-  $(if $(filter git,$(2)),$(call dl_method_git,$(1),$(2)),
+  $(if $(filter git,$(2)),$(call dl_method_git,$(1),$(2)), \
     $(or $(2), \
       $(if $(filter @OPENWRT @APACHE/% @DEBIAN/% @GITHUB/% @GNOME/% @GNU/% @KERNEL/% @SF/% @SAVANNAH/% ftp://% http://% https://% file://%,$(1)),default, \
         $(if $(filter git://%,$(1)),$(call dl_method_git,$(1),$(2)), \
