@@ -144,11 +144,6 @@ $(eval $(call SetupHostCommand,realpath,Please install a 'realpath' utility, \
 	grealpath /, \
 	realpath /))
 
-$(eval $(call SetupHostCommand,stat,Cannot find a file stat utility, \
-	gnustat -c%s $(TOPDIR)/Makefile, \
-	gstat -c%s $(TOPDIR)/Makefile, \
-	stat -c%s $(TOPDIR)/Makefile))
-
 $(eval $(call SetupHostCommand,gzip,Please install 'gzip', \
 	gzip --version </dev/null))
 
