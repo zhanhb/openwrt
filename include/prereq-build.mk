@@ -131,11 +131,6 @@ $(eval $(call SetupHostCommand,realpath,Please install a 'realpath' utility, \
 	grealpath /, \
 	realpath /))
 
-$(eval $(call SetupHostCommand,stat,Cannot find a file stat utility, \
-	gnustat -c%s $(TOPDIR)/Makefile, \
-	gstat -c%s $(TOPDIR)/Makefile, \
-	stat -c%s $(TOPDIR)/Makefile))
-
 $(eval $(call SetupHostCommand,unzip,Please install 'unzip', \
 	unzip 2>&1 | grep zipfile, \
 	unzip))

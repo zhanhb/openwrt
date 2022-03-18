@@ -17,7 +17,7 @@ PKG_HASH:=ce30acdf4a41bc5bb30dd955e9eaa75fa216b4e3deb08889ed32433c7b3b97ce
 HOST_BUILD_PARALLEL := 1
 PKG_FIXUP:=autoreconf
 
-BUILD_PROGRAMS = date readlink touch ln chown
+BUILD_PROGRAMS := chown cp date ginstall ln readlink seq stat touch
 
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -27,12 +27,11 @@ HOST_CONFIGURE_ARGS += \
 	 --enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))
 
 HOST_MAKE_FLAGS += \
-	PROGRAMS="$(BUILD_BINS)" \
+	bin_PROGRAMS="$(BUILD_BINS)" noinst_PROGRAMS= pkglibexec_PROGRAMS= \
 	LIBRARIES= MANS= SUBDIRS=.
 
 define Host/Install
-	$(INSTALL_DIR) $(1)/bin
-	$(CP) $(patsubst %,$(HOST_BUILD_DIR)/%,$(BUILD_BINS)) $(1)/bin/
+	$(call Host/Compile/Default,install-binPROGRAMS)
 endef
 
 $(eval $(call HostBuild))
