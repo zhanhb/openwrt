@@ -16,7 +16,7 @@ PKG_HASH:=767ae6a22950ec42f3ba5f7c1de79dd27800ee8e9b8642da5dedb5974a1741e5
 
 HOST_BUILD_PARALLEL := 1
 
-PKG_PROGRAMS:=date readlink touch ln chown ginstall
+PKG_PROGRAMS := chown cp date ginstall ln readlink seq stat touch
 
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -33,7 +33,7 @@ HOST_CONFIGURE_ARGS += \
 
 HOST_MAKE_FLAGS += \
 	$(AM_TOOL_PATHS_FAKE) \
-	PROGRAMS="$(patsubst %,src/%,$(PKG_PROGRAMS))" \
+	bin_PROGRAMS="$(patsubst %,src/%,$(PKG_PROGRAMS))" noinst_PROGRAMS= pkglibexec_PROGRAMS= \
 	LIBRARIES= MANS= SUBDIRS=.
 
 define Host/Bootstrap
@@ -61,9 +61,7 @@ define Host/Configure
 endef
 
 define Host/Install
-	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_BIN) $(patsubst %,$(HOST_BUILD_DIR)/src/%,$(PKG_PROGRAMS)) $(1)/bin/
-	ln -sf ginstall $(1)/bin/install
+	$(call Host/Compile/Default,install-binPROGRAMS)
 endef
 
 define Host/Uninstall
