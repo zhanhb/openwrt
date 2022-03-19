@@ -11,6 +11,9 @@ PKG_HASH:=937610b97c329a1ec9268553fb780037bcfff0dcffe9725ebc4fd9c1aa9075db
 
 include $(INCLUDE_DIR)/host-build.mk
 
+HOST_CONFIGURE_ARGS += \
+	--disable-nls
+
 define Host/Uninstall
 	-$(call Host/Compile/Default,uninstall)
 endef
