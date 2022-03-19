@@ -24,7 +24,8 @@ include $(INCLUDE_DIR)/host-build.mk
 BUILD_BINS = $(BUILD_PROGRAMS:%=src/%)
 
 HOST_CONFIGURE_ARGS += \
-	 --enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))
+	--disable-nls \
+	--enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))
 
 HOST_MAKE_FLAGS += \
 	bin_PROGRAMS="$(BUILD_BINS)" noinst_PROGRAMS= pkglibexec_PROGRAMS= \
