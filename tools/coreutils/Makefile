@@ -25,7 +25,8 @@ export GNULIB_SRCDIR:=$(HOST_GNULIB_SRCDIR)
 BUILD_BINS = $(BUILD_PROGRAMS:%=src/%)
 
 HOST_CONFIGURE_ARGS += \
-	 --enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))
+	--disable-nls \
+	--enable-install-program=$(subst $(space),$(comma),$(strip $(BUILD_PROGRAMS)))
 
 HOST_MAKE_FLAGS += \
 	$(AM_TOOL_PATHS_FAKE) \
