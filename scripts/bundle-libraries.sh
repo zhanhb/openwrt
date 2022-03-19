@@ -161,13 +161,14 @@ for BIN in "$@"; do
 		_ln "../lib" "$DIR/usr/lib"
 	}
 
-	[ ! -x "$DIR/lib/runas.so" ] && {
-		_runas_so "$DIR/lib/runas.so"
-	}
+	runas_so=_runas_so
+	[ -x "$DIR/lib/runas.so" ] && runas_so=:
 
 	LDSO=""
 
 	[ -n "$LDD" ] && should_be_patched "$BIN" && {
+		"$runas_so" "$DIR/lib/runas.so"
+		runas_so=:
 		for token in $("$LDD" "$BIN" 2>/dev/null); do
 			case "$token" in */*.so*)
 				dest="$DIR/lib/${token##*/}"
