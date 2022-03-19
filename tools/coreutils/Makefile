@@ -23,7 +23,8 @@ include $(INCLUDE_DIR)/host-build.mk
 export GNULIB_SRCDIR:=$(HOST_GNULIB_SRCDIR)
 
 HOST_CONFIGURE_ARGS += \
-	 --enable-install-program=$(subst $(space),$(comma),$(strip $(PKG_PROGRAMS)))
+	--disable-nls \
+	--enable-install-program=$(subst $(space),$(comma),$(strip $(PKG_PROGRAMS)))
 
 HOST_MAKE_FLAGS += \
 	$(AM_TOOL_PATHS_FAKE) \

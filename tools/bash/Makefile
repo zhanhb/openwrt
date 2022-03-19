@@ -18,6 +18,9 @@ HOST_BUILD_PARALLEL := 1
 
 include $(INCLUDE_DIR)/host-build.mk
 
+HOST_CONFIGURE_ARGS += \
+	--disable-nls
+
 define Host/Uninstall
 	-$(call Host/Compile/Default,uninstall)
 endef
