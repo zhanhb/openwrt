@@ -121,7 +121,7 @@ define Profile
 	echo "Target-Profile: $(1)"; \
 	$(if $(PRIORITY), echo "Target-Profile-Priority: $(PRIORITY)"; ) \
 	echo "Target-Profile-Name: $(NAME)"; \
-	echo "Target-Profile-Packages: $(PACKAGES)"; \
+	$(if $(strip $(PACKAGES)),echo "Target-Profile-Packages: $(PACKAGES)";) \
 	echo "Target-Profile-Description:"; \
 	echo "$$$$$$$$$(call shvar,Profile/$(1)/Description)"; \
 	echo "@@"; \
@@ -364,12 +364,12 @@ define BuildTargets/DumpCurrent
 	@echo 'Target: $(TARGETID)'; \
 	 echo 'Target-Board: $(BOARD)'; \
 	 echo 'Target-Name: $(BOARDNAME)'; \
-	 echo 'Target-Arch: $(ARCH)'; \
-	 echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%))'; \
+	$(if $(ARCH),echo 'Target-Arch: $(ARCH)';) \
+	$(if $(ARCH_PACKAGES)$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%),echo 'Target-Arch-Packages: $(or $(ARCH_PACKAGES),$(ARCH)$(CPU_TYPE:%=_%)$(CPU_SUBTYPE:%=_%))';) \
 	 echo 'Target-Features: $(FEATURES)'; \
-	 echo 'Target-Depends: $(DEPENDS)'; \
+	$(if $(DEPENDS),echo 'Target-Depends: $(DEPENDS)';) \
 	 echo 'Target-Optimization: $(or $(CFLAGS),$(DEFAULT_CFLAGS))'; \
-	 echo 'CPU-Type: $(CPU_TYPE)$(CPU_SUBTYPE:%=+%)'; \
+	$(if $(CPU_TYPE)$(CPU_SUBTYPE:%=+%),echo 'CPU-Type: $(CPU_TYPE)$(CPU_SUBTYPE:%=+%)';) \
 	 echo 'Linux-Version: $(LINUX_VERSION)'; \
 	$(if $(LINUX_TESTING_VERSION),echo 'Linux-Testing-Version: $(LINUX_TESTING_VERSION)';) \
 	 echo 'Linux-Release: $(LINUX_RELEASE)'; \
