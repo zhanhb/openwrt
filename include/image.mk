@@ -668,17 +668,16 @@ endef
 define Device/DumpInfo
 Target-Profile: DEVICE_$(1)
 Target-Profile-Name: $(DEVICE_DISPLAY)
-Target-Profile-Packages: $(DEVICE_PACKAGES)
+$(if $(strip $(DEVICE_PACKAGES)),Target-Profile-Packages: $(strip $(DEVICE_PACKAGES))$(newline))$\
 Target-Profile-hasImageMetadata: $(if $(foreach image,$(IMAGES),$(findstring append-metadata,$(IMAGE/$(image)))),1,0)
-Target-Profile-SupportedDevices: $(SUPPORTED_DEVICES)
-$(if $(BROKEN),Target-Profile-Broken: $(BROKEN))
-$(if $(DEFAULT),Target-Profile-Default: $(DEFAULT))
+$(if $(SUPPORTED_DEVICES),Target-Profile-SupportedDevices: $(SUPPORTED_DEVICES)$(newline))$\
+$(if $(BROKEN),Target-Profile-Broken: $(BROKEN)$(newline))$\
+$(if $(DEFAULT),Target-Profile-Default: $(DEFAULT)$(newline))$\
 Target-Profile-Description:
 $(DEVICE_DESCRIPTION)
-$(if $(strip $(DEVICE_ALT0_TITLE)),Alternative device titles:
-- $(DEVICE_ALT0_TITLE))
-$(if $(strip $(DEVICE_ALT1_TITLE)),- $(DEVICE_ALT1_TITLE))
-$(if $(strip $(DEVICE_ALT2_TITLE)),- $(DEVICE_ALT2_TITLE))
+$(if $(strip $(DEVICE_ALT0_TITLE)),Alternative device titles:$(newline)- $(DEVICE_ALT0_TITLE)$(newline))$\
+$(if $(strip $(DEVICE_ALT1_TITLE)),- $(DEVICE_ALT1_TITLE)$(newline))$\
+$(if $(strip $(DEVICE_ALT2_TITLE)),- $(DEVICE_ALT2_TITLE)$(newline))$\
 @@
 
 endef
