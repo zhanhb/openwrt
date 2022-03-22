@@ -6,50 +6,47 @@ ifneq ($(DUMP),)
 
 
 define SOURCE_INFO
-$(if $(PKG_BUILD_DEPENDS),Build-Depends: $(PKG_BUILD_DEPENDS)
-)$(if $(HOST_BUILD_DEPENDS),Build-Depends/host: $(HOST_BUILD_DEPENDS)
-)$(if $(BUILD_TYPES),Build-Types: $(BUILD_TYPES)
-)
-
+$(call addfield,Build-Depends,$(PKG_BUILD_DEPENDS))$\
+$(call addfield,Build-Depends/host,$(HOST_BUILD_DEPENDS))$\
+$(call addfield,Build-Types,$(BUILD_TYPES))$\
+$(newline)
 endef
 
 define Dumpinfo/Package
-$(info $(SOURCE_INFO)Package: $(1)
-$(if $(MENU),Menu: $(MENU)
-)$(if $(SUBMENU),Submenu: $(SUBMENU)
-)$(if $(SUBMENUDEP),Submenu-Depends: $(SUBMENUDEP)
-)$(if $(DEFAULT),Default: $(DEFAULT)
-)$(if $(findstring $(PREREQ_CHECK),1),Prereq-Check: 1
-)Version: $(VERSION)
-Depends: $(call PKG_FIXUP_DEPENDS,$(1),$(DEPENDS))
-Conflicts: $(CONFLICTS)
-Menu-Depends: $(MDEPENDS)
-Provides: $(PROVIDES)
-$(if $(VARIANT),Build-Variant: $(VARIANT)
-$(if $(DEFAULT_VARIANT),Default-Variant: $(VARIANT)
-))Section: $(SECTION)
-Category: $(CATEGORY)
-$(if $(filter nonshared,$(PKGFLAGS)),,Repository: $(if $(FEED),$(FEED),base)
-)Title: $(TITLE)
-Maintainer: $(MAINTAINER)
-$(if $(USERID),Require-User: $(USERID)
-)Source: $(PKG_SOURCE)
-$(if $(LICENSE),License: $(LICENSE)
-)$(if $(LICENSE_FILES),LicenseFiles: $(LICENSE_FILES)
-)$(if $(PKG_CPE_ID),CPE-ID: $(PKG_CPE_ID)
-)$(if $(ABI_VERSION),ABI-Version: $(ABI_VERSION)
-)Type: $(if $(Package/$(1)/targets),$(Package/$(1)/targets),$(if $(PKG_TARGETS),$(PKG_TARGETS),ipkg))
-$(if $(KCONFIG),Kernel-Config: $(KCONFIG)
-)$(if $(BUILDONLY),Build-Only: $(BUILDONLY)
-)$(if $(HIDDEN),Hidden: $(HIDDEN)
-)Description: $(if $(Package/$(1)/description),$(Package/$(1)/description),$(TITLE))
-$(if $(URL),$(URL)
-)$(MAINTAINER)
+$(info $(SOURCE_INFO)$\
+$(call addfield,Package,$(1))$\
+$(call addfield,Menu,$(MENU))$\
+$(call addfield,Submenu,$(SUBMENU))$\
+$(call addfield,Submenu-Depends,$(SUBMENUDEP))$\
+$(call addfield,Default,$(DEFAULT))$\
+$(call addfield,Prereq-Check,$(findstring $(PREREQ_CHECK),1))$\
+$(call addfield,Version,$(VERSION))$\
+$(call addfield,Depends,$(call PKG_FIXUP_DEPENDS,$(1),$(DEPENDS)))$\
+$(call addfield,Conflicts,$(CONFLICTS))$\
+$(call addfield,Menu-Depends,$(MDEPENDS))$\
+$(call addfield,Provides,$(PROVIDES))$\
+$(call addfield,Build-Variant,$(VARIANT))$\
+$(call addfield,Default-Variant,$(if $(DEFAULT_VARIANT),$(VARIANT)))$\
+$(call addfield,Section,$(SECTION))$\
+$(call addfield,Category,$(CATEGORY))$\
+$(call addfield,Repository,$(if $(filter nonshared,$(PKGFLAGS)),,$(or $(FEED),base)))$\
+$(call addfield,Title,$(TITLE))$\
+$(call addfield,Maintainer,$(MAINTAINER))$\
+$(call addfield,Require-User,$(USERID))$\
+$(call addfield,Source,$(PKG_SOURCE))$\
+$(call addfield,License,$(LICENSE))$\
+$(call addfield,LicenseFiles,$(LICENSE_FILES))$\
+$(call addfield,PKG_CPE_ID,$(PKG_CPE_ID))$\
+$(call addfield,ABI-Version,$(ABI_VERSION))$\
+$(call addfield,Type,$(or $(Package/$(1)/targets),$(PKG_TARGETS),ipkg))$\
+$(call addfield,Kernel-Config,$(KCONFIG))$\
+$(call addfield,Build-Only,$(BUILDONLY))$\
+$(call addfield,Hidden,$(HIDDEN))$\
+Description: $(or $(Package/$(1)/description),$(TITLE))
+$(if $(URL),$(URL)$(newline))$\
+$(if $(MAINTAINER),$(MAINTAINER)$(newline))$\
 @@
-$(if $(Package/$(1)/config),Config:
-$(Package/$(1)/config)
-@@
-))
+$(if $(Package/$(1)/config),Config:$(newline)$(Package/$(1)/config)$(newline)@@$(newline)))
 SOURCE_INFO :=
 endef
 
