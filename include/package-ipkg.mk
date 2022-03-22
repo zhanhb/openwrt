@@ -85,7 +85,7 @@ endif
 _addsep=$(word 1,$(1))$(foreach w,$(wordlist 2,$(words $(1)),$(1)),$(strip $(2) $(w)))
 _cleansep=$(subst $(space)$(2)$(space),$(2)$(space),$(1))
 mergelist=$(call _cleansep,$(call _addsep,$(1),$(comma)),$(comma))
-addfield=$(if $(strip $(2)),$(1): $(2))
+addfield=$(if $(strip $(2)),$(1): $(strip $(2))$(newline))
 _define=define
 _endef=endef
 
@@ -166,23 +166,23 @@ ifeq ($(DUMP),)
 $(_define) Package/$(1)/CONTROL
 Package: $(1)$$(ABIV_$(1))
 Version: $(VERSION)
-$$(call addfield,Depends,$$(Package/$(1)/DEPENDS)
-)$$(call addfield,Conflicts,$$(call mergelist,$(CONFLICTS))
-)$$(call addfield,Provides,$$(call mergelist,$$(filter-out $(1)$$(ABIV_$(1)),$(PROVIDES)$$(if $$(ABIV_$(1)), $(1) $(foreach provide,$(PROVIDES),$(provide)$$(ABIV_$(1))))))
-)$$(call addfield,Alternatives,$$(call mergelist,$(ALTERNATIVES))
-)$$(call addfield,Source,$(SOURCE)
-)$$(call addfield,SourceName,$(1)
-)$$(call addfield,License,$(LICENSE)
-)$$(call addfield,LicenseFiles,$(LICENSE_FILES)
-)$$(call addfield,Section,$(SECTION)
-)$$(call addfield,Require-User,$(USERID)
-)$$(call addfield,SourceDateEpoch,$(PKG_SOURCE_DATE_EPOCH)
-)$$(if $$(ABIV_$(1)),ABIVersion: $$(ABIV_$(1))
-)$(if $(PKG_CPE_ID),CPE-ID: $(PKG_CPE_ID)
-)$(if $(filter hold,$(PKG_FLAGS)),Status: unknown hold not-installed
-)$(if $(filter essential,$(PKG_FLAGS)),Essential: yes
-)$(if $(MAINTAINER),Maintainer: $(MAINTAINER)
-)Architecture: $(PKGARCH)
+$$(call addfield,Depends,$$(Package/$(1)/DEPENDS))$\
+$$(call addfield,Conflicts,$$(call mergelist,$(CONFLICTS)))$\
+$$(call addfield,Provides,$$(call mergelist,$$(filter-out $(1)$$(ABIV_$(1)),$(PROVIDES)$$(if $$(ABIV_$(1)), $(1) $(foreach provide,$(PROVIDES),$(provide)$$(ABIV_$(1)))))))$\
+$$(call addfield,Alternatives,$$(call mergelist,$(ALTERNATIVES)))$\
+$$(call addfield,Source,$(SOURCE))$\
+$$(call addfield,SourceName,$(1))$\
+$$(call addfield,License,$(LICENSE))$\
+$$(call addfield,LicenseFiles,$(LICENSE_FILES))$\
+$$(call addfield,Section,$(SECTION))$\
+$$(call addfield,Require-User,$(USERID))$\
+$$(call addfield,SourceDateEpoch,$(PKG_SOURCE_DATE_EPOCH))$\
+$$(call addfield,ABIVersion,$$(ABIV_$(1)))$\
+$(call addfield,CPE-ID,$(PKG_CPE_ID))$\
+$(call addfield,Status,$(if $(filter hold,$(PKG_FLAGS)),unknown hold not-installed))$\
+$(call addfield,Essential,$(if $(filter essential,$(PKG_FLAGS)),yes))$\
+$(call addfield,Maintainer,$(MAINTAINER))$\
+$(call addfield,Architecture,$(PKGARCH))$\
 Installed-Size: 0
 $(_endef)
 
