@@ -26,7 +26,7 @@ $(call addfield,Conflicts,$(CONFLICTS))$\
 $(call addfield,Menu-Depends,$(MDEPENDS))$\
 $(call addfield,Provides,$(PROVIDES))$\
 $(call addfield,Build-Variant,$(VARIANT))$\
-$(call addfield,Default-Variant,$(if $(DEFAULT_VARIANT),$(VARIANT)))$\
+$(call addfield,Default-Variant,$(if $(VARIANT),$(DEFAULT_VARIANT)))$\
 $(call addfield,Section,$(SECTION))$\
 $(call addfield,Category,$(CATEGORY))$\
 $(call addfield,Repository,$(if $(filter nonshared,$(PKGFLAGS)),,$(or $(FEED),base)))$\
