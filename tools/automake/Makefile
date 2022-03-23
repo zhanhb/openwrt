@@ -46,6 +46,8 @@ endef
 
 define Host/Uninstall
 	-$(call Host/Compile/Default,uninstall)
+	rm -f $(STAGING_DIR_HOST)/bin/aclocal-[0-9]*
+	rm -f $(STAGING_DIR_HOST)/bin/automake-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/aclocal-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/automake-[0-9]*
 endef
