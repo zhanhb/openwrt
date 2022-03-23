@@ -31,6 +31,8 @@ endef
 
 define Host/Install
 	# remove old automake resources to avoid version conflicts
+	rm -f $(STAGING_DIR_HOST)/bin/aclocal-[0-9]*
+	rm -f $(STAGING_DIR_HOST)/bin/automake-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/aclocal-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/automake-[0-9]*
 	$(MAKE) -C $(HOST_BUILD_DIR) install
