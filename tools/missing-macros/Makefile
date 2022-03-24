@@ -25,4 +25,10 @@ define Host/Install
 	$(INSTALL_BIN) ./src/bin/* $(STAGING_DIR_HOST)/bin/
 endef
 
+define Host/Clean
+	$(RM) \
+		$(patsubst %,$(STAGING_DIR_HOST)/bin/%,$(notdir $(wildcard src/bin/*))) \
+		$(patsubst %,$(STAGING_DIR_HOST)/share/aclocal/%,$(notdir $(wildcard src/m4/*.m4)))
+endef
+
 $(eval $(call HostBuild))
