@@ -123,7 +123,7 @@ platform_do_upgrade() {
 	if export_partdevice partdev 1; then
 		part_magic_fat "/dev/$partdev" && parttype=vfat
 		mount -t $parttype -o rw,noatime "/dev/$partdev" /mnt
-		set -- $(dd if="/dev/$diskdev" bs=1 skip=1168 count=16 2>/dev/null | hexdump -v -e '8/1 "%02x "" "2/1 "%02x""-"6/1 "%02x"')
+		set -- $(hexdump -v -s 1168 -n 16 -e '8/1 "%02x "" "2/1 "%02x""-"6/1 "%02x"' "/dev/$diskdev")
 		sed -i "s/\(PARTUUID=\)[a-f0-9-]\+/\1$4$3$2$1-$6$5-$8$7-$9/ig" /mnt/boot/grub/grub.cfg
 		umount /mnt
 	fi
