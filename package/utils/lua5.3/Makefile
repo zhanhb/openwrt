@@ -51,7 +51,7 @@ $(call Package/lua53/Default)
 endef
 
 define Package/liblua5.3/description
-$(call Package/lua53/Default/description)
+$(call Package/lua5.3/Default/description)
  This package contains the Lua shared libraries, needed by other programs.
 endef
 
