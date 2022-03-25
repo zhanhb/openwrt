@@ -5,13 +5,13 @@ LXL_FLAGS_VENDOR_LUXUL=0x00000001
 # $(1): file to read magic from
 # $(2): offset in bytes
 get_magic_long_at() {
-	dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"'
+	hexdump -v -s "$2" -n 4 -e '1/1 "%02x"' "$1"
 }
 
 # $(1): file to read LE long number from
 # $(2): offset in bytes
 get_le_long_at() {
-	echo $((0x$(dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/4 "%02x"')))
+	hexdump -v -s "$2" -n 4 -e '1/4 "%u" "\n"' "$1"
 }
 
 platform_expected_image() {
@@ -116,7 +116,7 @@ platform_check_image() {
 		"chk")
 			local header_len=$((0x$(get_magic_long_at "$1" 4)))
 			local board_id_len=$(($header_len - 40))
-			local board_id=$(dd if="$1" skip=40 bs=1 count=$board_id_len 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			local board_id=$(hexdump -v -s 40 -n "$board_id_len" -e '1/1 "%c"' "$1")
 			local dev_board_id=$(platform_expected_image)
 			echo "Found CHK image with device board_id $board_id"
 
@@ -134,7 +134,7 @@ platform_check_image() {
 			fi
 		;;
 		"cybertan")
-			local pattern=$(dd if="$1" bs=1 count=4 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			local pattern=$(hexdump -v -n 4 -e '1/1 "%c"' "$1")
 			local dev_pattern=$(platform_expected_image)
 			echo "Found CyberTAN image with device pattern: $pattern"
 
@@ -154,7 +154,7 @@ platform_check_image() {
 		"lxl")
 			local hdr_len=$(get_le_long_at "$1" 8)
 			local flags=$(get_le_long_at "$1" 12)
-			local board=$(dd if="$1" skip=16 bs=1 count=16 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			local board=$(hexdump -v -s 16 -n 16 -e '1/1 "%c"' "$1")
 			local dev_board=$(platform_expected_image)
 			echo "Found Luxul image for board $board"
 
@@ -174,7 +174,7 @@ platform_check_image() {
 			fi
 		;;
 		"lxlold")
-			local board_id=$(dd if="$1" skip=48 bs=1 count=12 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			local board_id=$(hexdump -v -s 48 -n 12 -e '1/1 "%c"' "$1")
 			local dev_board_id=$(platform_expected_image)
 			echo "Found Luxul image with device board_id $board_id"
 

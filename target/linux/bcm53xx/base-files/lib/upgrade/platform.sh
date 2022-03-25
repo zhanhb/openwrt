@@ -13,13 +13,13 @@ LXL_FLAGS_VENDOR_LUXUL=0x00000001
 # $(1): file to read magic from
 # $(2): offset in bytes
 get_magic_long_at() {
-	dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/1 "%02x"'
+	hexdump -v -s "$2" -n 4 -e '1/1 "%02x"' "$1"
 }
 
 # $(1): file to read LE long number from
 # $(2): offset in bytes
 get_le_long_at() {
-	echo $((0x$(dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/4 "%02x"')))
+	hexdump -v -s "$2" -n 4 -e '1/4 "%u" "\n"' "$1"
 }
 
 platform_flash_type() {
@@ -73,7 +73,7 @@ platform_identify() {
 			local board_id_len=$(($header_len - 40))
 
 			BCM53XX_FW_FORMAT="chk"
-			BCM53XX_FW_BOARD_ID=$(dd if="$1" skip=40 bs=1 count=$board_id_len 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			BCM53XX_FW_BOARD_ID=$(hexdump -v -s 40 -n "$board_id_len" -e '1/1 "%c"' "$1")
 			BCM53XX_FW_INT_IMG_FORMAT="trx"
 			BCM53XX_FW_INT_IMG_TRX_OFFSET="$header_len"
 			BCM53XX_FW_INT_IMG_EXTRACT_CMD="dd skip=$header_len iflag=skip_bytes"
@@ -86,7 +86,7 @@ platform_identify() {
 			[ $((flags & LXL_FLAGS_VENDOR_LUXUL)) -gt 0 ] && notify_firmware_no_backup
 
 			BCM53XX_FW_FORMAT="lxl"
-			BCM53XX_FW_BOARD_ID=$(dd if="$1" skip=16 bs=1 count=16 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			BCM53XX_FW_BOARD_ID=$(hexdump -s 16 -n 16 -v -e '1/1 "%c"' "$1")
 			BCM53XX_FW_INT_IMG_FORMAT="trx"
 			BCM53XX_FW_INT_IMG_TRX_OFFSET="$hdr_len"
 			BCM53XX_FW_INT_IMG_EXTRACT_CMD="dd skip=$hdr_len iflag=skip_bytes"
@@ -104,7 +104,7 @@ platform_identify() {
 	magic=$(get_magic_long_at "$1" 14)
 	[ "$magic" = "55324e44" ] && {
 		BCM53XX_FW_FORMAT="cybertan"
-		BCM53XX_FW_BOARD_ID=$(dd if="$1" bs=1 count=4 2>/dev/null | hexdump -v -e '1/1 "%c"')
+		BCM53XX_FW_BOARD_ID=$(hexdump -v -n 4 -e '1/1 "%c"' "$1")
 		BCM53XX_FW_INT_IMG_FORMAT="trx"
 		BCM53XX_FW_INT_IMG_TRX_OFFSET="32"
 		BCM53XX_FW_INT_IMG_EXTRACT_CMD="dd skip=32 iflag=skip_bytes"
@@ -116,7 +116,7 @@ platform_identify() {
 		notify_firmware_no_backup
 
 		BCM53XX_FW_FORMAT="lxlold"
-		BCM53XX_FW_BOARD_ID=$(dd if="$1" skip=48 bs=1 count=12 2>/dev/null | hexdump -v -e '1/1 "%c"')
+		BCM53XX_FW_BOARD_ID=$(hexdump -v -s 48 -n 12 -e '1/1 "%c"' "$1")
 		BCM53XX_FW_INT_IMG_FORMAT="trx"
 		BCM53XX_FW_INT_IMG_TRX_OFFSET="64"
 		BCM53XX_FW_INT_IMG_EXTRACT_CMD="dd skip=64 iflag=skip_bytes"
