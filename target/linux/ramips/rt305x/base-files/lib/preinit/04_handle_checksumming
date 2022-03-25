@@ -17,7 +17,7 @@ do_checksumming_disable() {
 		local mtd=$(find_mtd_part $partname)
 		dd if=$mtd of=$tmpfile bs=80 count=1 2>/dev/null
 		signature=$(dd if=$tmpfile bs=1 skip=24 count=20 2>/dev/null)
-		checksum=$(dd if=$tmpfile bs=1 count=4 2>/dev/null | hexdump -v -n 4 -e '1/1 "%02x"')
+		checksum=$(hexdump -v -n 4 -e '1/1 "%02x"' $tmpfile)
 		if [ "$signature" != "RT3052-AP-WNCE2001-3" ]; then
 			echo "Signature of checksum partition is wrong, bailing."
 			return 0

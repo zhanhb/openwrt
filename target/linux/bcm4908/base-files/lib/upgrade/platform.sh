@@ -20,13 +20,13 @@ get_content() {
 # $(1): file to read from
 # $(2): offset in bytes
 get_hex_u32_le() {
-	dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/4 "%02x"'
+	hexdump -v -s "$2" -n 4 -e '1/4 "%02x"' "$1"
 }
 
 # $(1): file to read from
 # $(2): offset in bytes
 get_hex_u32_be() {
-	dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/1 "%02x"'
+	hexdump -v -s "$2" -n 4 -e '1/1 "%02x"' "$1"
 }
 
 platform_expected_image() {
@@ -54,7 +54,7 @@ platform_identify() {
 			local board_id_len=$(($header_len - 40))
 
 			BCM4908_FW_FORMAT="chk"
-			BCM4908_FW_BOARD_ID=$(dd if="$1" skip=40 bs=1 count=$board_id_len 2>/dev/null | hexdump -v -e '1/1 "%c"')
+			BCM4908_FW_BOARD_ID=$(hexdump -v -s 40 -n "$board_id_len" -e '1/1 "%c"' "$1")
 			magic=$(get_hex_u32_be "$1" "$header_len")
 			[ "$magic" = "d00dfeed" ] && {
 				BCM4908_FW_INT_IMG_FORMAT="pkgtb"

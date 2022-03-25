@@ -5,7 +5,7 @@ FS_STATE_READY=2
 # $(1): file to read from
 # $(2): offset in bytes
 get_hex_u32_le() {
-	dd if="$1" skip=$2 bs=1 count=4 2>/dev/null | hexdump -v -e '1/4 "%02x"'
+	hexdump -v -s "$2" -n 4 -e '1/4 "%02x"' "$1"
 }
 
 # Setup /tmp/env.config to provide "metadata" UBI volume access
