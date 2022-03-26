@@ -174,7 +174,7 @@ $(curdir)/sed/compile := $(curdir)/flock/compile $(curdir)/zstd/compile
 tools-y += flock sed
 
 $(curdir)/autoremove := 1
-$(curdir)/builddirs := $(tools-y) $(tools-dep) $(tools-)
+$(curdir)/builddirs := $(patsubst tools/%/Makefile,%,$(wildcard tools/*/Makefile))
 $(curdir)/builddirs-default := $(tools-y)
 
 ifdef CHECK_ALL
