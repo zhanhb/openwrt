@@ -1,0 +1,10 @@
+--- a/src/mkmerakifw-old.c
++++ b/src/mkmerakifw-old.c
+@@ -19,6 +19,7 @@
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include <string.h>
++#include <inttypes.h>
+ #include <libgen.h>
+ #include <endian.h>
+ #include <getopt.h>
