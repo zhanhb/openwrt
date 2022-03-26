@@ -1,0 +1,14 @@
+--- a/libfakeroot.c
++++ b/libfakeroot.c
+@@ -144,9 +144,10 @@
+ 
+ /* 10.10 uses id_t in getpriority/setpriority calls, so pretend
+    id_t is used everywhere, just happens to be int on some OSes */
+-#if !defined(_ID_T) && !defined(__DEFINED_id_t)
++#if !defined(_ID_T) && !defined(__DEFINED_id_t) && !defined(_ID_T_DECLARED)
+ #define _ID_T
+ #define __DEFINED_id_t
++#define _ID_T_DECLARED
+ typedef int id_t;
+ #endif
+ #endif
