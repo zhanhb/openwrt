@@ -27,6 +27,15 @@
 #define bswap_64(x) swap64(x)
 #endif
 
+#if defined(__llvm__) || defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
+#undef bswap_16
+#undef bswap_32
+#undef bswap_64
+#define bswap_16(x) __builtin_bswap16(x)
+#define bswap_32(x) __builtin_bswap32(x)
+#define bswap_64(x) __builtin_bswap64(x)
+#endif
+
 #ifndef __BYTE_ORDER
 #define __BYTE_ORDER BYTE_ORDER
 #endif
