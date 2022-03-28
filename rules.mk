@@ -398,7 +398,7 @@ define sha256sums
 endef
 
 # file extension
-ext=$(word $(words $(subst ., ,$(1))),$(subst ., ,$(1)))
+ext=$(lastword $(subst ., ,$(1)))
 
 # Count Git commits of a package
 # $(1) => if non-empty: count commits since last ": [uU]pdate to " or ": [bB]ump to " in commit message
