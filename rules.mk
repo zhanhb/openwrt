@@ -493,7 +493,7 @@ endef
 #
 # @param 1: File name.
 ##
-ext=$(word $(words $(subst ., ,$(1))),$(subst ., ,$(1)))
+ext=$(lastword $(subst ., ,$(1)))
 
 ##@
 # @brief Count Git commits of a package.
