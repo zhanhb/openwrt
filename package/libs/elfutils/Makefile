@@ -26,7 +26,6 @@ PKG_BUILD_DEPENDS:=!USE_GLIBC:argp-standalone
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
-include $(INCLUDE_DIR)/host-build.mk
 
 define Package/elfutils/Default
   SECTION:=libs
@@ -110,7 +109,6 @@ define Package/libelf/install
 endef
 
 # these lines need to be ordered by dependency because of ABI versioning
-$(eval $(call HostBuild))
 $(eval $(call BuildPackage,libelf))
 $(eval $(call BuildPackage,libdw))
 $(eval $(call BuildPackage,libasm))
