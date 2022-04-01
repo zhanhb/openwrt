@@ -17,7 +17,6 @@ HOST_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/host-build.mk
 
-HOST_CFLAGS += -I$(CURDIR)/include
 HOST_CPPFLAGS += -std=gnu++98
 
 define Host/Install
