@@ -26,6 +26,7 @@ define Host/Compile
 	$(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR)/squashfs-tools \
 		XZ_SUPPORT=1 \
 		LZMA_XZ_SUPPORT=1 \
+		XATTR_SUPPORT=1 \
 		XZ_EXTENDED_OPTIONS=1 \
 		EXTRA_CFLAGS="-I$(STAGING_DIR_HOST)/include" \
 		mksquashfs unsquashfs
