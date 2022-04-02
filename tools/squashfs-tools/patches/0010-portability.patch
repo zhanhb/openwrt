@@ -1,0 +1,211 @@
+--- a/squashfs-tools/action.c
++++ b/squashfs-tools/action.c
+@@ -2415,9 +2415,16 @@ static char *get_start(char *s, int n)
+ 
+ static int subpathname_fn(struct atom *atom, struct action_data *action_data)
+ {
+-	return fnmatch(atom->argv[0], get_start(strdupa(action_data->subpath),
++	int ret;
++	char *path = strdup(action_data->subpath);
++	if(path == NULL)
++		MEM_ERROR();
++
++	ret = fnmatch(atom->argv[0], get_start(path,
+ 		count_components(atom->argv[0])),
+ 		FNM_PATHNAME|FNM_EXTMATCH) == 0;
++	free(path);
++	return ret;
+ }
+ 
+ /*
+--- a/squashfs-tools/info.c
++++ b/squashfs-tools/info.c
+@@ -144,7 +144,6 @@ void dump_state()
+ void *info_thrd(void *arg)
+ {
+ 	sigset_t sigmask;
+-	struct timespec timespec = { .tv_sec = 1, .tv_nsec = 0 };
+ 	int sig, waiting = 0;
+ 
+ 	sigemptyset(&sigmask);
+@@ -152,24 +151,14 @@ void *info_thrd(void *arg)
+ 	sigaddset(&sigmask, SIGHUP);
+ 
+ 	while(1) {
+-		if(waiting)
+-			sig = sigtimedwait(&sigmask, NULL, &timespec);
+-		else
+-			sig = sigwaitinfo(&sigmask, NULL);
+-
+-		if(sig == -1) {
++		if(sigwait(&sigmask, &sig) == -1) {
+ 			switch(errno) {
+-			case EAGAIN:
+-				/* interval timed out */
+-				waiting = 0;
+-				/* FALLTHROUGH */
+ 			case EINTR:
+ 				/* if waiting, the wait will be longer, but
+ 				   that's OK */
+ 				continue;
+ 			default:
+-				BAD_ERROR("sigtimedwait/sigwaitinfo failed "
+-					"because %s\n", strerror(errno));
++				BAD_ERROR("sigwait failed because %s\n", strerror(errno));
+ 			}
+ 		}
+ 
+--- a/squashfs-tools/mksquashfs.c
++++ b/squashfs-tools/mksquashfs.c
+@@ -35,7 +35,6 @@
+ #include <stddef.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+-#include <sys/sysmacros.h>
+ #include <fcntl.h>
+ #include <errno.h>
+ #include <dirent.h>
+@@ -50,10 +49,12 @@
+ #include <sys/wait.h>
+ #include <limits.h>
+ #include <ctype.h>
+-#include <sys/sysinfo.h>
+ 
+ #ifndef linux
+ #include <sys/sysctl.h>
++#else
++#include <sys/sysinfo.h>
++#include <sys/sysmacros.h>
+ #endif
+ 
+ #include "squashfs_fs.h"
+@@ -5803,6 +5804,7 @@ static int get_physical_memory()
+ 	int phys_mem;
+ 
+ 	if(num_pages == -1 || page_size == -1) {
++#ifdef linux
+ 		struct sysinfo sys;
+ 		int res = sysinfo(&sys);
+ 
+@@ -5811,6 +5813,9 @@ static int get_physical_memory()
+ 
+ 		num_pages = sys.totalram;
+ 		page_size = sys.mem_unit;
++#else
++		return 0;
++#endif
+ 	}
+ 
+ 	phys_mem = num_pages * page_size >> 20;
+--- a/squashfs-tools/unsquashfs.c
++++ b/squashfs-tools/unsquashfs.c
+@@ -32,8 +32,13 @@
+ #include "stdarg.h"
+ #include "fnmatch_compat.h"
+ 
++#ifdef linux
+ #include <sys/sysinfo.h>
+ #include <sys/sysmacros.h>
++#else
++#include <sys/sysctl.h>
++#endif
++
+ #include <sys/types.h>
+ #include <sys/time.h>
+ #include <sys/resource.h>
+--- a/squashfs-tools/unsquashfs_info.c
++++ b/squashfs-tools/unsquashfs_info.c
+@@ -96,7 +96,6 @@ void dump_state()
+ void *info_thrd(void *arg)
+ {
+ 	sigset_t sigmask;
+-	struct timespec timespec = { .tv_sec = 1, .tv_nsec = 0 };
+ 	int sig, waiting = 0;
+ 
+ 	sigemptyset(&sigmask);
+@@ -104,24 +103,14 @@ void *info_thrd(void *arg)
+ 	sigaddset(&sigmask, SIGHUP);
+ 
+ 	while(1) {
+-		if(waiting)
+-			sig = sigtimedwait(&sigmask, NULL, &timespec);
+-		else
+-			sig = sigwaitinfo(&sigmask, NULL);
+-
+-		if(sig == -1) {
++		if(sigwait(&sigmask, &sig) == -1) {
+ 			switch(errno) {
+-			case EAGAIN:
+-				/* interval timed out */
+-				waiting = 0;
+-				/* FALLTHROUGH */
+ 			case EINTR:
+ 				/* if waiting, the wait will be longer, but
+ 				   that's OK */
+ 				continue;
+ 			default:
+-				BAD_ERROR("sigtimedwait/sigwaitinfo failed "
+-					"because %s\n", strerror(errno));
++				BAD_ERROR("sigwait failed because %s\n", strerror(errno));
+ 			}
+ 		}
+ 
+--- a/squashfs-tools/unsquashfs_xattr.c
++++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -24,8 +24,7 @@
+ 
+ #include "unsquashfs.h"
+ #include "xattr.h"
+-
+-#include <sys/xattr.h>
++#include "xattr_compat.h"
+ 
+ #define NOSPACE_MAX 10
+ 
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -34,8 +34,8 @@
+ #include <dirent.h>
+ #include <string.h>
+ #include <stdlib.h>
+-#include <sys/xattr.h>
+ 
++#include "xattr_compat.h"
+ #include "squashfs_fs.h"
+ #include "squashfs_swap.h"
+ #include "mksquashfs.h"
+--- /dev/null
++++ b/squashfs-tools/xattr_compat.h
+@@ -0,0 +1,32 @@
++#ifndef XATTR_COMPAT_H
++#define XATTR_COMPAT_H
++
++#ifdef linux
++#include <sys/xattr.h>
++#elif defined(__APPLE__)
++#include <sys/xattr.h>
++#define lgetxattr(path_, name_, val_, sz_) getxattr(path_, name_, val_, sz_, 0, XATTR_NOFOLLOW)
++#define llistxattr(path_, buf_, sz_) listxattr(path_, buf_, sz_, XATTR_NOFOLLOW)
++#define lsetxattr(path_, name_, val_, sz_, flags_) setxattr(path_, name_, val_, sz_, 0, flags_ | XATTR_NOFOLLOW)
++#elif defined(__FreeBSD__)
++#include <sys/extattr.h>
++#define lgetxattr(path_, name_, val_, sz_) extattr_get_link(path_, EXTATTR_NAMESPACE_USER, name_, val_, sz_)
++#define llistxattr(path_, buf_, sz_) extattr_list_link(path_, EXTATTR_NAMESPACE_USER, buf_, sz_)
++/* `flags` is not supported on FreeBSD */
++#define lsetxattr(path_, name_, val_, sz_, flags_) extattr_set_link(path_, EXTATTR_NAMESPACE_USER, name_, val_, sz_)
++#else
++
++static inline size_t lgetxattr(const char *path_, const char *name_, void *val_, size_t sz_) {
++    return 0;
++}
++
++static inline size_t llistxattr(const char *path_, char *buf_, size_t sz_) {
++    return 0;
++}
++
++static inline size_t lsetxattr(const char *path_, const char *name_, const void *val_, size_t sz_, int flags_) {
++    return 0;
++}
++
++#endif
++#endif
