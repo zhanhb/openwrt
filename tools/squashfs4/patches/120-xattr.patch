@@ -1,0 +1,73 @@
+--- a/squashfs-tools/unsquashfs_xattr.c
++++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -24,13 +24,7 @@
+ 
+ #include "unsquashfs.h"
+ #include "xattr.h"
+-
+-#include <sys/xattr.h>
+-
+-#ifdef XATTR_NOFOLLOW /* Apple's xattrs */
+-	#define lsetxattr(path_, name_, val_, sz_, flags_) \
+-		setxattr(path_, name_, val_, sz_, 0, flags_ | XATTR_NOFOLLOW)
+-#endif
++#include "xattr_compat.h"
+ 
+ #define NOSPACE_MAX 10
+ 
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -36,9 +36,9 @@
+ #include <dirent.h>
+ #include <string.h>
+ #include <stdlib.h>
+-#include <sys/xattr.h>
+ #include <regex.h>
+ 
++#include "xattr_compat.h"
+ #include "squashfs_fs.h"
+ #include "squashfs_swap.h"
+ #include "mksquashfs.h"
+@@ -50,13 +50,6 @@
+ #include "action.h"
+ #include "merge_sort.h"
+ 
+-#ifdef XATTR_NOFOLLOW /* Apple's xattrs */
+-	#define llistxattr(path_, buf_, sz_) \
+-		listxattr(path_, buf_, sz_, XATTR_NOFOLLOW)
+-	#define lgetxattr(path_, name_, val_, sz_) \
+-		getxattr(path_, name_, val_, sz_, 0, XATTR_NOFOLLOW)
+-#endif
+-
+ /* compressed xattr table */
+ static char *xattr_table = NULL;
+ static unsigned int xattr_size = 0;
+--- /dev/null
++++ b/squashfs-tools/xattr_compat.h
+@@ -0,0 +1,26 @@
++#ifndef XATTR_COMPAT_H
++#define XATTR_COMPAT_H
++
++#ifdef linux
++#include <sys/xattr.h>
++#elif defined(__APPLE__)
++#include <sys/xattr.h>
++#define lgetxattr(path, name, val, size) getxattr(path, name, val, size, 0, XATTR_NOFOLLOW)
++#define llistxattr(path, buf, size) listxattr(path, buf, size, XATTR_NOFOLLOW)
++#define lsetxattr(path, name, val, size, flags) setxattr(path, name, val, size, 0, flags | XATTR_NOFOLLOW)
++#else
++
++static inline size_t lgetxattr(const char *path, const char *name, void *val, size_t size) {
++    return 0;
++}
++
++static inline size_t llistxattr(const char *path, char *buf, size_t size) {
++    return 0;
++}
++
++static inline size_t lsetxattr(const char *path, const char *name, const void *val, size_t size, int flags) {
++    return 0;
++}
++
++#endif
++#endif
