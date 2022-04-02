@@ -1,0 +1,14 @@
+--- a/squashfs-tools/action.c
++++ b/squashfs-tools/action.c
+@@ -2610,7 +2610,10 @@ static char *get_start(char *s, int n)
+ 
+ static int subpathname_fn(struct atom *atom, struct action_data *data)
+ {
+-	char *s = get_start(strdup(data->subpath), count_components(atom->argv[0]));
++	char *tmp = strdup(data->subpath);
++	if (tmp == NULL)
++		MEM_ERROR();
++	char *s = get_start(tmp, count_components(atom->argv[0]));
+ 	int res = fnmatch(atom->argv[0], s, FNM_PATHNAME|FNM_EXTMATCH);
+ 
+ 	free(s);

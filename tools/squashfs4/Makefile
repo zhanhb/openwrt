@@ -30,6 +30,7 @@ define Host/Compile
 		GZIP_SUPPORT=1 \
 		XZ_SUPPORT=1 \
 		LZMA_XZ_SUPPORT=1 \
+		XATTR_SUPPORT=1 \
 		XZ_EXTENDED_OPTIONS=1 \
 		EXTRA_CFLAGS="-I$(STAGING_DIR_HOST)/include" \
 		mksquashfs unsquashfs
