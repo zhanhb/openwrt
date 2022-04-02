@@ -1,6 +1,16 @@
 --- a/squashfs-tools/xattr.c
 +++ b/squashfs-tools/xattr.c
-@@ -113,6 +113,7 @@ static int get_prefix(struct xattr_list
+@@ -34,7 +34,9 @@
+ #include <dirent.h>
+ #include <string.h>
+ #include <stdlib.h>
++#if defined(linux)
+ #include <sys/xattr.h>
++#endif
+ 
+ #include "squashfs_fs.h"
+ #include "squashfs_swap.h"
+@@ -113,6 +115,7 @@ static int get_prefix(struct xattr_list
  
  static int read_xattrs_from_system(char *filename, struct xattr_list **xattrs)
  {
@@ -8,7 +18,7 @@
  	ssize_t size, vsize;
  	char *xattr_names, *p;
  	int i;
-@@ -222,6 +223,10 @@ failed:
+@@ -222,6 +225,10 @@ failed:
  	free(xattr_list);
  	free(xattr_names);
  	return 0;
@@ -21,6 +31,18 @@
  
 --- a/squashfs-tools/unsquashfs_xattr.c
 +++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -24,9 +24,9 @@
+ 
+ #include "unsquashfs.h"
+ #include "xattr.h"
+-
++#if defined(linux)
+ #include <sys/xattr.h>
+-
++#endif
+ #define NOSPACE_MAX 10
+ 
+ extern int root_process;
 @@ -34,6 +34,7 @@ extern int user_xattrs;
  
  void write_xattr(char *pathname, unsigned int xattr)
