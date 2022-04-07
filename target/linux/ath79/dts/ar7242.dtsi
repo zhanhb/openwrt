@@ -64,13 +64,12 @@
 	builtin-switch;
 
 	builtin_switch: switch0@1f {
-		compatible = "qca,ar7240sw";
+		compatible = "qca,ar8216-builtin";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x1f>;
 		resets = <&rst 8>;
 		reset-names = "switch";
-		qca,mib-poll-interval = <500>;
 	};
 };
 

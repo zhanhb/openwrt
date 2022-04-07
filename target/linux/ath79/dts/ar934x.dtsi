@@ -248,14 +248,13 @@
 	builtin-switch;
 
 	builtin_switch: switch0@1f {
-		compatible = "qca,ar8229";
+		compatible = "qca,ar8229-builtin";
 
 		reg = <0x1f>;
 		resets = <&rst 8>;
 		reset-names = "switch";
 		phy-mode = "gmii";
-		qca,mib-poll-interval = <500>;
-		qca,phy4-mii-enable;
+		phy4-mii-enable;
 
 		mdio-bus {
 			#address-cells = <1>;
