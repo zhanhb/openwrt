@@ -1224,7 +1224,12 @@ ag71xx_ar7240_probe(struct mdio_device *mdiodev)
 	struct switch_dev *swdev;
 	struct reset_control *switch_reset;
 	u32 ctrl;
-	int phy_if_mode, err, i;
+	int err, i;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
+	int phy_if_mode;
+#else
+	phy_interface_t phy_if_mode = PHY_INTERFACE_MODE_NA;
+#endif
 
 	as = devm_kzalloc(&mdiodev->dev, sizeof(*as), GFP_KERNEL);
 	if (!as)
@@ -1253,7 +1258,11 @@ ag71xx_ar7240_probe(struct mdio_device *mdiodev)
 		swdev->ports = AR7240_NUM_PORTS - 1;
 	} else if (sw_is_ar934x(as)) {
 		swdev->name = "AR934X built-in switch";
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
 		phy_if_mode = of_get_phy_mode(as->of_node);
+#else
+		of_get_phy_mode(as->of_node, &phy_if_mode);
+#endif
 
 		if (phy_if_mode == PHY_INTERFACE_MODE_GMII) {
 			ar7240sw_reg_set(mii, AR934X_REG_OPER_MODE0,
