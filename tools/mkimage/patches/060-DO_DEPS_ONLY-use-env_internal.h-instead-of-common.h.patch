@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Huangbin Zhan <zhanhb88@gmail.com>
+Date: Sat, 9 Apr 2022 19:02:53 +0800
+Subject: [PATCH] DO_DEPS_ONLY: use env_internal.h instead of common.h
+
+with flag -nostdinc, gcc stddef.h on FreeBSD and NetBSD is broken.
+many standard include files doesn't exist with clang on FreeBSD
+
+Signed-off-by: Huangbin Zhan <zhanhb88@gmail.com>
+---
+ include/env_internal.h    | 2 ++
+ scripts/Makefile.autoconf | 6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+--- a/include/env_internal.h
++++ b/include/env_internal.h
+@@ -74,7 +74,9 @@ extern unsigned long nand_env_oob_offset
+ # endif
+ #endif
+ 
++#ifndef DO_DEPS_ONLY
+ #include "compiler.h"
++#endif
+ 
+ #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
+ # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
+--- a/scripts/Makefile.autoconf
++++ b/scripts/Makefile.autoconf
+@@ -41,8 +41,8 @@ c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPP
+ 
+ quiet_cmd_autoconf_dep = GEN     $@
+       cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M -MP $(c_flags) \
+-	-MQ include/config/auto.conf $(srctree)/include/common.h > $@ || {	\
+-		rm $@; false;							\
++	-MQ include/config/auto.conf $(srctree)/include/env_internal.h > $@ || {	\
++		rm $@; false;								\
+ 	}
+ include/autoconf.mk.dep: include/config.h FORCE
+ 	$(call cmd,autoconf_dep)
+@@ -66,7 +66,7 @@ quiet_cmd_autoconf = GEN     $@
+ 
+ quiet_cmd_u_boot_cfg = CFG     $@
+       cmd_u_boot_cfg = \
+-	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && { \
++	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM $(srctree)/include/env_internal.h > $@.tmp && { \
+ 		grep 'define CONFIG_' $@.tmp | \
+ 			sed '/define CONFIG_IS_ENABLED(/d;/define CONFIG_IF_ENABLED_INT(/d;/define CONFIG_VAL(/d;' > $@; \
+ 		rm $@.tmp;						\
