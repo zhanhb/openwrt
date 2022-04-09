@@ -7,14 +7,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mkimage
-PKG_VERSION:=2022.01
+PKG_VERSION:=2022.04
 
 PKG_SOURCE:=u-boot-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:= \
 	https://mirror.cyberbits.eu/u-boot \
 	https://ftp.denx.de/pub/u-boot \
 	ftp://ftp.denx.de/pub/u-boot
-PKG_HASH:=81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413
+PKG_HASH:=68e065413926778e276ec3abd28bb32fa82abaa4a6898d570c1f48fbdb08bcd0
 
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/u-boot-$(PKG_VERSION)
 
@@ -25,6 +25,7 @@ HOST_MAKE_FLAGS += \
 	HOSTLDFLAGS="$(HOST_LDFLAGS)" \
 	PKG_CONFIG_EXTRAARGS="--static" \
 	NO_SDL=1 \
+	CONFIG_TOOLS_MKEFICAPSULE= \
 	V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1)
 
 define Host/Configure
