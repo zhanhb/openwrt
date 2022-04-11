@@ -55,7 +55,7 @@ VERSION_TAINTS := $(strip $(foreach taint,$(VERSION_TAINT_SPECS), \
 
 PKG_CONFIG_DEPENDS += $(foreach taint,$(VERSION_TAINT_SPECS),$(call taint2sym,$(taint)))
 
-# escape commas, backslashes, squotes, and ampersands for sed
+# escape commas, backslashes, quotes, and ampersands for sed
 sed_escape=$(subst &,\&,$(subst $(comma),\$(comma),$(subst ','\'',$(subst \,\\,$(1)))))#'))#)
 
 VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
