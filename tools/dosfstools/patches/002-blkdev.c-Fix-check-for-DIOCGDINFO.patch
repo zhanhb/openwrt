@@ -1,0 +1,31 @@
+From 2d3125c4a74895eae1f66b93287031d340324524 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 16 Mar 2022 01:25:49 +0100
+Subject: [PATCH] blkdev.c: Fix check for DIOCGDINFO
+
+Do not compile DIOCGDINFO code when DIOCGDINFO is not defined.
+
+---
+ src/blkdev/blkdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/src/blkdev/blkdev.c
++++ b/src/blkdev/blkdev.c
+@@ -136,7 +136,7 @@ blkdev_get_size(int fd, unsigned long lo
+ 	}
+ #endif /* FDGETPRM */
+ 
+-#ifdef HAVE_SYS_DISKLABEL_H
++#ifdef DIOCGDINFO
+ 	{
+ 		/*
+ 		 * This code works for FreeBSD 4.11 i386, except for the full device
+@@ -164,7 +164,7 @@ blkdev_get_size(int fd, unsigned long lo
+ 			}
+ 		}
+ 	}
+-#endif /* HAVE_SYS_DISKLABEL_H */
++#endif /* DIOCGDINFO */
+ 
+ 	{
+ 		struct stat st;
