@@ -10,7 +10,7 @@
  /* in memory directory data */
  #define I_COUNT_SIZE		128
  #define DIR_ENTRIES		32
-@@ -1554,6 +1557,11 @@ void dir_scan(squashfs_inode *inode, cha
+@@ -1555,6 +1558,11 @@ void dir_scan(squashfs_inode *inode, cha
  		perror(buffer);
  		return;
  	}
@@ -22,7 +22,7 @@
  	if(sorted)
  		sort_files_and_write(dir_info);
  	dir_scan2(inode, dir_info);
-@@ -1582,6 +1590,10 @@ struct dir_info *dir_scan1(char *pathnam
+@@ -1583,6 +1591,10 @@ struct dir_info *dir_scan1(char *pathnam
  			perror(buffer);
  			continue;
  		}
@@ -33,7 +33,7 @@
  		if(excluded(filename, &buf))
  			continue;
  
-@@ -1621,6 +1633,9 @@ int dir_scan2(squashfs_inode *inode, str
+@@ -1622,6 +1634,9 @@ int dir_scan2(squashfs_inode *inode, str
  		char *dir_name = dir_ent->name;
  		unsigned int inode_number = ((buf->st_mode & S_IFMT) == S_IFDIR) ? dir_ent->inode->inode_number : dir_ent->inode->inode_number + dir_inode_no;
  
@@ -43,7 +43,7 @@
  		if(dir_ent->inode->inode == SQUASHFS_INVALID_BLK) {
  			switch(buf->st_mode & S_IFMT) {
  				case S_IFREG:
-@@ -1898,6 +1913,16 @@ int main(int argc, char *argv[])
+@@ -1899,6 +1914,16 @@ int main(int argc, char *argv[])
  					exit(1);
  				}
  			}
@@ -60,7 +60,7 @@
  		} else if(strcmp(argv[i], "-noI") == 0 ||
  				strcmp(argv[i], "-noInodeCompression") == 0)
  			noI = TRUE;
-@@ -1967,6 +1992,7 @@ printOptions:
+@@ -1968,6 +1993,7 @@ printOptions:
  			ERROR("-all-root\t\tmake all files owned by root\n");
  			ERROR("-force-uid uid\t\tset all file uids to uid\n");
  			ERROR("-force-gid gid\t\tset all file gids to gid\n");
@@ -68,7 +68,7 @@
  			ERROR("-le\t\t\tcreate a little endian filesystem\n");
  			ERROR("-be\t\t\tcreate a big endian filesystem\n");
  			ERROR("-nopad\t\t\tdo not pad filesystem to a multiple of 4K\n");
-@@ -2190,7 +2216,7 @@ printOptions:
+@@ -2191,7 +2217,7 @@ printOptions:
  	sBlk.block_size = block_size;
  	sBlk.block_log = block_log;
  	sBlk.flags = SQUASHFS_MKFLAGS(noI, noD, check_data, noF, no_fragments, always_use_fragments, duplicate_checking);
