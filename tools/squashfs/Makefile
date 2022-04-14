@@ -8,14 +8,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=squashfs
 PKG_CPE_ID:=cpe:/a:phillip_lougher:squashfs
-PKG_VERSION:=3.0
+PKG_VERSION:=3.1
 
-PKG_SOURCE:=$(PKG_NAME)$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/squashfs
-PKG_HASH:=39dbda43cf118536deb746c7730b468702d514a19f4cfab73b710e32908ddf20
-PKG_CAT:=zcat
+PKG_SOURCE:=squashfs-tools-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/plougher/squashfs-tools/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=9426d36b6a065d37ae0db47398c618f3215a3472259bc2068a19b77318432099
 
-HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/$(PKG_NAME)$(PKG_VERSION)
+HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/squashfs-tools-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 
