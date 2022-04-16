@@ -4,8 +4,6 @@ Date:   Mon Jan 14 08:52:44 2008 +0000
 
     removed use of %as is scanf (GNU conflicts with C99) by Giacomo Catenazzi <cate@debian.org>
 
-diff --git a/genext2fs.c b/genext2fs.c
-index 070b270..f0d797d 100644
 --- a/genext2fs.c
 +++ b/genext2fs.c
 @@ -286,7 +286,9 @@ typedef unsigned int uint32;

@@ -1,8 +1,6 @@
-Index: genext2fs/m4/ac_func_scanf_can_malloc.m4
-===================================================================
---- genext2fs.orig/m4/ac_func_scanf_can_malloc.m4	2011-09-03 21:28:49.000000000 +0200
-+++ genext2fs/m4/ac_func_scanf_can_malloc.m4	2011-09-03 21:29:41.000000000 +0200
-@@ -9,7 +9,7 @@
+--- a/m4/ac_func_scanf_can_malloc.m4
++++ b/m4/ac_func_scanf_can_malloc.m4
+@@ -9,7 +9,7 @@ dnl notice and this notice are preserved
  # --------------------------------------
  AC_DEFUN([AC_FUNC_SCANF_CAN_MALLOC],
    [ AC_CHECK_HEADERS([stdlib.h])

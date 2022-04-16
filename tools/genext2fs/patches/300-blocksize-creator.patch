@@ -1,8 +1,6 @@
-Index: genext2fs/genext2fs.c
-===================================================================
---- genext2fs.orig/genext2fs.c	2011-09-03 14:21:17.000000000 +0200
-+++ genext2fs/genext2fs.c	2011-09-03 14:21:17.000000000 +0200
-@@ -151,13 +151,24 @@
+--- a/genext2fs.c
++++ b/genext2fs.c
+@@ -151,13 +151,24 @@ struct stats {
  
  // block size
  
@@ -28,7 +26,7 @@ Index: genext2fs/genext2fs.c
  
  // inode block size (why is it != BLOCKSIZE ?!?)
  /* The field i_blocks in the ext2 inode stores the number of data blocks
-@@ -239,10 +250,10 @@
+@@ -239,10 +250,10 @@ struct stats {
  	  (fs)->sb.s_blocks_per_group - 1) / (fs)->sb.s_blocks_per_group)
  
  // Get group block bitmap (bbm) given the group number
@@ -41,7 +39,7 @@ Index: genext2fs/genext2fs.c
  		
  // Given an inode number find the group it belongs to
  #define GRP_GROUP_OF_INODE(fs,nod) ( ((nod)-1) / (fs)->sb.s_inodes_per_group)
-@@ -532,7 +543,7 @@
+@@ -532,7 +543,7 @@ typedef struct
  	char d_name[0];
  } directory;
  
@@ -50,7 +48,7 @@ Index: genext2fs/genext2fs.c
  
  /* blockwalker fields:
     The blockwalker is used to access all the blocks of a file (including
-@@ -571,16 +582,12 @@
+@@ -571,16 +582,12 @@ typedef struct
  
  
  /* Filesystem structure that support groups */
@@ -70,7 +68,7 @@ Index: genext2fs/genext2fs.c
  
  // now the endianness swap
  
-@@ -820,6 +827,14 @@
+@@ -820,6 +827,14 @@ get_blk(filesystem *fs, uint32 blk)
  	return (uint8*)fs + blk*BLOCKSIZE;
  }
  
@@ -85,7 +83,7 @@ Index: genext2fs/genext2fs.c
  // return a given inode from a filesystem
  static inline inode *
  get_nod(filesystem *fs, uint32 nod)
-@@ -829,7 +844,7 @@
+@@ -829,7 +844,7 @@ get_nod(filesystem *fs, uint32 nod)
  
  	offset = GRP_IBM_OFFSET(fs,nod);
  	grp = GRP_GROUP_OF_INODE(fs,nod);
@@ -94,7 +92,7 @@ Index: genext2fs/genext2fs.c
  	return itab+offset-1;
  }
  
-@@ -875,18 +890,18 @@
+@@ -875,18 +890,18 @@ alloc_blk(filesystem *fs, uint32 nod)
  
  	grp = GRP_GROUP_OF_INODE(fs,nod);
  	nbgroups = GRP_NBGROUPS(fs);
@@ -117,7 +115,7 @@ Index: genext2fs/genext2fs.c
  }
  
  // free a block
-@@ -897,8 +912,8 @@
+@@ -897,8 +912,8 @@ free_blk(filesystem *fs, uint32 bk)
  
  	grp = bk / fs->sb.s_blocks_per_group;
  	bk %= fs->sb.s_blocks_per_group;
@@ -128,7 +126,7 @@ Index: genext2fs/genext2fs.c
  	fs->sb.s_free_blocks_count++;
  }
  
-@@ -918,16 +933,16 @@
+@@ -918,16 +933,16 @@ alloc_nod(filesystem *fs)
  	/* We do it for all inodes.                                           */
  	avefreei  =  fs->sb.s_free_inodes_count / nbgroups;
  	for(grp=0; grp<nbgroups; grp++) {
@@ -150,7 +148,7 @@ Index: genext2fs/genext2fs.c
  		error_msg_and_die("group descr. free blocks count == 0 (corrupted fs?)");
  	if(!(fs->sb.s_free_inodes_count--))
  		error_msg_and_die("superblock free blocks count == 0 (corrupted fs?)");
-@@ -1390,7 +1405,7 @@
+@@ -1390,7 +1405,7 @@ mknod_fs(filesystem *fs, uint32 parent_n
  			case FM_IFDIR:
  				add2dir(fs, nod, nod, ".");
  				add2dir(fs, nod, parent_nod, "..");
@@ -159,7 +157,7 @@ Index: genext2fs/genext2fs.c
  				break;
  		}
  	}
-@@ -1860,7 +1875,7 @@
+@@ -1860,7 +1875,7 @@ swap_goodfs(filesystem *fs)
  		swap_nod(nod);
  	}
  	for(i=0;i<GRP_NBGROUPS(fs);i++)
@@ -168,7 +166,7 @@ Index: genext2fs/genext2fs.c
  	swap_sb(&fs->sb);
  }
  
-@@ -1870,7 +1885,7 @@
+@@ -1870,7 +1885,7 @@ swap_badfs(filesystem *fs)
  	uint32 i;
  	swap_sb(&fs->sb);
  	for(i=0;i<GRP_NBGROUPS(fs);i++)
@@ -177,7 +175,7 @@ Index: genext2fs/genext2fs.c
  	for(i = 1; i < fs->sb.s_inodes_count; i++)
  	{
  		inode *nod = get_nod(fs, i);
-@@ -1895,7 +1910,8 @@
+@@ -1895,7 +1910,8 @@ swap_badfs(filesystem *fs)
  
  // initialize an empty filesystem
  static filesystem *
@@ -187,7 +185,7 @@ Index: genext2fs/genext2fs.c
  {
  	uint32 i;
  	filesystem *fs;
-@@ -1921,10 +1937,14 @@
+@@ -1921,10 +1937,14 @@ init_fs(int nbblocks, int nbinodes, int
  	 */
  	min_nbgroups = (nbinodes + INODES_PER_GROUP - 1) / INODES_PER_GROUP;
  
@@ -203,7 +201,7 @@ Index: genext2fs/genext2fs.c
  	nbgroups = (nbblocks - first_block + BLOCKS_PER_GROUP - 1) / BLOCKS_PER_GROUP;
  	if(nbgroups < min_nbgroups) nbgroups = min_nbgroups;
  	nbblocks_per_group = rndup((nbblocks - first_block + nbgroups - 1)/nbgroups, 8);
-@@ -1936,10 +1956,10 @@
+@@ -1936,10 +1956,10 @@ init_fs(int nbblocks, int nbinodes, int
  	gdsz = rndup(nbgroups*sizeof(groupdescriptor),BLOCKSIZE)/BLOCKSIZE;
  	itblsz = nbinodes_per_group * sizeof(inode)/BLOCKSIZE;
  	overhead_per_group = 3 /*sb,bbm,ibm*/ + gdsz + itblsz;
@@ -217,7 +215,7 @@ Index: genext2fs/genext2fs.c
  
  	if(!(fs = (filesystem*)calloc(nbblocks, BLOCKSIZE)))
  		error_msg_and_die("not enough memory for filesystem");
-@@ -1959,28 +1979,31 @@
+@@ -1959,28 +1979,31 @@ init_fs(int nbblocks, int nbinodes, int
  	fs->sb.s_wtime = fs_timestamp;
  	fs->sb.s_magic = EXT2_MAGIC_NUMBER;
  	fs->sb.s_lastcheck = fs_timestamp;
@@ -258,7 +256,7 @@ Index: genext2fs/genext2fs.c
  	}
  
  	/* Mark non-filesystem blocks and inodes as allocated */
-@@ -1988,9 +2011,9 @@
+@@ -1988,9 +2011,9 @@ init_fs(int nbblocks, int nbinodes, int
  	for(i = 0; i<nbgroups;i++) {
  
  		/* Block bitmap */
@@ -270,7 +268,7 @@ Index: genext2fs/genext2fs.c
  		        + overhead_per_group + 1; j <= BLOCKSIZE * 8; j++)
  			allocate(bbm, j); 
  		//system blocks
-@@ -1998,7 +2021,7 @@
+@@ -1998,7 +2021,7 @@ init_fs(int nbblocks, int nbinodes, int
  			allocate(bbm, j); 
  		
  		/* Inode bitmap */
@@ -279,7 +277,7 @@ Index: genext2fs/genext2fs.c
  		//non-filesystem inodes
  		for(j = fs->sb.s_inodes_per_group+1; j <= BLOCKSIZE * 8; j++)
  			allocate(ibm, j);
-@@ -2012,9 +2035,9 @@
+@@ -2012,9 +2035,9 @@ init_fs(int nbblocks, int nbinodes, int
  	// make root inode and directory
  	/* We have groups now. Add the root filesystem in group 0 */
  	/* Also increment the directory count for group 0 */
@@ -292,7 +290,7 @@ Index: genext2fs/genext2fs.c
  	itab0[EXT2_ROOT_INO-1].i_mode = FM_IFDIR | FM_IRWXU | FM_IRGRP | FM_IROTH | FM_IXGRP | FM_IXOTH; 
  	itab0[EXT2_ROOT_INO-1].i_ctime = fs_timestamp;
  	itab0[EXT2_ROOT_INO-1].i_mtime = fs_timestamp;
-@@ -2338,8 +2361,9 @@
+@@ -2338,8 +2361,9 @@ print_fs(filesystem *fs)
  	for (i = 0; i < GRP_NBGROUPS(fs); i++) {
  		printf("Group No: %d\n", i+1);
  		printf("block bitmap: block %d,inode bitmap: block %d, inode table: block %d\n",
@@ -304,7 +302,7 @@ Index: genext2fs/genext2fs.c
  		printf("block bitmap allocation:\n");
  		print_bm(GRP_GET_GROUP_BBM(fs, i),fs->sb.s_blocks_per_group);
  		printf("inode bitmap allocation:\n");
-@@ -2421,10 +2445,12 @@
+@@ -2421,10 +2445,12 @@ showhelp(void)
  	"  -x, --starting-image <image>\n"
  	"  -d, --root <directory>\n"
  	"  -D, --devtable <file>\n"
@@ -317,7 +315,7 @@ Index: genext2fs/genext2fs.c
  	"  -g, --block-map <path>     Generate a block map file for this path.\n"
  	"  -e, --fill-value <value>   Fill unallocated blocks with value.\n"
  	"  -z, --allow-holes          Allow files with holes.\n"
-@@ -2446,6 +2472,29 @@
+@@ -2446,6 +2472,29 @@ showhelp(void)
  extern char* optarg;
  extern int optind, opterr, optopt;
  
@@ -347,7 +345,7 @@ Index: genext2fs/genext2fs.c
  int
  main(int argc, char **argv)
  {
-@@ -2455,6 +2504,7 @@
+@@ -2455,6 +2504,7 @@ main(int argc, char **argv)
  	float bytes_per_inode = -1;
  	float reserved_frac = -1;
  	int fs_timestamp = -1;
@@ -355,7 +353,7 @@ Index: genext2fs/genext2fs.c
  	char * fsout = "-";
  	char * fsin = 0;
  	char * dopt[MAX_DOPT];
-@@ -2478,10 +2528,12 @@
+@@ -2478,10 +2528,12 @@ main(int argc, char **argv)
  	  { "starting-image",	required_argument,	NULL, 'x' },
  	  { "root",		required_argument,	NULL, 'd' },
  	  { "devtable",		required_argument,	NULL, 'D' },
@@ -368,7 +366,7 @@ Index: genext2fs/genext2fs.c
  	  { "block-map",	required_argument,	NULL, 'g' },
  	  { "fill-value",	required_argument,	NULL, 'e' },
  	  { "allow-holes",	no_argument, 		NULL, 'z' },
-@@ -2497,11 +2549,11 @@
+@@ -2497,11 +2549,11 @@ main(int argc, char **argv)
  
  	app_name = argv[0];
  
@@ -382,7 +380,7 @@ Index: genext2fs/genext2fs.c
  #endif /* HAVE_GETOPT_LONG */
  		switch(c)
  		{
-@@ -2512,6 +2564,9 @@
+@@ -2512,6 +2564,9 @@ main(int argc, char **argv)
  			case 'D':
  				dopt[didx++] = optarg;
  				break;
@@ -392,7 +390,7 @@ Index: genext2fs/genext2fs.c
  			case 'b':
  				nbblocks = SI_atof(optarg);
  				break;
-@@ -2524,6 +2579,9 @@
+@@ -2524,6 +2579,9 @@ main(int argc, char **argv)
  			case 'm':
  				reserved_frac = SI_atof(optarg) / 100;
  				break;
@@ -402,7 +400,7 @@ Index: genext2fs/genext2fs.c
  			case 'g':
  				gopt[gidx++] = optarg;
  				break;
-@@ -2567,6 +2625,11 @@
+@@ -2567,6 +2625,11 @@ main(int argc, char **argv)
  		error_msg_and_die("Not enough arguments. Try --help or else see the man page.");
  	fsout = argv[optind];
  
@@ -414,7 +412,7 @@ Index: genext2fs/genext2fs.c
  	hdlinks.hdl = (struct hdlink_s *)malloc(hdlink_cnt * sizeof(struct hdlink_s));
  	if (!hdlinks.hdl)
  		error_msg_and_die("Not enough memory");
-@@ -2611,7 +2674,8 @@
+@@ -2611,7 +2674,8 @@ main(int argc, char **argv)
  		}
  		if(fs_timestamp == -1)
  			fs_timestamp = time(NULL);
@@ -424,10 +422,8 @@ Index: genext2fs/genext2fs.c
  	}
  	
  	populate_fs(fs, dopt, didx, squash_uids, squash_perms, fs_timestamp, NULL);
-Index: genext2fs/test-gen.lib
-===================================================================
---- genext2fs.orig/test-gen.lib	2011-09-03 13:40:35.000000000 +0200
-+++ genext2fs/test-gen.lib	2011-09-03 14:21:17.000000000 +0200
+--- a/test-gen.lib
++++ b/test-gen.lib
 @@ -8,7 +8,7 @@
  # Creates an image with a file of given size
  # Usage: dgen file-size number-of-blocks 
@@ -437,7 +433,7 @@ Index: genext2fs/test-gen.lib
  	rm -rf test
  	mkdir -p test
  	cd test
-@@ -20,7 +20,7 @@
+@@ -20,7 +20,7 @@ dgen () {
          chmod 777 file.$1
  	TZ=UTC-11 touch -t 200502070321.43 file.$1 .
  	cd ..
@@ -446,7 +442,7 @@ Index: genext2fs/test-gen.lib
  }
  
  # fgen - Exercises the -f spec-file option of genext2fs
-@@ -31,7 +31,7 @@
+@@ -31,7 +31,7 @@ fgen () {
  	mkdir -p test
  	cp $fname test
  	TZ=UTC-11 touch -t 200502070321.43 test/$fname
@@ -455,11 +451,9 @@ Index: genext2fs/test-gen.lib
  }
  
  # gen_cleanup - Remove the files generated by the above functions
-Index: genext2fs/test-mount.sh
-===================================================================
---- genext2fs.orig/test-mount.sh	2011-09-03 13:40:35.000000000 +0200
-+++ genext2fs/test-mount.sh	2011-09-03 14:21:17.000000000 +0200
-@@ -33,9 +33,9 @@
+--- a/test-mount.sh
++++ b/test-mount.sh
+@@ -33,9 +33,9 @@ pass () {
  # and returns the command line with which to invoke dtest()
  # Usage: dtest-mount file-size number-of-blocks 
  dtest_mount () {
@@ -472,7 +466,7 @@ Index: genext2fs/test-mount.sh
  	/sbin/e2fsck -fn ext2.img || fail
  	mkdir -p mnt
  	mount -t ext2 -o ro,loop ext2.img mnt || fail
-@@ -44,7 +44,7 @@
+@@ -44,7 +44,7 @@ dtest_mount () {
  	                                awk '{print $5}'`" ] ; then
  		fail
  	fi
@@ -481,7 +475,7 @@ Index: genext2fs/test-mount.sh
  }
  
  # ftest-mount - Exercise the -f spec-file option of genext2fs
-@@ -75,13 +75,21 @@
+@@ -75,13 +75,21 @@ ftest_mount () {
  	pass ftest $fname $blocks
  }
  
@@ -511,11 +505,9 @@ Index: genext2fs/test-mount.sh
 +dtest_mount 16777216 10000 2048
  
  ftest_mount device_table.txt 4096 
-Index: genext2fs/test.sh
-===================================================================
---- genext2fs.orig/test.sh	2011-09-03 13:40:35.000000000 +0200
-+++ genext2fs/test.sh	2011-09-03 14:21:17.000000000 +0200
-@@ -30,9 +30,9 @@
+--- a/test.sh
++++ b/test.sh
+@@ -30,9 +30,9 @@ md5cmp () {
  # Creates an image with a file of given size and verifies it
  # Usage: dtest file-size number-of-blocks correct-checksum
  dtest () {
@@ -527,7 +519,7 @@ Index: genext2fs/test.sh
  	md5cmp $checksum
  	gen_cleanup
  }
-@@ -53,12 +53,20 @@
+@@ -53,12 +53,20 @@ ftest () {
  # replace the following lines with the output of
  # sudo sh test-mount.sh|grep test
  
