@@ -8,11 +8,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=coreutils
 PKG_CPE_ID:=cpe:/a:gnu:coreutils
-PKG_VERSION:=9.0
+PKG_VERSION:=9.1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/coreutils
-PKG_HASH:=ce30acdf4a41bc5bb30dd955e9eaa75fa216b4e3deb08889ed32433c7b3b97ce
+PKG_HASH:=61a1f410d78ba7e7f37a5a4f50e6d1320aca33375484a3255eddf17a38580423
 
 HOST_BUILD_PARALLEL := 1
 PKG_FIXUP:=autoreconf
