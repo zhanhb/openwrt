@@ -46,8 +46,8 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   $(curdir)/gcc/final/compile:=$(curdir)/$(LIBC)/compile
 endif
 
-ifndef DUMP_TARGET_DB
 ifneq ($(ARCH),)
+ifndef DUMP_TARGET_DB
   $(TOOLCHAIN_DIR)/info.mk: .config
 	@for dir in $(TOOLCHAIN_DIR); do ( \
 		$(if $(QUIET),,set -x;) \
@@ -59,7 +59,6 @@ ifneq ($(ARCH),)
 	); done
 	@grep GCC_VERSION $@ >/dev/null 2>&1 || $(INSTALL_DATA) $(TOPDIR)/toolchain/info.mk $@
 	@touch $@
-endif
 endif
 
 ifdef CONFIG_BUILDBOT
@@ -73,6 +72,7 @@ ifneq ($(wildcard $(TOPDIR)/.git),)
 	}
 
 $(TOOLCHAIN_DIR)/info.mk $(STAGING_DIR)/.prepared: $(TOOLCHAIN_DIR)/stamp/.ver_check
+endif
 endif
 endif
 
