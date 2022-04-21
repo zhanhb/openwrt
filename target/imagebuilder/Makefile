@@ -58,7 +58,7 @@ endif
 ifeq ($(CONFIG_BUILDBOT),)
   ifeq ($(CONFIG_IB_STANDALONE),)
 	$(FIND) $(call FeedPackageDir,libc) -type f \
-		\( -name 'libc_*.ipk' -or -name 'kernel_*.ipk' -or -name 'kmod-*.ipk' \) \
+		\( -name 'libc_*.ipk' -o -name 'kernel_*.ipk' -o -name 'kmod-*.ipk' \) \
 		-exec $(CP) -t $(PKG_BUILD_DIR)/packages {} +
   else
 	$(FIND) $(wildcard $(PACKAGE_SUBDIRS)) -type f -name '*.ipk' \
@@ -66,7 +66,7 @@ ifeq ($(CONFIG_BUILDBOT),)
   endif
 else
 	$(FIND) $(call FeedPackageDir,libc) -type f \
-		\( -name 'libc_*.ipk' -or -name 'kernel_*.ipk' \) \
+		\( -name 'libc_*.ipk' -o -name 'kernel_*.ipk' \) \
 		-exec $(CP) -t $(IB_LDIR)/ {} +
 endif
 
