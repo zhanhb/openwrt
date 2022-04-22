@@ -34,6 +34,7 @@ define Host/Install
 	$(call Host/Uninstall)
 	$(call Host/Compile/Default,install)
 	mv $(STAGING_DIR_HOST)/bin/aclocal $(STAGING_DIR_HOST)/bin/aclocal.real
+	$(INSTALL_BIN) $(HOST_BUILD_DIR)/doc/help2man $(STAGING_DIR_HOST)/bin
 	$(INSTALL_BIN) ./files/aclocal $(STAGING_DIR_HOST)/bin
 	( \
 		api=$(PKG_API_VERSION); \
