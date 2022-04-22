@@ -8,11 +8,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=automake
 PKG_CPE_ID:=cpe:/a:gnu:automake
-PKG_VERSION:=1.16.1
+PKG_VERSION:=1.16.2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/automake
-PKG_HASH:=5d05bb38a23fd3312b10aea93840feec685bdf4a41146e78882848165d3ae921
+PKG_HASH:=ccc459de3d710e066ab9e12d2f119bd164a08c9341ca24ba22c9adaa179eedd0
 
 include $(INCLUDE_DIR)/host-build.mk
 

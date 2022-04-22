@@ -11,22 +11,18 @@
  # We need at least this version for CLONE support.
 --- a/bin/aclocal.in
 +++ b/bin/aclocal.in
-@@ -1,10 +1,12 @@
+@@ -1,4 +1,4 @@
 -#!@PERL@ -w
 +#!@PERL@
- # -*- perl -*-
+ # aclocal - create aclocal.m4 by scanning configure.ac      -*- perl -*-
  # @configure_input@
- 
- eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
-     if 0;
+ # Copyright (C) 1996-2020 Free Software Foundation, Inc.
+@@ -19,9 +19,11 @@
+ # Written by Tom Tromey <tromey@redhat.com>, and
+ # Alexandre Duret-Lutz <adl@gnu.org>.
  
 +$^W = 1;
 +
- # aclocal - create aclocal.m4 by scanning configure.ac
- 
- # Copyright (C) 1996-2018 Free Software Foundation, Inc.
-@@ -27,7 +29,7 @@ eval 'case $# in 0) exec @PERL@ -S "$0";
- 
  BEGIN
  {
 -  unshift (@INC, '@datadir@/@PACKAGE@-@APIVERSION@')
@@ -34,7 +30,7 @@
      unless $ENV{AUTOMAKE_UNINSTALLED};
  }
  
-@@ -68,8 +70,8 @@ $perl_threads = 0;
+@@ -62,8 +64,8 @@ $perl_threads = 0;
  # ACLOCAL_PATH environment variable, and reset with the '--system-acdir'
  # option.
  my @user_includes = ();
@@ -47,21 +43,17 @@
  my $install = 0;
 --- a/bin/automake.in
 +++ b/bin/automake.in
-@@ -1,10 +1,12 @@
+@@ -1,4 +1,4 @@
 -#!@PERL@ -w
 +#!@PERL@
- # -*- perl -*-
+ # automake - create Makefile.in from Makefile.am            -*- perl -*-
  # @configure_input@
+ # Copyright (C) 1994-2020 Free Software Foundation, Inc.
+@@ -23,10 +23,11 @@
+ package Automake;
  
- eval 'case $# in 0) exec @PERL@ -S "$0";; *) exec @PERL@ -S "$0" "$@";; esac'
-     if 0;
- 
+ use strict;
 +$^W = 1;
-+
- # automake - create Makefile.in from Makefile.am
- # Copyright (C) 1994-2018 Free Software Foundation, Inc.
- 
-@@ -31,7 +33,7 @@ use strict;
  
  BEGIN
  {
@@ -77,7 +69,7 @@
 +#!/usr/bin/env perl
  
  # Generate a short man page from --help and --version output.
- # Copyright (C) 1997-2018 Free Software Foundation, Inc.
+ # Copyright (C) 1997-2020 Free Software Foundation, Inc.
 @@ -21,6 +21,7 @@
  
  use 5.008;

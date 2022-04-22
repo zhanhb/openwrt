@@ -1,6 +1,6 @@
 --- a/bin/aclocal.in
 +++ b/bin/aclocal.in
-@@ -374,6 +374,12 @@ sub scan_m4_dirs ($$@)
+@@ -368,6 +368,12 @@ sub scan_m4_dirs ($$@)
  
    foreach my $m4dir (@dirlist)
      {
