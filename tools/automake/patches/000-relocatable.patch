@@ -1,6 +1,6 @@
 --- a/lib/Automake/Config.in
 +++ b/lib/Automake/Config.in
-@@ -32,7 +32,7 @@ our $PACKAGE = '@PACKAGE@';
+@@ -34,7 +34,7 @@ our $PACKAGE = '@PACKAGE@';
  our $PACKAGE_BUGREPORT = '@PACKAGE_BUGREPORT@';
  our $VERSION = '@VERSION@';
  our $RELEASE_YEAR = '@RELEASE_YEAR@';
@@ -11,18 +11,8 @@
  # We need at least this version for CLONE support.
 --- a/bin/aclocal.in
 +++ b/bin/aclocal.in
-@@ -1,4 +1,4 @@
--#!@PERL@ -w
-+#!@PERL@
- # aclocal - create aclocal.m4 by scanning configure.ac      -*- perl -*-
- # @configure_input@
- # Copyright (C) 1996-2020 Free Software Foundation, Inc.
-@@ -19,9 +19,11 @@
- # Written by Tom Tromey <tromey@redhat.com>, and
- # Alexandre Duret-Lutz <adl@gnu.org>.
+@@ -25,7 +25,7 @@ use warnings FATAL => 'all';
  
-+$^W = 1;
-+
  BEGIN
  {
 -  unshift (@INC, '@datadir@/@PACKAGE@-@APIVERSION@')
@@ -30,7 +20,7 @@
      unless $ENV{AUTOMAKE_UNINSTALLED};
  }
  
-@@ -62,8 +64,8 @@ $perl_threads = 0;
+@@ -65,8 +65,8 @@ $perl_threads = 0;
  # ACLOCAL_PATH environment variable, and reset with the '--system-acdir'
  # option.
  my @user_includes = ();
@@ -43,17 +33,7 @@
  my $install = 0;
 --- a/bin/automake.in
 +++ b/bin/automake.in
-@@ -1,4 +1,4 @@
--#!@PERL@ -w
-+#!@PERL@
- # automake - create Makefile.in from Makefile.am            -*- perl -*-
- # @configure_input@
- # Copyright (C) 1994-2020 Free Software Foundation, Inc.
-@@ -23,10 +23,11 @@
- package Automake;
- 
- use strict;
-+$^W = 1;
+@@ -28,7 +28,7 @@ use warnings FATAL => 'all';
  
  BEGIN
  {
