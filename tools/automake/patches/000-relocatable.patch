@@ -70,6 +70,22 @@
      unless @Automake::perl_libdirs;
    unshift @INC, @Automake::perl_libdirs;
  
+--- a/doc/help2man
++++ b/doc/help2man
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!/usr/bin/env perl
+ 
+ # Generate a short man page from --help and --version output.
+ # Copyright (C) 1997-2017 Free Software Foundation, Inc.
+@@ -21,6 +21,7 @@
+ 
+ use 5.006;
+ use strict;
++use warnings FATAL => 'all';
+ use Getopt::Long;
+ use Text::Tabs qw(expand);
+ use POSIX qw(strftime setlocale LC_ALL);
 --- a/t/wrap/aclocal.in
 +++ b/t/wrap/aclocal.in
 @@ -1,6 +1,8 @@
