@@ -50,3 +50,19 @@
      unless $ENV{AUTOMAKE_UNINSTALLED};
  
    # Override SHELL.  This is required on DJGPP so that system() uses
+--- a/doc/help2man
++++ b/doc/help2man
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!/usr/bin/env perl
+ 
+ # Generate a short man page from --help and --version output.
+ # Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2009,
+@@ -23,6 +23,7 @@
+ 
+ use 5.008;
+ use strict;
++use warnings FATAL => 'all';
+ use Getopt::Long;
+ use Text::ParseWords qw(shellwords);
+ use Text::Tabs qw(expand);
