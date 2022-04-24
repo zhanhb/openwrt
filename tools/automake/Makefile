@@ -8,11 +8,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=automake
 PKG_CPE_ID:=cpe:/a:gnu:automake
-PKG_VERSION:=1.15.1
+PKG_VERSION:=1.16.3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/automake
-PKG_HASH:=af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf
+PKG_HASH:=ff2bf7656c4d1c6fdda3b8bebb21f09153a736bcba169aaf65eab25fa113bf3a
 
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -31,6 +31,8 @@ endef
 
 define Host/Install
 	# remove old automake resources to avoid version conflicts
+	rm -f $(STAGING_DIR_HOST)/bin/aclocal-[0-9]*
+	rm -f $(STAGING_DIR_HOST)/bin/automake-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/aclocal-[0-9]*
 	rm -rf $(STAGING_DIR_HOST)/share/automake-[0-9]*
 	$(MAKE) -C $(HOST_BUILD_DIR) install
@@ -41,6 +43,7 @@ define Host/Install
 	ln -sf aclocal $(STAGING_DIR_HOST)/bin/aclocal-1.11
 	ln -sf aclocal $(STAGING_DIR_HOST)/bin/aclocal-1.11.6
 	ln -sf aclocal $(STAGING_DIR_HOST)/bin/aclocal-1.15
+	ln -sf aclocal $(STAGING_DIR_HOST)/bin/aclocal-1.16
 endef
 
 define Host/Clean
