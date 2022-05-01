@@ -9,16 +9,6 @@ Library linking and rpath helper macros.
   lib-link.m4
   lib-prefix.m4
 
-Integer data type test macros.
-
-  intmax.m4
-  wint_t.m4
-  inttypes-pri.m4
-  uintmax_t.m4
-  stdint_h.m4
-  intdiv0.m4
-  inttypes_h.m4
-
 Program test macro.
 
   progtest.m4
