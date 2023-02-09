@@ -25,7 +25,6 @@ concurrency:
 jobs:
   determine-container-info:
     name: Determine needed info to push containers
-    if: ${{ github.repository_owner  == 'openwrt' }}
     runs-on: ubuntu-latest
     outputs:
       owner-lc: ${{ steps.generate-owner-lc.outputs.owner-lc }}
@@ -67,14 +66,12 @@ jobs:
 
   build-linux-buildbot:
     name: Build tools with buildbot container
-    if: ${{ github.repository_owner  == 'openwrt' }}
     uses: ./.github/workflows/build-tools.yml
     with:
       generate_prebuilt_artifacts: true
 
   push-tools-container:
     needs: [ determine-container-info, build-linux-buildbot ]
-    if: ${{ github.repository_owner  == 'openwrt' }}
     name: Push prebuilt tools container
     runs-on: ubuntu-latest
 
@@ -115,7 +112,6 @@ jobs:
 
   determine-targets:
     name: Set targets
-    if: ${{ github.repository_owner  == 'openwrt' }}
     runs-on: ubuntu-latest
     outputs:
       target: ${{ steps.find_targets.outputs.target }}
@@ -148,7 +144,6 @@ jobs:
 
   build:
     name: Build Target Toolchain
-    if: ${{ github.repository_owner  == 'openwrt' }}
     needs: [ determine-targets, push-tools-container ]
     permissions:
       contents: read
@@ -167,7 +162,6 @@ jobs:
 
   push-toolchain-container:
     name: Push Target Toolchain container
-    if: ${{ github.repository_owner  == 'openwrt' }}
     needs: [ determine-container-info, determine-targets, build ]
     runs-on: ubuntu-latest
 

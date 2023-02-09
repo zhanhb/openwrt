@@ -32,7 +32,7 @@ on:
         type: boolean
       use_openwrt_container:
         type: boolean
-        default: true
+        default: false
       coverity_project_name:
         type: string
         default: OpenWrt
