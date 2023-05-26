@@ -570,8 +570,6 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 	$(INSTALL_DIR) $(1)/lib $(1)/usr/bin
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/ld-musl-*.so* \
-		$(1)/lib/
-	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/libc.so* \
 		$(1)/lib/
 	$(LN) ../../lib/$(LD_MUSL_NAME) $(1)/usr/bin/ldd
@@ -592,8 +590,9 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   endef
 
   define Package/libpthread/install
-	$(INSTALL_DIR) $(1)/lib
+	:
   ifneq ($(CONFIG_USE_MUSL),y)
+	$(INSTALL_DIR) $(1)/lib
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/libpthread.so.* \
 		$(1)/lib/
@@ -611,8 +610,9 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   endef
 
   define Package/librt/install
-	$(INSTALL_DIR) $(1)/lib
+	:
   ifneq ($(CONFIG_USE_MUSL),y)
+	$(INSTALL_DIR) $(1)/lib
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/librt.so.* \
 		$(1)/lib/
