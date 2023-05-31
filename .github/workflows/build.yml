@@ -475,6 +475,13 @@ jobs:
             --form description="OpenWrt ${{ github.ref_name }}-${{ github.sha }}" \
             "https://scan.coverity.com/builds?project=${{ inputs.coverity_project_name }}"
 
+      - name: Upload zlib logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.target }}-${{ inputs.subtarget }}-logs
+          path: "openwrt/build_dir/target-x86_64-openwrt-linux-musl_musl/zlib-1.2.13"
+
       - name: Upload logs
         if: failure()
         uses: actions/upload-artifact@v3
